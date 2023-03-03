@@ -1,0 +1,60 @@
+# circle = "friends"
+circle = "work"
+
+serial = 9
+
+# Implementation of the wot protocol used by this node object.
+implementation = "Bitcoin Italia Wot 1.1"
+
+#Examples of sources
+sources.ipns = "satoshi.bitcoin.org"
+sources.url = "http://satoshi.bitcoin.org"
+sources.nostr = "npub1gl23nnfmlewvvuz7xgrrauuexx2xj70whdf5yhd47tj0r8p68t6sww70gt"
+
+#Profile
+# This is your id. Substitute it with your identity key.
+# It is mandatory.
+# Other implementations can use "npub1gl23nnfmlewvvuz7xgrrauuexx2xj70whdf5yhd47tj0r8p68t6sww70gt"
+profile.key = "bc1qa37y5tnfcg84k5df3sejn0zy2htpax0cmwyzsq"
+profile.aka = "satoshi@nakamoto.com"
+profile.name = "Satoshi Nakamoto"
+
+profile.ident = "satoshin@gmx.com"
+
+profile.telegram = "satoshinakamoto"
+profile.facebook = "satoshi"
+profile.twitter = "satoshi"
+# Nostr id used for social purposes. It can be different from the main id or the source nostr id
+profile.nostr = "npub170y94afft7xvjfl5f3ruqccep8rah8pma224m5k09sz6emk80xhq7tk9np"
+
+#Dob can be used by some communities' rule sets
+profile.dob = "1975-04-05"
+
+#Profile picture can be a URL or a string
+profile.picture = "http://bitcoin.org/satoshi.jpg"
+profile.about = "I'm Satoshi Nakamoto"
+
+[rules]
+"Market v0.1" = "https://gist.github.com/lucayepa/3bec3ba83fcc9a576aa79a7f16326be3"
+
+[defaults]
+unit = "EUR"
+value = 50
+rules = [ "Market v0.1" ]
+
+[[trust]]
+since = 11
+to = "bc1qvhg867v620d7vtg4e5qnuh5py8esqhs65w0r4c"
+unit = "USD"
+value = 70
+rules = [ "Market v0.1", "http://other.community.rules.com" ]
+
+[[trust]]
+since = 15
+to = "12c6DSiU4Rq3P4ZxziKxzrL5LmMBrzjrJX"
+
+# Both signature.hash and signature.sig are mandatory.
+# Substitute with your address and signature as explained in WebOfTrustSign.md.
+[signature]
+hash = "7fba4f494e78dd102c6fad4d6ab360e8618a00195889e162701ffac0addc2b52"
+sig = "IE9TDJi7ECSljHGCKB6ER2oRefjgReNuc/lPlzFtqEuHK2hX1z3ZRotx0VdqMPWwBqktOKFWSXFvBI8MSlVfd5Q="

@@ -1,0 +1,90 @@
+$ bin/wot help
+Usage: bin/wot [-vRTFHI] [--verbose] [--force-accept-hash] [--force-accept-sig] [--signature] [--rule-filter RULE] [--to-filter TO] [from-filter FROM] [hash-filter HASH] [input-file FILE] command [parameter]
+
+Options:
+  -h [ --help ]            help message
+  -v [ --verbose ]         verbose output
+  --force-accept-hash      Accept object hash, without verification
+  --force-accept-sig       Accept signature on object, without verification
+  --json-output            Output a TOML object as JSON (signature remains the 
+                           TOML one) (sign-toml)
+  --signature arg          Signature to be added to the local db as a known 
+                           signatures (add-sig)
+  -R [ --rule-filter ] arg rule filter (ls)
+  -T [ --to-filter ] arg   to filter (ls)
+  -F [ --from-filter ] arg from filter (ls)
+  -H [ --hash-filter ] arg hash filter (ls)
+  -I [ --input-file ] arg  input file
+  --command                help | sign | sign-toml | add | verify | ls | 
+                           ls-rules | view | add-sig | rm-sig | ls-sig
+  --param                  parameter (view <hash>, ls <hash>)
+
+help <command> to get help on a command
+$ bin/wot help sign-toml
+  bin/wot sign-toml
+
+  Get a toml object from stdin, add a valid hash and a valid signature.
+
+  --force-accept-hash do not check the hash of the object
+  --json-output return a json object (with TOML signature)
+
+  See also `help sign`.
+$ bin/wot help sign     
+  bin/wot sign
+
+  Get an object from stdin, add a valid hash and a valid signature.
+
+  --force-accept-hash do not check the hash of the object
+
+  See also `help sign-toml`.
+$ bin/wot help verify
+  bin/wot verify
+
+  Get an object from stdin and verify if is valid.
+
+  --force-accept-hash do not check the hash of the object
+  --force-accept-sig do not check the signature of the object
+$ bin/wot help add   
+  bin/wot add
+
+  Add an object to the internal db."
+  The object is readed from stdin and is verified before of adding it."
+
+  --force-accept-hash do not check the hash of the object";
+  --force-accept-sig do not check the signature of the object
+$ bin/wot help ls-rules
+  bin/wot ls-rules
+
+  List all the rules found in the links of the objects of the internal db.
+  The number next to every rule is how many times it is present in the links.
+$ bin/wot help ls      
+  bin/wot [--rule-filter RULE] [--to-filter TO] [from-filter FROM] ls
+
+  List of the objects in the internal db filtered against the provided filters.
+
+  BUG: The objects are first filtered, then are listed as full object.
+  This means that if a single link of an object pass the filter, then all the links are shown.
+$ bin/wot help add-sig
+  bin/wot --signature <SIGNATURE> add-sig <HASH>
+
+  Add a trusted signature to the internal db. When a node having hash HASH is found, it is considered
+  valid if the signature of the node is the same as SIGNATURE.
+  This skips the verification step. It is useful, for example, on systems without an electrum executable.
+
+  See also `help ls-sig`, `help rm-sig`.
+$ bin/wot help rm-sig 
+  bin/wot rm-sig <HASH>
+
+  Remove a trusted signature from the internal db.
+
+  See also `help add-sig`, `help ls-sig`.
+$ bin/wot help ls-sig
+  bin/wot ls-sig
+
+  list all the knwon signatures of the internal cache.
+
+  See also `help add-sig`, `help rm-sig`.
+$ bin/wot help view  
+  bin/wot view <HASH>
+
+  View the content of the node having hash HASH, from the internal db.

@@ -1,0 +1,8 @@
+# Web of trust configuration file
+
+#algo = "nostr"
+algo = "bitcoin"
+
+signer = "electrum"
+
+verifier = "electrum"

@@ -1,0 +1,39 @@
+circle = 'work'
+implementation = 'Bitcoin Italia Wot 1.1'
+serial = 9
+
+[profile]
+about = "I'm Satoshi Nakamoto"
+aka = 'satoshi@nakamoto.com'
+dob = '1975-04-05'
+facebook = 'satoshi'
+ident = 'satoshin@gmx.com'
+key = 'bc1qa37y5tnfcg84k5df3sejn0zy2htpax0cmwyzsq'
+name = 'Satoshi Nakamoto'
+nostr = 'npub170y94afft7xvjfl5f3ruqccep8rah8pma224m5k09sz6emk80xhq7tk9np'
+picture = 'http://bitcoin.org/satoshi.jpg'
+telegram = 'satoshinakamoto'
+twitter = 'satoshi'
+
+[signature]
+hash = '7fba4f494e78dd102c6fad4d6ab360e8618a00195889e162701ffac0addc2b52'
+sig = 'IE9TDJi7ECSljHGCKB6ER2oRefjgReNuc/lPlzFtqEuHK2hX1z3ZRotx0VdqMPWwBqktOKFWSXFvBI8MSlVfd5Q='
+
+[sources]
+ipns = 'satoshi.bitcoin.org'
+nostr = 'npub1gl23nnfmlewvvuz7xgrrauuexx2xj70whdf5yhd47tj0r8p68t6sww70gt'
+url = 'http://satoshi.bitcoin.org'
+
+[[trust]]
+rules = [ 'https://gist.github.com/lucayepa/3bec3ba83fcc9a576aa79a7f16326be3', 'http://other.community.rules.com' ]
+since = 11
+to = 'bc1qvhg867v620d7vtg4e5qnuh5py8esqhs65w0r4c'
+unit = 'USD'
+value = 70
+
+[[trust]]
+rules = [ 'https://gist.github.com/lucayepa/3bec3ba83fcc9a576aa79a7f16326be3' ]
+since = 15
+to = '12c6DSiU4Rq3P4ZxziKxzrL5LmMBrzjrJX'
+unit = 'EUR'
+value = 50

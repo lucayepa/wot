@@ -1,0 +1,72 @@
+{
+  "id": "http://wot",
+  "$schema": "http://wot",
+  "description": "A node of the web of trust",
+  "$defs": {
+    "link": {
+      "type": "object",
+      "properties": {
+        "rules": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "since": { "type": "integer" },
+        "to": { "type": "string" },
+        "unit": { "type": "string" },
+        "value": { "type": "integer" }
+      },
+      "required": [ "rules", "since", "to", "unit", "value" ],
+      "additionalProperties": false
+    }
+  },
+  "type": "object",
+  "properties": {
+    "circle": { "type": "string" },
+    "implementation": { "type": "string" },
+    "profile": {
+      "type": "object",
+      "properties": {
+        "about": { "type": "string" },
+        "aka": { "type": "string" },
+        "dob": { "type": "string" },
+        "facebook": { "type": "string" },
+        "key": { "type": "string" },
+        "name": { "type": "string" },
+        "nostr": { "type": "string" },
+        "picture": { "type": "string" },
+        "telegram": { "type": "string" },
+        "twitter": { "type": "string" }
+      },
+      "required": [ "about", "aka", "dob", "facebook", "key", "name", "nostr",
+      "picture", "telegram","twitter" ],
+      "additionalProperties": false
+    },
+    "serial": { "type": "integer" },
+    "sources": {
+      "type": "object",
+      "properties": {
+        "ipns": { "type": "string" },
+        "nostr": { "type": "string" },
+        "url": { "type": "string" }
+      },
+      "required": [ "ipns", "url", "nostr" ],
+      "additionalProperties": false
+    },
+    "trust": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/link" }
+    },
+    "signature": {
+      "type": "object",
+      "properties": {
+          "hash": { "type": "string" },
+          "sig": { "type": "string" }
+      },
+      "required": [ "hash", "sig" ],
+      "additionalProperties": false
+    }
+  },
+  "required": [ "circle", "implementation", "profile", "serial", "sources",
+  "trust", "signature"],
+  "additionalProperties": false
+}
