@@ -1,0 +1,9 @@
+set(DOXYGEN_EXTRACT_ALL YES)
+set(DOXYGEN_BUILTIN_STL_SUPPORT YES)
+
+doxygen_add_docs(doxygen
+  wot.cpp
+  generated
+  "${PROJECT_SOURCE_DIR}/README.md"
+  "${CMAKE_CURRENT_SOURCE_DIR}/README.md"
+  WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/src")

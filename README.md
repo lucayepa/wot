@@ -7,7 +7,12 @@ See [doc/README.md](doc/README.md)
 See [doc/command_help.txt](doc/command_help.txt) for the help output from the program.
 
 ## Build
-cmake . && make
+cmake -S . -B build
+cmake --build build
+
+## Doxygen docs
+cmake --build build --target doxygen
+x-www-browser build/doc/html/index.html
 
 ## Tests
 See [test/README.md](test/README.md)
