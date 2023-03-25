@@ -66,11 +66,11 @@ string hash_calc(const Node & t) {
   json j;
   to_j(j, t, /*withsig=*/false);
   LOG << "hash_calc: Object without signature: " << j.dump();
-  LOG << "hash_calc: sha256 of the object: " << sha256(j.dump());
+  LOG << "hash_calc: SHA256 of the object: " << sha256(j.dump());
   return sha256(j.dump());
 }
 
-// A filter based on cli (please sanitize before use)
+// A filter based on CLI (please sanitize before use)
 string cli_filter(const string & in, const string & command) {
   ofstream f;
   const string tmp_file1 = "/tmp/in."+sha256(in);
@@ -773,13 +773,17 @@ int main(int argc, char *argv[]) {
   po::variables_map vm;
   po::store(po::command_line_parser(argc, argv).
             options(desc).positional(positional).run(), vm);
+  if (!vm.count("command")) { vm.emplace("command",po::variable_value("help"s, true)); }
   po::notify(vm);
 
   map<string,string> help;
 
   if (!vm.count("verbose")) {
-    boost::log::core::get()->set_filter(
-        boost::log::trivial::severity > boost::log::trivial::info
+	using namespace boost::log;
+    core::get()->set_filter(
+      [](const attribute_value_set& attr_set) {
+        return attr_set["Severity"].extract<trivial::severity_level>() > trivial::info;
+      }
     );
   }
 
@@ -960,7 +964,7 @@ int main(int argc, char *argv[]) {
     return 0;
   }
 
-  if (vm.count("help") || vm.count("command") && vm["command"].as<string>() == "help" || !vm.count("command")) {
+  if (vm.count("help") || vm["command"].as<string>() == "help" ) {
     if(vm.count("param")) {
       //TODO - add a check if the help for that command does not exist
       cout << help[vm["param"].as<string>()];
