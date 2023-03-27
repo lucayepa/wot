@@ -23,14 +23,26 @@ find_package(Boost 1.54.0 REQUIRED COMPONENTS log log_setup program_options)
 find_package(OpenSSL REQUIRED)
 
 include(FetchContent)
-FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.11.2/json.tar.xz)
+FetchContent_Declare(
+  json
+  URL https://github.com/nlohmann/json/releases/download/v3.11.2/json.tar.xz
+)
+
+FetchContent_Declare(
+  tomlplusplus
+  GIT_REPOSITORY https://github.com/marzer/tomlplusplus.git
+  GIT_TAG        v3.3.0
+)
+
 FetchContent_MakeAvailable(json)
+FetchContent_MakeAvailable(tomlplusplus)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(wot src/wot.cpp lib/toml.hpp)
+add_executable(wot src/wot.cpp)
 
-target_include_directories(wot PUBLIC src/generated lib)
+target_include_directories(wot PUBLIC src/generated)
+target_include_directories(wot PUBLIC ${tomlplusplus_SOURCE_DIR})
 target_include_directories(wot PUBLIC ${Boost_INCLUDE_DIR})
 
 target_link_libraries(wot ${Boost_LIBRARIES})

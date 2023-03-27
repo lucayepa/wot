@@ -26,6 +26,4 @@ See [test/README.md](test/README.md)
 ```
 npm install yaml@2.1.3
 npm install -g quicktype
-
-wget https://raw.githubusercontent.com/marzer/tomlplusplus/master/toml.hpp
 ```
