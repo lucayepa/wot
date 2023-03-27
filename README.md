@@ -8,7 +8,7 @@ See [doc/command_help.txt](doc/command_help.txt) for the help output from the pr
 
 ## Build
 ```
-quicktype -s schema -t node -l C++ --namespace wot --no-boost -S src/link.json -o src/generated/node.cpp src/node.json
+quicktype -s schema -t node -l C++ --namespace wot --no-boost --include-location global-include -S src/link.json -o src/generated/node.cpp src/node.json
 cmake -S . -B build
 cmake --build build
 ```
@@ -26,8 +26,6 @@ See [test/README.md](test/README.md)
 ```
 npm install yaml@2.1.3
 npm install -g quicktype
-
-apt install nlohmann-json-dev
 
 wget https://raw.githubusercontent.com/marzer/tomlplusplus/master/toml.hpp
 ```

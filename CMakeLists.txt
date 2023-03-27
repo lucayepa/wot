@@ -22,12 +22,17 @@ find_package(Boost 1.54.0 REQUIRED COMPONENTS log log_setup program_options)
 
 find_package(OpenSSL REQUIRED)
 
+include(FetchContent)
+FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.11.2/json.tar.xz)
+FetchContent_MakeAvailable(json)
+
 set(CMAKE_CXX_STANDARD 17)
 
 add_executable(wot src/wot.cpp lib/toml.hpp)
 
-target_include_directories(wot PUBLIC src/generated /usr/include/nlohmann/ lib)
+target_include_directories(wot PUBLIC src/generated lib)
 target_include_directories(wot PUBLIC ${Boost_INCLUDE_DIR})
 
 target_link_libraries(wot ${Boost_LIBRARIES})
 target_link_libraries(wot OpenSSL::SSL)
+target_link_libraries(wot nlohmann_json)
