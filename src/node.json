@@ -1,24 +1,7 @@
 {
-  "id": "http://wot",
-  "$schema": "http://wot",
+  "$id": "/schemas/node",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "A node of the web of trust",
-  "$defs": {
-    "link": {
-      "type": "object",
-      "properties": {
-        "rules": {
-          "type": "array",
-          "items": { "type": "string" }
-        },
-        "since": { "type": "integer" },
-        "to": { "type": "string" },
-        "unit": { "type": "string" },
-        "value": { "type": "integer" }
-      },
-      "required": [ "rules", "since", "to", "unit", "value" ],
-      "additionalProperties": false
-    }
-  },
   "type": "object",
   "properties": {
     "circle": { "type": "string" },
@@ -38,7 +21,7 @@
         "twitter": { "type": "string" }
       },
       "required": [ "about", "aka", "dob", "facebook", "key", "name", "nostr",
-      "picture", "telegram","twitter" ],
+      "picture", "telegram", "twitter" ],
       "additionalProperties": false
     },
     "serial": { "type": "integer" },
@@ -54,7 +37,7 @@
     },
     "trust": {
       "type": "array",
-      "items": { "$ref": "#/$defs/link" }
+      "items": { "$ref": "/schemas/link" }
     },
     "signature": {
       "type": "object",

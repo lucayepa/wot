@@ -7,12 +7,17 @@ See [doc/README.md](doc/README.md)
 See [doc/command_help.txt](doc/command_help.txt) for the help output from the program.
 
 ## Build
+```
+quicktype -s schema -t node -l C++ --namespace wot --no-boost -S src/link.json -o src/generated/node.cpp src/node.json
 cmake -S . -B build
 cmake --build build
+```
 
 ## Doxygen docs
+```
 cmake --build build --target doxygen
 x-www-browser build/doc/html/index.html
+```
 
 ## Tests
 See [test/README.md](test/README.md)
@@ -21,7 +26,6 @@ See [test/README.md](test/README.md)
 ```
 npm install yaml@2.1.3
 npm install -g quicktype
-quicktype -s schema src/schema.json -l C++ -o src/generated/node.cpp
 
 apt install nlohmann-json-dev
 

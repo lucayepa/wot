@@ -13,26 +13,26 @@
 #include <node.cpp>
 
 using namespace std;
-using namespace quicktype;
+using namespace wot;
 using namespace nlohmann;
 
 namespace po = boost::program_options;
 
 #define LOG BOOST_LOG_TRIVIAL(info)
 
-namespace quicktype {
-    inline void to_j(json & j, const Node & x, const bool withsig) {
-        j = json::object();
-        j["circle"] = x.get_circle();
-        j["implementation"] = x.get_implementation();
-        j["profile"] = x.get_profile();
-        j["serial"] = x.get_serial();
-        j["sources"] = x.get_sources();
-        j["trust"] = x.get_trust();
-        if (withsig) {
-          j["signature"] = x.get_signature();
-        }
+namespace wot {
+  inline void to_j(json &j, const Node &x, const bool withsig) {
+    j = json::object();
+    j["circle"] = x.get_circle();
+    j["implementation"] = x.get_implementation();
+    j["profile"] = x.get_profile();
+    j["serial"] = x.get_serial();
+    j["sources"] = x.get_sources();
+    j["trust"] = x.get_trust();
+    if (withsig) {
+      j["signature"] = x.get_signature();
     }
+  }
 }
 
 namespace global {
@@ -167,11 +167,10 @@ void get_config() {
   try {
     config = toml::parse_file("etc/config.toml");
     LOG << "Loaded config file.";
-    signer = config["signer"].value_or("electrum"sv);
-    verifier = config["verifier"].value_or("electrum"sv);
+    signer = config["signer"].value<string>().value_or("electrum") ;
+    verifier = config["verifier"].value<string>().value_or("electrum");
   }
-  catch (const toml::parse_error& err)
-  {
+  catch (const toml::parse_error& err) {
     std::cerr << "Parsing failed: " << err << endl;
     throw;
   }
@@ -192,7 +191,7 @@ filesystem::path config_dir() {
 };
 
 stringstream read_file(const string & filename) {
-  ifstream f = (db_dir()/filename);
+  ifstream f(db_dir()/filename);
   stringstream buffer;
   buffer << f.rdbuf();
   return buffer;
@@ -231,7 +230,7 @@ string read_sig(const string & hash) {
   return content.str();
 }
 
-// Check some field of the node to use it in system calls
+// Check some fields of the node. Useful before of system calls.
 bool sanitize(const string & in, const Node & n) {
   if(n.get_signature().get_sig()!="signature_here" && !is_base64(n.get_signature().get_sig())) {
     LOG << "Not a well formed signature";
@@ -369,7 +368,7 @@ void solve( string_view in, toml::table & t ) {
 }
 
 // Check the object format, and transform toml -> json (if needed)
-// Return a valid json in any case and throws if not possible
+// Return a valid json in any case and throw if not possible
 void jsonize( string & s, bool & is_json ) {
   try {
     LOG << "Is it a valid json? ";
@@ -653,7 +652,7 @@ bool filter_node(const po::variables_map & vm, const filesystem::directory_entry
   return true;
 }
 
-void print_link_summary(const Schema & l) {
+void print_link_summary(const Link & l) {
   cout << " " << l.get_value() << " " << l.get_unit() << " -> " << l.get_to() << endl;
 }
 
@@ -729,11 +728,6 @@ void view_node(const string & filename) {
     cout << content.str();
   }
 }
-
-auto k_to_v(toml::table& t, toml::key& key) {
-  
-}
-
 
 int main(int argc, char *argv[]) {
 

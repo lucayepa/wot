@@ -1,0 +1,18 @@
+{
+  "$id": "/schemas/link",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "A link of the web of trust",
+      "type": "object",
+      "properties": {
+        "rules": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "since": { "type": "integer" },
+        "to": { "type": "string" },
+        "unit": { "type": "string" },
+        "value": { "type": "integer" }
+      },
+      "required": [ "rules", "since", "to", "unit", "value" ],
+      "additionalProperties": false
+}
