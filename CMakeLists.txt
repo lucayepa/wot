@@ -37,11 +37,22 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(json)
 FetchContent_MakeAvailable(tomlplusplus)
 
+find_program (QUICKTYPE quicktype)
+if(NOT QUICKTYPE)
+    message(FATAL_ERROR "Quicktype not found. Please install it: `npm install -g quicktype`")
+endif()
+
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(wot src/wot.cpp)
+add_executable(wot src/wot.cpp node.hpp)
 
-target_include_directories(wot PUBLIC src/generated)
+add_custom_command(
+  OUTPUT node.hpp
+  COMMAND ${QUICKTYPE} -s schema -t node -l C++ --namespace wot --no-boost --include-location global-include -S ${CMAKE_CURRENT_SOURCE_DIR}/src/link.json -o node.hpp ${CMAKE_CURRENT_SOURCE_DIR}/src/node.json
+  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/link.json ${CMAKE_CURRENT_SOURCE_DIR}/src/node.json
+  VERBATIM)
+
+target_include_directories(wot PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 target_include_directories(wot PUBLIC ${tomlplusplus_SOURCE_DIR})
 target_include_directories(wot PUBLIC ${Boost_INCLUDE_DIR})
 

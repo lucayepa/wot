@@ -8,7 +8,6 @@ See [doc/command_help.txt](doc/command_help.txt) for the help output from the pr
 
 ## Build
 ```
-quicktype -s schema -t node -l C++ --namespace wot --no-boost --include-location global-include -S src/link.json -o src/generated/node.cpp src/node.json
 cmake -S . -B build
 cmake --build build
 ```
@@ -21,9 +20,3 @@ x-www-browser build/doc/html/index.html
 
 ## Tests
 See [test/README.md](test/README.md)
-
-## Dependences
-```
-npm install yaml@2.1.3
-npm install -g quicktype
-```

@@ -10,7 +10,7 @@
 #include <string>
 #include <filesystem>
 
-#include <node.cpp>
+#include <node.hpp>
 
 using namespace std;
 using namespace wot;
