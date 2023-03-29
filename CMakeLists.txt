@@ -44,7 +44,9 @@ endif()
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(wot src/wot.cpp node.hpp)
+file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS src/*.cpp)
+
+add_executable(wot ${SOURCES} node.hpp)
 
 add_custom_command(
   OUTPUT node.hpp
@@ -52,6 +54,7 @@ add_custom_command(
   DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/link.json ${CMAKE_CURRENT_SOURCE_DIR}/src/node.json
   VERBATIM)
 
+target_include_directories(wot PUBLIC src)
 target_include_directories(wot PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 target_include_directories(wot PUBLIC ${tomlplusplus_SOURCE_DIR})
 target_include_directories(wot PUBLIC ${Boost_INCLUDE_DIR})
