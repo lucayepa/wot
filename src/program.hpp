@@ -7,16 +7,19 @@
 #include <node.hpp>
 
 using namespace std;
-using namespace wot;
+
+static const std::string tmp_filename_base = "/tmp/result.";
 
 // An external program that we call using system call
 class Program {
+
 private:
+
   string name;
   string cli;
-  string tmp_filename = "/tmp/result";
+  string tmp_filename;
 
-  string hint_if_no_executable(const string & action, const Node & n,
+  string hint_if_no_executable(const string & action, const wot::Node & n,
       const string & main_command) {
 
       return( "There is no " + name + " executable on the system. In order "
@@ -36,11 +39,14 @@ public:
   Program(const string & exec_name) : name(exec_name) {};
   ~Program() {};
 
+  // A filter based on CLI (please sanitize before use)
+  static string cli_filter(const string & in, const string & command);
+
   // Check if the program is present in the system. If it is not, suggest to
   // cerr how to sign/verify a message on another system.
   bool check_and_suggest_cli(
     const string & action,
-    const Node & n,
+    const wot::Node & n,
     const string & main_command
   );
 
@@ -49,7 +55,8 @@ public:
   const string & get_cli() const { return cli; }
   void set_cli(const string & value) { this->cli = value; }
 
-  void set_tmp_filename(const string & value) { this->tmp_filename = value; }
+  // Set a unique code to be used for tmp file
+  void set_unique(const string & value) { this->tmp_filename = tmp_filename_base + value; }
 
   // Execute the cli
   // Return the system call return value

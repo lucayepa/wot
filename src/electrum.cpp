@@ -20,7 +20,7 @@ bool ElectrumVerifier::verify_signature(const Node & n, const string & main_comm
 
   if(!e.check_and_suggest_cli("verify", n, main_command)) return false;
 
-  e.set_tmp_filename("/tmp/result."+n.get_signature().get_hash());
+  e.set_unique(n.get_signature().get_hash());
 
   string out;
   e.exec(out);
@@ -66,7 +66,7 @@ optional<string> ElectrumSigner::sign(const Node & n, const string & main_comman
 
   string scli = sign_cli(env_wallet, n.get_profile().get_key(), n.get_signature().get_hash());
   e.set_cli(scli);
-  e.set_tmp_filename("/tmp/result."+n.get_signature().get_hash());
+  e.set_unique(n.get_signature().get_hash());
 
   if(!e.check_and_suggest_cli("sign", n, main_command)) return nullopt;
 

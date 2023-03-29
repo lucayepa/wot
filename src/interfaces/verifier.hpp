@@ -4,7 +4,6 @@
 #include <node.hpp>
 
 using namespace std;
-using namespace wot;
 
 // Interface for a program that verifies signed messages
 class Verifier {
@@ -19,7 +18,7 @@ public:
   ) = 0;
 
   virtual bool verify_signature(
-    const Node &,
+    const wot::Node &,
     const string & main_command
   ) = 0;
 };

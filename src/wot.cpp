@@ -12,8 +12,6 @@
 
 #include <node.hpp>
 
-#include <interfaces/verifier.hpp>
-#include <interfaces/signer.hpp>
 #include <electrum.hpp>
 
 using namespace std;
@@ -72,40 +70,18 @@ string hash_calc(const Node & t) {
   return sha256(j.dump());
 }
 
-// A filter based on CLI (please sanitize before use)
-string cli_filter(const string & in, const string & command) {
-  ofstream f;
-  const string tmp_file1 = "/tmp/in."+sha256(in);
-  const string tmp_file2 = "/tmp/out."+sha256(in);
-  LOG << "Writing to " << tmp_file1;
-  f.open (tmp_file1); f << in; f.close();
-
-  string cli = "cat "+tmp_file1+" | "+command+" > "+tmp_file2;
-
-  LOG << "Command: " << cli;
-  system( cli.c_str() );
-
-  ifstream f2 = ifstream(tmp_file2);
-  stringstream buffer;
-  buffer << f2.rdbuf();
-  remove(tmp_file1.c_str());
-  remove(tmp_file2.c_str());
-
-  return buffer.str();
-}
-
 // Can be done in C++, but we mimic the user via CLI
 string hash_calc(const string & toml) {
   // This removes comments as well
   // return cli_filter(toml,"grep -v ^\\# | grep . | head -n -2 | sha256sum | cut -f1 -d' ' | tr -d '\\n'");
-  return cli_filter(toml,"head -n -2 | sha256sum | cut -f1 -d' ' | tr -d '\\n'");
+  return Program::cli_filter(toml,"head -n -2 | sha256sum | cut -f1 -d' ' | tr -d '\\n'");
 }
 
 // Can be done in C++, but we mimic the user via CLI
 string remove_two_lines(const string & toml) {
   // This removes comments as well
   // return cli_filter(toml,"grep -v ^\\# | grep . | head -n -2");
-  return cli_filter(toml,"head -n -2");
+  return Program::cli_filter(toml,"head -n -2");
 }
 
 // Add a toml signature to a toml file with hash and sig from node

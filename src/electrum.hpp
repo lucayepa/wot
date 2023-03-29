@@ -13,7 +13,6 @@
 #include <interfaces/signer.hpp>
 #include <interfaces/verifier.hpp>
 
-
 class ElectrumVerifier : public Verifier {
 private:
   Program e{"electrum"};
@@ -29,7 +28,7 @@ public:
   );
 
   virtual bool verify_signature(
-    const Node &,
+    const wot::Node &,
     const string & main_command
   );
 };
@@ -49,12 +48,12 @@ public:
 
   void suggest_external_sign(
     const string & wallet,
-    const Node & n,
+    const wot::Node & n,
     const string & main_command
   );
 
   optional<string> sign(
-    const Node & n,
+    const wot::Node & n,
     const string & main_command
   );
 };
