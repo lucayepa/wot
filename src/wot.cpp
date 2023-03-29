@@ -4,7 +4,6 @@
 #include <boost/log/trivial.hpp>
 #include <boost/log/expressions.hpp>
 #include <boost/program_options.hpp>
-#include <openssl/sha.h>
 #include <iomanip>
 #include <sstream>
 #include <string>
@@ -13,6 +12,8 @@
 #include <node.hpp>
 
 #include <electrum.hpp>
+#include <math.hpp>
+#include <config.hpp>
 
 using namespace std;
 using namespace wot;
@@ -33,28 +34,6 @@ namespace wot {
       j["signature"] = x.get_signature();
     }
   }
-}
-
-namespace global {
-  toml::table config;
-  shared_ptr<Signer> signer;
-  shared_ptr<Verifier> verifier;
-  string command;
-}
-
-using namespace global;
-
-string sha256(const string str) {
-  unsigned char hash[SHA256_DIGEST_LENGTH];
-  SHA256_CTX sha256;
-  SHA256_Init(&sha256);
-  SHA256_Update(&sha256, str.c_str(), str.size());
-  SHA256_Final(hash, &sha256);
-  stringstream ss;
-  for(int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
-    ss << hex << setw(2) << setfill('0') << (int)hash[i];
-  }
-  return ss.str();
 }
 
 /*
@@ -121,23 +100,6 @@ bool hash_verify(const Node & n) {
 // Mimic the CLI from a user
 bool hash_verify_toml(const string & toml, const Node & n) {
   return hash_calc(toml) == n.get_signature().get_hash();
-}
-
-void get_config() {
-  try {
-    config = toml::parse_file("etc/config.toml");
-    LOG << "Loaded config file.";
-    if(config["signer"].value<string>().value_or("electrum") == "electrum"){
-      signer = make_shared<ElectrumSigner>();
-    }
-    if(config["verifier"].value<string>().value_or("electrum") == "electrum") {
-      verifier = make_shared<ElectrumVerifier>();
-    }
-  }
-  catch (const toml::parse_error& err) {
-    std::cerr << "Parsing failed: " << err << endl;
-    throw;
-  }
 }
 
 void get_input(string & s) {
@@ -238,7 +200,7 @@ bool signature_verify(const string & in,const Node & n) {
 
   if(signature_verify_from_cache(n)) return true;
 
-  if(verifier->verify_signature(n, command)) {
+  if(Config::get().verifier->verify_signature(n, Config::get().get_command())) {
     // Add the signature to the cache of known signatures
     add_sig(n.get_signature().get_hash(),n.get_signature().get_sig());
     return true;
@@ -248,9 +210,9 @@ bool signature_verify(const string & in,const Node & n) {
     "     Address: " << n.get_profile().get_key() << endl <<
     "   Signature: " << n.get_signature().get_sig() << endl <<
     "Command to verify: " << endl <<
-    verifier->verify_cli(n.get_signature().get_sig(),n.get_profile().get_key(),n.get_signature().get_hash()) << endl <<
+    Config::get().verifier->verify_cli(n.get_signature().get_sig(),n.get_profile().get_key(),n.get_signature().get_hash()) << endl <<
     endl <<
-    "If, on the other side, you want to generate a valid signature: " << command << " help sign" << endl;
+    "If, on the other side, you want to generate a valid signature: " << Config::get().get_command() << " help sign" << endl;
     return false;
   }
 }
@@ -460,7 +422,7 @@ bool sign_node( const string & in,
     LOG << "No signature for this hash in the cache.";
 
     // Try to sign the message
-    optional<string> sig = signer->sign(n, command);
+    optional<string> sig = Config::get().signer->sign(n, Config::get().get_command());
     if(!sig.has_value()) return false;
 
     // Add the signature to the cache of known signatures
@@ -621,7 +583,8 @@ void view_node(const string & filename) {
 int main(int argc, char *argv[]) {
 
   // ENV vars
-  command = argv[0];
+  string command = argv[0];
+  Config::get().set_command(command);
 
   // Create database directory
   filesystem::create_directory(db_dir());
@@ -668,7 +631,7 @@ int main(int argc, char *argv[]) {
   }
 
   // Parse the configuration file
-  try{ get_config(); } catch(...) {
+  try{ Config::get().get_config_from_file(); } catch(...) {
     return 1;
   };
 
