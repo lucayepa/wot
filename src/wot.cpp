@@ -12,13 +12,15 @@
 
 #include <node.hpp>
 
+#include <interfaces/verifier.hpp>
+#include <interfaces/signer.hpp>
+#include <electrum.hpp>
+
 using namespace std;
 using namespace wot;
 using namespace nlohmann;
 
 namespace po = boost::program_options;
-
-#define LOG BOOST_LOG_TRIVIAL(info)
 
 namespace wot {
   inline void to_j(json &j, const Node &x, const bool withsig) {
@@ -37,11 +39,11 @@ namespace wot {
 
 namespace global {
   toml::table config;
-  string signer;
-  string verifier;
+  shared_ptr<Signer> signer;
+  shared_ptr<Verifier> verifier;
   string command;
-  const char * env_wallet;
 }
+
 using namespace global;
 
 string sha256(const string str) {
@@ -136,24 +138,6 @@ inline bool is_base64( const string & sig ) {
   return regex_search( sig, base64 );
 }
 
-// How to sign with electrum. No sanitize. Working only if wallet has no password.
-inline string sign_with_electrum(const string & wallet_path, const string & address, const string & message) {
-  return "echo -n " + message + " | " + signer + " --offline -w " + wallet_path + " signmessage " + address + " -";
-}
-
-inline string verify_with_electrum(const string & signature, const string & address, const string & message) {
-  return "echo -n " + message + " | " + verifier + " --offline verifymessage " + address + " " + signature + " -";
-}
-
-void suggest_sign_message(Node & n) {
-  cout <<
-  "Please sign the hash using the private key of the address: " <<
-  n.get_profile().get_key() << " and add it to the db of known " <<
-  "signatures using the following command: " << endl <<
-  command << " --signature `" << sign_with_electrum(env_wallet?env_wallet:"WALLET", n.get_profile().get_key(), n.get_signature().get_hash()) << "` add-sig " <<
-  n.get_signature().get_hash() << endl;
-}
-
 bool hash_verify(const Node & n) {
   return hash_calc(n) == n.get_signature().get_hash();
 }
@@ -167,8 +151,12 @@ void get_config() {
   try {
     config = toml::parse_file("etc/config.toml");
     LOG << "Loaded config file.";
-    signer = config["signer"].value<string>().value_or("electrum") ;
-    verifier = config["verifier"].value<string>().value_or("electrum");
+    if(config["signer"].value<string>().value_or("electrum") == "electrum"){
+      signer = make_shared<ElectrumSigner>();
+    }
+    if(config["verifier"].value<string>().value_or("electrum") == "electrum") {
+      verifier = make_shared<ElectrumVerifier>();
+    }
   }
   catch (const toml::parse_error& err) {
     std::cerr << "Parsing failed: " << err << endl;
@@ -269,58 +257,12 @@ bool signature_verify_from_cache(const Node & n) {
   return false;
 }
 
-inline bool electrum_exec_present() {
-  return !system("which electrum > /dev/null 2>&1");
-}
-
-bool check_and_suggest_electrum_cli(
-  const string & action,
-  const string & cli,
-  const Node & n
-) {
-
-  // Check if electrum is there
-  if (!electrum_exec_present()) {
-    LOG << "No electrum on the system";
-    cerr <<
-    "There is no electrum executable on the system. In order to " << action << " a "
-    "node, you need electrum. If you want to do it "
-    "on another system, you can do it with the following command: " <<
-    endl << cli << endl;
-
-    cerr << endl <<
-    "Verify: if the signature is ok, you can add it to the internal db of "
-    "known signatures with the following command: " << endl <<
-    command << " --signature " << n.get_signature().get_sig() << " add-sig " <<
-    n.get_signature().get_hash() << endl;
-
-    return false;
-  }
-
-  return true;
-}
-
 bool signature_verify(const string & in,const Node & n) {
   if(!sanitize(in,n)) return false;
 
   if(signature_verify_from_cache(n)) return true;
 
-  string cli = verify_with_electrum(n.get_signature().get_sig(), n.get_profile().get_key(), n.get_signature().get_hash());
-  if(!check_and_suggest_electrum_cli("verify", cli, n)) return false;
-
-  const string tmp_file = "/tmp/result."+n.get_signature().get_hash();
-
-  cli += ">" + tmp_file;
-
-  LOG << "Command: " << cli;
-  system( cli.c_str() );
-
-  ifstream f = ifstream(tmp_file);
-  stringstream buffer;
-  buffer << f.rdbuf();
-  remove(tmp_file.c_str());
-
-  if(buffer.str() == "true\n") {
+  if(verifier->verify_signature(n, command)) {
     // Add the signature to the cache of known signatures
     add_sig(n.get_signature().get_hash(),n.get_signature().get_sig());
     return true;
@@ -330,7 +272,7 @@ bool signature_verify(const string & in,const Node & n) {
     "     Address: " << n.get_profile().get_key() << endl <<
     "   Signature: " << n.get_signature().get_sig() << endl <<
     "Command to verify: " << endl <<
-    verify_with_electrum(n.get_signature().get_sig(),n.get_profile().get_key(),n.get_signature().get_hash()) << endl <<
+    verifier->verify_cli(n.get_signature().get_sig(),n.get_profile().get_key(),n.get_signature().get_hash()) << endl <<
     endl <<
     "If, on the other side, you want to generate a valid signature: " << command << " help sign" << endl;
     return false;
@@ -541,43 +483,14 @@ bool sign_node( const string & in,
   if(sig_on_file == "") {
     LOG << "No signature for this hash in the cache.";
 
-    string cli = sign_with_electrum(env_wallet?env_wallet:"WALLET", n.get_profile().get_key(), n.get_signature().get_hash());
-    if(!check_and_suggest_electrum_cli("sign", cli, n)) return false;
-
-    if(!env_wallet) {
-      LOG << "No WALLET in env.";
-      cerr << "Environment variable WALLET is not set. If you want to automate this step, and you " <<
-      "have a wallet without password, you can set the environment variable WALLET to the full path of your wallet." << endl;
-      suggest_sign_message(n);
-      return false;
-    }
-
     // Try to sign the message
-    const string tmp_file = "/tmp/result."+n.get_signature().get_hash();
-
-    cli += ">" + tmp_file;
-
-    LOG << "Command: " << cli;
-    bool result = system( cli.c_str() );
-    if(result) {
-      LOG << "Command result is not zero";
-      return false;
-    }
-
-    ifstream f = ifstream(tmp_file);
-    stringstream buffer;
-    buffer << f.rdbuf();
-    string sig = buffer.str();
-    // Remove dangling \n from sig
-    sig.pop_back();
-
-
-    remove(tmp_file.c_str());
+    optional<string> sig = signer->sign(n, command);
+    if(!sig.has_value()) return false;
 
     // Add the signature to the cache of known signatures
-    add_sig(n.get_signature().get_hash(),sig);
+    add_sig(n.get_signature().get_hash(),sig.value());
 
-    sig_on_file = sig;
+    sig_on_file = sig.value();
   }
 
   LOG << "There is a signature for this hash in the cache";
@@ -733,9 +646,6 @@ int main(int argc, char *argv[]) {
 
   // ENV vars
   command = argv[0];
-  env_wallet = getenv("WALLET");
-  if(env_wallet)
-    cerr << "Env WALLET is: " << env_wallet << endl;
 
   // Create database directory
   filesystem::create_directory(db_dir());
@@ -896,9 +806,10 @@ int main(int argc, char *argv[]) {
   }
 
   help["add-sig"] = "  " + command + " --signature <SIGNATURE> add-sig <HASH>\n" + R"(
-  Add a trusted signature to the internal db. When a node having hash HASH is found, it is considered
-  valid if the signature of the node is the same as SIGNATURE.
-  This skips the verification step. It is useful, for example, on systems without an electrum executable.
+  Add a trusted signature to the internal db. When a node having hash HASH is found,
+  it is considered valid if the signature of the node is the same as SIGNATURE.
+  This skips the verification step. It is useful, for example, on systems without an
+  installed Electrum executable.
 
   See also `help ls-sig`, `help rm-sig`.
 )";
