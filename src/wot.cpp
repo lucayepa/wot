@@ -15,24 +15,24 @@
 #include <math.hpp>
 #include <config.hpp>
 
-using namespace std;
-using namespace wot;
-using namespace nlohmann;
+namespace wot {
+
+using std::string, std::map;
+using std::endl, std::cout, std::cerr;
+using nlohmann::json;
 
 namespace po = boost::program_options;
 
-namespace wot {
-  inline void to_j(json &j, const Node &x, const bool withsig) {
-    j = json::object();
-    j["circle"] = x.get_circle();
-    j["implementation"] = x.get_implementation();
-    j["profile"] = x.get_profile();
-    j["serial"] = x.get_serial();
-    j["sources"] = x.get_sources();
-    j["trust"] = x.get_trust();
-    if (withsig) {
-      j["signature"] = x.get_signature();
-    }
+inline void to_j(json &j, const Node &x, const bool withsig) {
+  j = json::object();
+  j["circle"] = x.get_circle();
+  j["implementation"] = x.get_implementation();
+  j["profile"] = x.get_profile();
+  j["serial"] = x.get_serial();
+  j["sources"] = x.get_sources();
+  j["trust"] = x.get_trust();
+  if (withsig) {
+    j["signature"] = x.get_signature();
   }
 }
 
@@ -70,27 +70,27 @@ string add_signature(const string & toml, const Node & n) {
 }
 
 // Not tested on Windows
-filesystem::path home_dir() {
+std::filesystem::path home_dir() {
   char const* home = getenv("HOME");
   if (home or ((home = getenv("USERPROFILE")))) {
-    return filesystem::path(home);
+    return std::filesystem::path(home);
   } else {
     char const *hdrive = getenv("HOMEDRIVE"),
     *hpath = getenv("HOMEPATH");
     assert(hdrive);  // or other error handling
     assert(hpath);
-    return (string)filesystem::path(hdrive) + (string)filesystem::path(hpath);
+    return (string)std::filesystem::path(hdrive) + (string)std::filesystem::path(hpath);
   }
 }
 
 inline bool is_bitcoin_address( const string & addr ) {
-  regex is_bitcoin( "^(bc1|[13])[a-zA-HJ-NP-Z0-9]{25,62}$" );
-  return regex_search( addr, is_bitcoin );
+  std::regex is_bitcoin( "^(bc1|[13])[a-zA-HJ-NP-Z0-9]{25,62}$" );
+  return std::regex_search( addr, is_bitcoin );
 }
 
 inline bool is_base64( const string & sig ) {
-  regex base64( "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$" );
-  return regex_search( sig, base64 );
+  std::regex base64( "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$" );
+  return std::regex_search( sig, base64 );
 }
 
 bool hash_verify(const Node & n) {
@@ -104,27 +104,27 @@ bool hash_verify_toml(const string & toml, const Node & n) {
 
 void get_input(string & s) {
   // Get the whole stdin in a string
-  s = string(istreambuf_iterator<char>(cin), {});
+  s = string(std::istreambuf_iterator<char>(std::cin), {});
   LOG << "Loaded input.";
 };
 
-filesystem::path db_dir() {
+std::filesystem::path db_dir() {
   return home_dir() / string(".local/share/wot");
 };
 
-filesystem::path config_dir() {
+std::filesystem::path config_dir() {
   return home_dir() / string(".config/wot");
 };
 
-stringstream read_file(const string & filename) {
-  ifstream f(db_dir()/filename);
-  stringstream buffer;
+std::stringstream read_file(const string & filename) {
+  std::ifstream f(db_dir()/filename);
+  std::stringstream buffer;
   buffer << f.rdbuf();
   return buffer;
 }
 
 void write_file(const string & filename, const string & content) {
-  ofstream f;
+  std::ofstream f;
   LOG << "Writing to " << (string)(db_dir()/filename);
   f.open ((string)(db_dir()/filename));
   f << content;
@@ -151,7 +151,7 @@ void rm_sig(const string & hash) {
 
 // if there is no file at all, return an empty string
 string read_sig(const string & hash) {
-  stringstream content = read_file(hash+".sig");
+  std::stringstream content = read_file(hash+".sig");
   if(content.fail()) return "";
   return content.str();
 }
@@ -218,7 +218,7 @@ bool signature_verify(const string & in,const Node & n) {
 }
 
 // solve a TOML object by removing the two helping hashes: defaults and rules
-void solve( string_view in, toml::table & t ) {
+void solve( std::string_view in, toml::table & t ) {
   t = toml::parse(in);
   if (toml::array* trust = t["trust"].as_array()) {
 
@@ -235,9 +235,9 @@ void solve( string_view in, toml::table & t ) {
       t["rules"].as_table()->for_each([&](const toml::key& key, auto&& rule_value){
         if (toml::array* trust = t["trust"].as_array()) {
           trust->for_each([&](auto&& link){
-            auto a = link.as_table()->at("rules"sv).as_array();
+            auto a = link.as_table()->at((std::string_view)"rules").as_array();
             a->for_each([&](auto&& b, size_t index){
-              if(b.value_or(""sv)==(string_view)key) { a->replace(a->cbegin()+index,rule_value); }
+              if(b.value_or((std::string_view)"")==(std::string_view)key) { a->replace(a->cbegin()+index,rule_value); }
             });
           });
         };
@@ -260,7 +260,7 @@ void jsonize( string & s, bool & is_json ) {
     LOG << "Is it a valid TOML?";
     toml::table toml;
     try {
-      string_view sv = s;
+      std::string_view sv = s;
       LOG << "Yes." << s;
       toml = toml::parse(sv);
       LOG << "Yes." << sv;
@@ -275,7 +275,7 @@ void jsonize( string & s, bool & is_json ) {
       is_json = false;
       throw;
     }
-    stringstream ss;
+    std::stringstream ss;
     ss << toml::json_formatter{ toml };
     s = ss.str();
   }
@@ -389,8 +389,8 @@ bool sign_node( const string & in,
 
   if(is_toml) {
     toml::table t;
-    solve( (string_view)(in.c_str()), t );
-    stringstream ss;
+    solve( (std::string_view)(in.c_str()), t );
+    std::stringstream ss;
     ss << t;
     solved_in = ss.str();
   }
@@ -422,7 +422,7 @@ bool sign_node( const string & in,
     LOG << "No signature for this hash in the cache.";
 
     // Try to sign the message
-    optional<string> sig = Config::get().signer->sign(n, Config::get().get_command());
+    std::optional<string> sig = Config::get().signer->sign(n, Config::get().get_command());
     if(!sig.has_value()) return false;
 
     // Add the signature to the cache of known signatures
@@ -456,8 +456,8 @@ void add_node(const string & filename, const string & orig, const string & json)
 }
 
 // fetch a node from disk, verify it and put it in node object n
-void fetch_node(const filesystem::directory_entry & file, Node & n) {
-  stringstream content = read_file(file.path().filename());
+void fetch_node(const std::filesystem::directory_entry & file, Node & n) {
+  std::stringstream content = read_file(file.path().filename());
   LOG << "Checking: " << (string)file.path().filename();
   string json;
   verify_node(content.str(),json,/*force_accpet_hash=*/true,/*force_accpet_sig=*/true,n);
@@ -465,7 +465,7 @@ void fetch_node(const filesystem::directory_entry & file, Node & n) {
 
 // fetch a node from disk, and check if it is ok against given filters
 // In order for rule-filter and to-filter to work properly in detailed listing, we should generate an array of nodes reduced by the filters
-bool filter_node(const po::variables_map & vm, const filesystem::directory_entry & file) {
+bool filter_node(const po::variables_map & vm, const std::filesystem::directory_entry & file) {
   Node n;
   fetch_node(file, n);
   //FILTERS are in 'and'
@@ -518,14 +518,14 @@ void print_node_summary(const Node & n, bool with_links) {
 
 // list all the nodes in the database
 void list_nodes(const po::variables_map & vm) {
-  regex is_toml( "orig$" );
-  regex is_sig( "sig$" );
-  for (const auto & entry : filesystem::directory_iterator(db_dir())) {
-    if(regex_search( (string)entry.path(), is_toml )) continue;
-    if(regex_search( (string)entry.path(), is_sig )) continue;
+  std::regex is_toml( "orig$" );
+  std::regex is_sig( "sig$" );
+  for (const auto & entry : std::filesystem::directory_iterator(db_dir())) {
+    if(std::regex_search( (string)entry.path(), is_toml )) continue;
+    if(std::regex_search( (string)entry.path(), is_sig )) continue;
     if(filter_node(vm, entry)) {
       LOG << "Found file " << entry.path().filename();
-      stringstream content = read_file(entry.path().filename());
+      std::stringstream content = read_file(entry.path().filename());
       Node n; string json;
       // Since they are already in our db, do not verify hash and signature
       verify_node(content.str(),json,/*force_accpet_hash=*/true,/*force_accpet_sig=*/true,n);
@@ -536,11 +536,11 @@ void list_nodes(const po::variables_map & vm) {
 
 // list all the known signatures in the database
 void list_sig() {
-  regex is_sig( "sig$" );
+  std::regex is_sig( "sig$" );
   cout << "hash: signature" << endl;
-  for (const auto & entry : filesystem::directory_iterator(db_dir())) {
-    if(regex_search( (string)entry.path(), is_sig )) {
-      stringstream content = read_file(entry.path().filename());
+  for (const auto & entry : std::filesystem::directory_iterator(db_dir())) {
+    if(std::regex_search( (string)entry.path(), is_sig )) {
+      std::stringstream content = read_file(entry.path().filename());
       string filename = entry.path().filename().string();
       cout << filename.substr(0, filename.size()-4) << " : " << content.str() << endl;
     }
@@ -548,12 +548,12 @@ void list_sig() {
 }
 
 void list_rules() {
-  regex is_toml( "orig$" );
-  regex is_sig( "sig$" );
-  for (const auto & entry : filesystem::directory_iterator(db_dir())) {
-    if(regex_search( (string)entry.path(), is_toml )) continue;
-    if(regex_search( (string)entry.path(), is_sig )) continue;
-    stringstream content = read_file(entry.path().filename());
+  std::regex is_toml( "orig$" );
+  std::regex is_sig( "sig$" );
+  for (const auto & entry : std::filesystem::directory_iterator(db_dir())) {
+    if(std::regex_search( (string)entry.path(), is_toml )) continue;
+    if(std::regex_search( (string)entry.path(), is_sig )) continue;
+    std::stringstream content = read_file(entry.path().filename());
     Node n;
     LOG << "Checking: " << (string)entry.path().filename();
     string json;
@@ -572,7 +572,7 @@ void list_rules() {
 
 // view a node
 void view_node(const string & filename) {
-  stringstream content = read_file(filename);
+  std::stringstream content = read_file(filename);
   if(content.fail()) {
     cerr << "File not found!" << endl;
   } else {
@@ -580,14 +580,18 @@ void view_node(const string & filename) {
   }
 }
 
+} // namespace wot
+
 int main(int argc, char *argv[]) {
+
+  using namespace wot;
 
   // ENV vars
   string command = argv[0];
   Config::get().set_command(command);
 
   // Create database directory
-  filesystem::create_directory(db_dir());
+  std::filesystem::create_directory(db_dir());
 
   // Declare the supported options.
   string usage = "Usage: "+command+" [-vRTFHI] [--verbose] [--force-accept-hash] [--force-accept-sig] [--signature] [--rule-filter RULE] [--to-filter TO] "+
@@ -616,7 +620,7 @@ int main(int argc, char *argv[]) {
   po::variables_map vm;
   po::store(po::command_line_parser(argc, argv).
             options(desc).positional(positional).run(), vm);
-  if (!vm.count("command")) { vm.emplace("command",po::variable_value("help"s, true)); }
+  if (!vm.count("command")) { vm.emplace("command",po::variable_value((string)"help", true)); }
   po::notify(vm);
 
   map<string,string> help;
@@ -803,7 +807,7 @@ int main(int argc, char *argv[]) {
     string s;
     try{ get_input(s); } catch(...) {return 1;};
     toml::table t;
-    solve( (string_view)(s.c_str()), t );
+    solve( (std::string_view)(s.c_str()), t );
     cout << t << endl;
     return 0;
   }

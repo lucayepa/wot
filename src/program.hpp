@@ -6,7 +6,9 @@
 
 #include <node.hpp>
 
-using namespace std;
+namespace wot {
+
+using std::string;
 
 static const std::string tmp_filename_base = "/tmp/result.";
 
@@ -62,3 +64,5 @@ public:
   // Return the system call return value
   int exec(string & output);
 };
+
+} // namespace wot

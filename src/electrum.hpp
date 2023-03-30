@@ -13,6 +13,8 @@
 #include <interfaces/signer.hpp>
 #include <interfaces/verifier.hpp>
 
+namespace wot {
+
 class ElectrumVerifier : public Verifier {
 private:
   Program e{"electrum"};
@@ -52,8 +54,10 @@ public:
     const string & main_command
   );
 
-  optional<string> sign(
+  std::optional<string> sign(
     const wot::Node & n,
     const string & main_command
   );
 };
+
+} // namespace wot

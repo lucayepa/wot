@@ -3,7 +3,9 @@
 #include <string>
 #include <node.hpp>
 
-using namespace std;
+namespace wot {
+
+using std::string;
 
 // Interface for a program that verifies signed messages
 class Verifier {
@@ -22,3 +24,5 @@ public:
     const string & main_command
   ) = 0;
 };
+
+} // namespace wot

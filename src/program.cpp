@@ -8,6 +8,8 @@
 #include <boost/program_options.hpp>
 #define LOG BOOST_LOG_TRIVIAL(info)
 
+namespace wot {
+
 int Program::exec(string & output) {
 
     string command = cli + ">" + tmp_filename;
@@ -15,8 +17,8 @@ int Program::exec(string & output) {
     LOG << "Command: " << command;
     int result = system( command.c_str() );
 
-    ifstream f = ifstream(tmp_filename);
-    stringstream buffer;
+    std::ifstream f = std::ifstream(tmp_filename);
+    std::stringstream buffer;
     buffer << f.rdbuf();
     remove(tmp_filename.c_str());
 
@@ -37,7 +39,7 @@ bool Program::check_and_suggest_cli(
 ) {
     // Check if electrum is there
     if (!is_present()) {
-      cerr << hint_if_no_executable( action, n, main_command );
+      std::cerr << hint_if_no_executable( action, n, main_command );
 
       return false;
     }
@@ -46,7 +48,7 @@ bool Program::check_and_suggest_cli(
 
 // A filter based on CLI (please sanitize before use)
 string Program::cli_filter(const string & in, const string & command) {
-  ofstream f;
+  std::ofstream f;
   const string tmp_file1 = "/tmp/in."+sha256(in);
   const string tmp_file2 = "/tmp/out."+sha256(in);
   LOG << "Writing to " << tmp_file1;
@@ -57,11 +59,13 @@ string Program::cli_filter(const string & in, const string & command) {
   LOG << "Command: " << cli;
   system( cli.c_str() );
 
-  ifstream f2 = ifstream(tmp_file2);
-  stringstream buffer;
+  std::ifstream f2 = std::ifstream(tmp_file2);
+  std::stringstream buffer;
   buffer << f2.rdbuf();
   remove(tmp_file1.c_str());
   remove(tmp_file2.c_str());
 
   return buffer.str();
 }
+
+} // namespace wot

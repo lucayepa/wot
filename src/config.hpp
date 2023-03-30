@@ -6,6 +6,8 @@
 #include <interfaces/verifier.hpp>
 #include <interfaces/signer.hpp>
 
+namespace wot {
+
 class Config {
 private:
   Config() {};
@@ -15,8 +17,8 @@ private:
 
 public:
   toml::table config;
-  shared_ptr<Signer> signer;
-  shared_ptr<Verifier> verifier;
+  std::shared_ptr<Signer> signer;
+  std::shared_ptr<Verifier> verifier;
   
   static Config & get() {
       static Config instance;
@@ -31,3 +33,5 @@ public:
 
   void get_config_from_file();
 };
+
+} //namespace wot

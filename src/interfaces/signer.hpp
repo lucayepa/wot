@@ -3,7 +3,9 @@
 #include <string>
 #include <node.hpp>
 
-using namespace std;
+namespace wot {
+
+using std::string;
 
 // Interface for a program that signs messages
 class Signer {
@@ -22,8 +24,10 @@ public:
     const string & main_command
   ) = 0;
 
-  virtual optional<string> sign(
+  virtual std::optional<string> sign(
     const wot::Node & n,
     const string & main_command
   ) = 0;
 };
+
+} // namespace wot
