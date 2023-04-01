@@ -20,7 +20,7 @@ public:
   ) = 0;
 
   virtual bool verify_signature(
-    const wot::Node &,
+    const Node &,
     const string & main_command
   ) = 0;
 };

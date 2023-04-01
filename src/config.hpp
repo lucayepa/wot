@@ -1,5 +1,6 @@
 // Read the configuration file
 #pragma once
+#include <filesystem>
 
 #include <toml.hpp>
 
@@ -20,6 +21,13 @@ public:
   std::shared_ptr<Signer> signer;
   std::shared_ptr<Verifier> verifier;
   
+  // TODO: extract it only once at the start
+  static std::filesystem::path home_dir();
+
+  static inline std::filesystem::path config_dir() {
+    return home_dir() / string(".config/wot");
+  };
+
   static Config & get() {
       static Config instance;
       return instance;

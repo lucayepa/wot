@@ -50,11 +50,11 @@ set(CMAKE_CXX_STANDARD 17)
 file(GLOB_RECURSE SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} CONFIGURE_DEPENDS src/*.cpp)
 list(REMOVE_ITEM SOURCES src/wot.cpp)
 
-add_executable(wot src/wot.cpp ${SOURCES} node.hpp)
+add_executable(wot src/wot.cpp ${SOURCES} node_qt.hpp)
 
 add_custom_command(
-  OUTPUT node.hpp
-  COMMAND ${QUICKTYPE} -s schema -t node -l C++ --namespace wot --no-boost --include-location global-include -S ${CMAKE_CURRENT_SOURCE_DIR}/src/link.json -o node.hpp ${CMAKE_CURRENT_SOURCE_DIR}/src/node.json
+  OUTPUT node_qt.hpp
+  COMMAND ${QUICKTYPE} -s schema -t node -l C++ --namespace wot_qt --no-boost --include-location global-include -S ${CMAKE_CURRENT_SOURCE_DIR}/src/link.json -o node_qt.hpp ${CMAKE_CURRENT_SOURCE_DIR}/src/node.json
   DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/link.json ${CMAKE_CURRENT_SOURCE_DIR}/src/node.json
   VERBATIM
 )
@@ -75,7 +75,7 @@ file(GLOB_RECURSE tests RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/test CONFIGURE_DEPE
 list(REMOVE_ITEM tests main.cpp)
 
 foreach(TESTFILE IN LISTS tests)
-  add_executable(${TESTFILE} test/main.cpp ${SOURCES} test/${TESTFILE} node.hpp)
+  add_executable(${TESTFILE} test/main.cpp ${SOURCES} test/${TESTFILE} node_qt.hpp)
 
   includes_and_libs_for(${TESTFILE})
   target_link_libraries(${TESTFILE} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})

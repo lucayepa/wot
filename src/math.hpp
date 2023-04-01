@@ -1,13 +1,15 @@
 // Some math functions of common use
 #pragma once
 
-#include <openssl/sha.h>
 #include <iomanip>
+#include <string>
+
+#include <openssl/sha.h>
 
 namespace wot {
 namespace {
 
-  string sha256(const string str) {
+  std::string sha256(const std::string str) {
     unsigned char hash[SHA256_DIGEST_LENGTH];
     SHA256_CTX sha256;
     SHA256_Init(&sha256);

@@ -20,12 +20,12 @@ public:
 
   virtual void suggest_external_sign(
     const string & wallet,
-    const wot::Node & n,
+    const Node & n,
     const string & main_command
   ) = 0;
 
   virtual std::optional<string> sign(
-    const wot::Node & n,
+    const Node & n,
     const string & main_command
   ) = 0;
 };

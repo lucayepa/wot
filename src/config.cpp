@@ -10,6 +10,20 @@
 
 namespace wot {
 
+// Not tested on Windows
+std::filesystem::path Config::home_dir() {
+  char const* home = getenv("HOME");
+  if (home or ((home = getenv("USERPROFILE")))) {
+    return std::filesystem::path(home);
+  } else {
+    char const *hdrive = getenv("HOMEDRIVE"),
+        *hpath = getenv("HOMEPATH");
+    assert(hdrive);  // or other error handling
+    assert(hpath);
+    return (std::string)std::filesystem::path(hdrive) + (std::string)std::filesystem::path(hpath);
+  }
+}
+
 void Config::get_config_from_file() {
   try {
     config = toml::parse_file("etc/config.toml");
