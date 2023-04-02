@@ -165,7 +165,7 @@ namespace wot {
 
     if(Config::get().verifier->verify_signature(*this, Config::get().get_command())) {
       // Add the signature to the cache of known signatures
-      Db("sig").add(get_signature().get_hash(),get_signature().get_sig());
+      DiskDb("sig").add(get_signature().get_hash(),get_signature().get_sig());
       return true;
     } else {
       using std::cerr, std::endl;
@@ -252,8 +252,8 @@ namespace wot {
     if(!sanitize()) return std::nullopt;
 
     // Check if there is already a signature in the cache for this hash
-    string sig_on_file = Db("sig").get(hash);
-    if(sig_on_file == "") {
+    auto sig_on_file = DiskDb("sig").get(hash);
+    if(!sig_on_file.has_value()) {
       LOG << "No signature for this hash in the cache.";
 
       // Try to sign the message
@@ -261,14 +261,14 @@ namespace wot {
       if(!sig.has_value()) return std::nullopt;
 
       // Add the signature to the cache of known signatures
-      Db("sig").add(get_signature().get_hash(),sig.value());
+      DiskDb("sig").add(get_signature().get_hash(),sig.value());
 
-      sig_on_file = sig.value();
+      sig_on_file.emplace(sig.value());
     }
 
     LOG << "There is a signature for this hash in the cache";
     Signature ss = get_signature();
-    ss.set_sig(sig_on_file);
+    ss.set_sig(sig_on_file.value());
     set_signature(ss);
 
     string toml_s;

@@ -1,8 +1,8 @@
 #include <cache_sig.hpp>
 
 #include <fstream>
-#include <iostream>
 #include <regex>
+#include <optional>
 
 #include <boost/log/trivial.hpp>
 #include <boost/log/expressions.hpp>
@@ -14,10 +14,10 @@ namespace wot {
   // Check if we have a good signature on file
   // This is useful on systems without electrum
   bool Cache_sig::signature_verify_from_cache(const Node n) {
-    std::string sig_on_file = Db("sig").get(n.get_signature().get_hash());
-    if(sig_on_file != "") {
+    auto sig_on_file = DiskDb("sig").get(n.get_signature().get_hash());
+    if(sig_on_file.has_value()) {
       LOG << "We have a signature in our internal db. Check if it is ok.";
-      if(sig_on_file == n.get_signature().get_sig()) {
+      if(sig_on_file.value() == n.get_signature().get_sig()) {
         LOG << "Signature on internal db is correct.";
         return true;
       } else {
@@ -27,7 +27,7 @@ namespace wot {
         "internal db use: " << endl <<
         "rm-sig " << n.get_signature().get_hash() << endl <<
         " or " << endl <<
-        "rm -i " << Db().get_dir()/n.get_signature().get_hash() << ".sig" << endl;
+        "rm -i " << DiskDb().get_dir()/n.get_signature().get_hash() << ".sig" << endl;
         throw;
       }
     }

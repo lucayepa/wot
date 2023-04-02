@@ -12,8 +12,7 @@
 namespace po = boost::program_options;
 
 #include <node.hpp>
-
-#include <db.hpp>
+#include <disk_db.hpp>
 
 namespace wot {
 
@@ -23,7 +22,7 @@ class Db_nodes {
 private:
   std::filesystem::path dir;
   std::string ext;
-  Db db;
+  DiskDb db;
 
   static const Node fetch_node(const std::filesystem::directory_entry & file);
 

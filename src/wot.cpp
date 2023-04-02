@@ -12,7 +12,7 @@
 #include <node.hpp>
 
 #include <config.hpp>
-#include <db.hpp>
+#include <disk_db.hpp>
 #include <db_nodes.hpp>
 #include <cache_sig.hpp>
 
@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
   Config::get().set_command(command);
 
   // Create database directory
-  std::filesystem::create_directory(Db().get_dir());
+  std::filesystem::create_directory(DiskDb().get_dir());
 
   // Declare the supported options.
   string usage = "Usage: "+command+" [-vRTFHI] [--verbose] [--force-accept-hash] [--force-accept-sig] [--signature] [--rule-filter RULE] [--to-filter TO] "+
@@ -218,7 +218,7 @@ int main(int argc, char *argv[]) {
       return 1;
     }
     LOG << "Add-sig: " << vm["param"].as<string>();
-    Db("sig").add(vm["param"].as<string>(), vm["signature"].as<string>());
+    DiskDb("sig").add(vm["param"].as<string>(), vm["signature"].as<string>());
     return 0;
   }
 
@@ -232,7 +232,7 @@ int main(int argc, char *argv[]) {
       std::cerr << help["rm-sig"] << std::endl;
       return 1;
     }
-    Db("sig").rm(vm["param"].as<string>());
+    DiskDb("sig").rm(vm["param"].as<string>());
     return 0;
   }
 
@@ -242,7 +242,7 @@ int main(int argc, char *argv[]) {
   See also `help add-sig`, `help rm-sig`.
 )";
   if (vm["command"].as<string>() == "ls-sig") {
-    Db("sig").print_list();
+    DiskDb("sig").print_list();
     return 0;
   }
 
@@ -255,7 +255,7 @@ int main(int argc, char *argv[]) {
       return 1;
     }
     LOG << "View: " << vm["param"].as<string>();
-    Db((std::string)"").print(vm["param"].as<string>());
+    DiskDb((std::string)"").print(vm["param"].as<string>());
     return 0;
   }
 

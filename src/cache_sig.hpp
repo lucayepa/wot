@@ -12,8 +12,7 @@
 namespace po = boost::program_options;
 
 #include <node.hpp>
-
-#include <db.hpp>
+#include <disk_db.hpp>
 
 namespace wot {
 
@@ -21,7 +20,7 @@ class Cache_sig {
 private:
   std::filesystem::path dir;
   std::string ext;
-  Db db;
+  DiskDb db;
 
 public:
   Cache_sig() : db("sig") {};
