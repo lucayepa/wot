@@ -7,26 +7,30 @@
 #define LOG BOOST_LOG_TRIVIAL(info)
 
 #include <electrum.hpp>
+#include <disk_db.hpp>
 
 namespace wot {
 
-// Not tested on Windows
-std::filesystem::path Config::home_dir() {
-  char const* home = getenv("HOME");
-  if (home or ((home = getenv("USERPROFILE")))) {
-    return std::filesystem::path(home);
-  } else {
-    char const *hdrive = getenv("HOMEDRIVE"),
-        *hpath = getenv("HOMEPATH");
-    assert(hdrive);  // or other error handling
-    assert(hpath);
-    return (std::string)std::filesystem::path(hdrive) + (std::string)std::filesystem::path(hpath);
-  }
-}
+bool Config::load(const std::string & file) {
+  if (init_done) return true;
 
-void Config::get_config_from_file() {
+  std::filesystem::path abs_file;
+
+  if(file == std::string()) {
+    std::filesystem::path abs_dir = DiskDb().home_dir() / (std::filesystem::path)DEFAULT_DIR;
+    abs_file = DiskDb().home_dir() / DEFAULT_CONFIG_FILE;
+
+    DiskDb::generic_check_or_write_file_with_interaction(abs_dir, abs_file, default_content);
+  } else {
+    abs_file = file;
+    if(!DiskDb::generic_file_exists(file)) {
+      std::cerr << "Requested config file " << file << " does not exist" << std::endl;
+      return false;
+    }
+  }
+
   try {
-    config = toml::parse_file("etc/config.toml");
+    config = toml::parse_file((std::string)abs_file);
     LOG << "Loaded config file.";
     if(config["signer"].value<string>().value_or("electrum") == "electrum"){
       signer = std::make_shared<ElectrumSigner>();
@@ -34,10 +38,12 @@ void Config::get_config_from_file() {
     if(config["verifier"].value<string>().value_or("electrum") == "electrum") {
       verifier = std::make_shared<ElectrumVerifier>();
     }
+    init_done = true;
+    return true;
   }
   catch (const toml::parse_error& err) {
     std::cerr << "Parsing failed: " << err << std::endl;
-    throw;
+    return false;
   }
 }
 

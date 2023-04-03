@@ -7,39 +7,67 @@
 #include <interfaces/verifier.hpp>
 #include <interfaces/signer.hpp>
 
+// Default config directory RELATIVE TO HOME directory
+#define DEFAULT_DIR ".config/wot"
+#define DEFAULT_FILE "config.toml"
+#define DEFAULT_CONFIG_FILE DEFAULT_DIR "/" DEFAULT_FILE
+
 namespace wot {
+
+namespace {
+
+  static std::string default_content = R"(
+# Web of trust configuration file
+
+#algo = "nostr"
+algo = "bitcoin"
+
+signer = "electrum"
+
+verifier = "electrum"
+)";
+
+} // namespace
 
 class Config {
 private:
-  Config() {};
+  // Singleton
+  Config() = default;
+  ~Config() = default;
 
   // This is not in config file. It is the main command name of the program.
   std::string command;
 
+  // Cache the information that init has been successfully completed
+  bool init_done = false;
+
 public:
+  // Singleton
+  Config(const Config&) = delete;
+  Config& operator=(const Config&) = delete;
+
+  // First get initialize based on file. Then no file is needed.
+  static Config & get() {
+    default_config_file = DEFAULT_CONFIG_FILE;
+    static Config instance;
+    return instance;
+  }
+
   toml::table config;
   std::shared_ptr<Signer> signer;
   std::shared_ptr<Verifier> verifier;
-  
-  // TODO: extract it only once at the start
-  static std::filesystem::path home_dir();
 
-  static inline std::filesystem::path config_dir() {
-    return home_dir() / string(".config/wot");
-  };
-
-  static Config & get() {
-      static Config instance;
-      return instance;
-  }
-  
-  Config(Config const&) = delete;
-  void operator=(Config const&)  = delete;
-  
   const std::string & get_command() const { return command; }
   void set_command(const std::string & c) { this->command = c; }
 
-  void get_config_from_file();
+  inline static std::string default_config_file;
+
+  // Try to load the config. If the file is not there and is different
+  // from the default, return error.
+  // If the file is not there and is the default file, create it with the
+  // default content.
+  // file is relative to home dir
+  bool load(const std::string & file = std::string());
 };
 
 } //namespace wot

@@ -25,27 +25,27 @@ BOOST_AUTO_TEST_CASE(check_and_suggest_cli) {
   Program p = Program("ls");
   Node n;
   bool b = p.check_and_suggest_cli("action", n, "main_command");
-  BOOST_CHECK_EQUAL(b,true);
+  BOOST_CHECK(b);
 }
 
 BOOST_AUTO_TEST_CASE(check_and_suggest_cli2) {
   Program p = Program("lsssss");
   Node n;
   bool b = p.check_and_suggest_cli("action", n, "main_command");
-  BOOST_CHECK_EQUAL(b,false);
+  BOOST_CHECK(!b);
 }
 
 BOOST_AUTO_TEST_CASE(exec) {
   Program p = Program("ls");
   Node n;
   bool b = p.check_and_suggest_cli("action", n, "main_command");
-  BOOST_CHECK_EQUAL(b,true);
+  BOOST_CHECK(b);
   p.set_unique("1234");
   p.set_cli("ls -la");
   std::string out;
   int res = p.exec(out);
   BOOST_CHECK_EQUAL(res,0);
-  BOOST_CHECK_EQUAL(boost::algorithm::contains(out,".."), true);
+  BOOST_CHECK(boost::algorithm::contains(out,".."));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

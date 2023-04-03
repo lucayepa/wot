@@ -27,7 +27,7 @@ int Program::exec(string & output) {
     return result;
 }
 
-inline bool Program::is_present() {
+bool Program::is_present() {
   string line =  "which " + name + " > /dev/null 2>&1";
   return !system(line.c_str());
 }

@@ -6,7 +6,7 @@ namespace wot {
 
 using std::string;
 
-inline string ElectrumVerifier::verify_cli(
+string ElectrumVerifier::verify_cli(
     const string & signature,
     const string & address,
     const string & message
@@ -29,7 +29,7 @@ bool ElectrumVerifier::verify_signature(const Node & n, const string & main_comm
 }
 
 // How to sign with electrum. No sanitize. Working only if wallet has no password.
-inline string ElectrumSigner::sign_cli(
+string ElectrumSigner::sign_cli(
     const string & wallet_path,
     const string & address,
     const string & message

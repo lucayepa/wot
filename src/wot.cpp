@@ -16,16 +16,11 @@
 #include <db_nodes.hpp>
 #include <cache_sig.hpp>
 
-#include <boost/log/trivial.hpp>
-#include <boost/log/expressions.hpp>
-#include <boost/program_options.hpp>
-#define LOG BOOST_LOG_TRIVIAL(info)
-
 namespace wot {
 
 namespace po = boost::program_options;
 
-inline void get_input(std::string & s) {
+void get_input(std::string & s) {
   // Get the whole stdin in a string
   s = std::string(std::istreambuf_iterator<char>(std::cin), {});
   LOG << "Loaded input.";
@@ -43,16 +38,17 @@ int main(int argc, char *argv[]) {
   string command = argv[0];
   Config::get().set_command(command);
 
-  // Create database directory
-  std::filesystem::create_directory(DiskDb().get_dir());
+  const std::string config_help =
+    "Alternate config file location (default is HOME_DIR/" + std::string(DEFAULT_CONFIG_FILE) + ")";
 
   // Declare the supported options.
-  string usage = "Usage: "+command+" [-vRTFHI] [--verbose] [--force-accept-hash] [--force-accept-sig] [--signature] [--rule-filter RULE] [--to-filter TO] "+
+  string usage = "Usage: "+command+" [-vRTFHI] [--verbose] [--config config_file] [--force-accept-hash] [--force-accept-sig] [--signature] [--rule-filter RULE] [--to-filter TO] "+
   "[from-filter FROM] [hash-filter HASH] [input-file FILE] command [parameter]";
   po::options_description desc("Options");
   desc.add_options()
     ("help,h", "help message")
     ("verbose,v", "verbose output")
+    ("config", po::value< string >(), config_help.c_str())
     ("force-accept-hash", "Accept object hash, without verification")
     ("force-accept-sig", "Accept signature on object, without verification")
     ("json-output", "Output a TOML object as JSON (signature remains the TOML one) (sign-toml)")
@@ -79,7 +75,7 @@ int main(int argc, char *argv[]) {
   std::map<string,string> help;
 
   if (!vm.count("verbose")) {
-	using namespace boost::log;
+    using namespace boost::log;
     core::get()->set_filter(
       [](const attribute_value_set& attr_set) {
         return attr_set["Severity"].extract<trivial::severity_level>() > trivial::info;
@@ -88,8 +84,14 @@ int main(int argc, char *argv[]) {
   }
 
   // Parse the configuration file
-  try{ Config::get().get_config_from_file(); } catch(...) {
-    return 1;
+  try{
+    if(vm.count("config")) {
+      Config::get().load(vm["config"].as<string>());
+    } else {
+      Config::get().load();
+    }
+  } catch(...) {
+    return EXIT_FAILURE;
   };
 
   help["sign-toml"] = "  " + command + " sign-toml\n" + R"(

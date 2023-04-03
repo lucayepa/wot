@@ -68,11 +68,11 @@ namespace wot {
     }
   }
 
-  inline bool Node::input_hash_verify_toml() const {
+  bool Node::input_hash_verify_toml() const {
     return hash_calc(in) == get_signature().get_hash();
   }
 
-  inline bool Node::node_hash_verify() const {
+  bool Node::node_hash_verify() const {
     return hash_calc() == get_signature().get_hash();
   }
 
@@ -101,11 +101,11 @@ namespace wot {
     }
   }
 
-  inline void Node::print_link_summary(const Link & l) const {
+  void Node::print_link_summary(const Link & l) const {
     std::cout << " " << l.get_value() << " " << l.get_unit() << " -> " << l.get_to() << std::endl;
   }
 
-  const inline std::string Node::to_j(const bool withsig) const {
+  const std::string Node::to_j(const bool withsig) const {
     auto j = nlohmann::json::object();
     j["circle"] = get_circle();
     j["implementation"] = get_implementation();
@@ -124,7 +124,7 @@ namespace wot {
    vi /tmp/test.json
    tr --delete '\n' < /tmp/test.json | sha256sum
   */
-  inline const std::string Node::hash_calc() const {
+  const std::string Node::hash_calc() const {
     std::string j = to_j(/*withsig=*/false);
     LOG << "hash_calc: Object without signature: " << j;
     std::string s = sha256(j);
