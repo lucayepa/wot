@@ -71,11 +71,22 @@ endfunction()
 
 includes_and_libs_for(wot)
 
-file(GLOB_RECURSE tests RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/test CONFIGURE_DEPENDS test/*.cpp)
+file(GLOB tests RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/test CONFIGURE_DEPENDS test/*.cpp)
+file(GLOB test-filters RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/test/filters CONFIGURE_DEPENDS test/filters/*.cpp)
 list(REMOVE_ITEM tests main.cpp)
 
 foreach(TESTFILE IN LISTS tests)
   add_executable(${TESTFILE} test/main.cpp ${SOURCES} test/${TESTFILE} node_qt.hpp)
+
+  includes_and_libs_for(${TESTFILE})
+  target_link_libraries(${TESTFILE} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+  target_compile_definitions(${TESTFILE} PRIVATE "BOOST_TEST_DYN_LINK=1")
+
+  add_test(NAME ${TESTFILE} COMMAND ${TESTFILE})
+endforeach()
+
+foreach(TESTFILE IN LISTS test-filters)
+  add_executable(${TESTFILE} test/main.cpp ${SOURCES} test/filters/${TESTFILE} node_qt.hpp)
 
   includes_and_libs_for(${TESTFILE})
   target_link_libraries(${TESTFILE} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})

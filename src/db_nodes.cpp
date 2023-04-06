@@ -4,6 +4,8 @@
 #include <iostream>
 #include <regex>
 
+#include <filters.hpp>
+
 #include <boost/log/trivial.hpp>
 #include <boost/log/expressions.hpp>
 #include <boost/program_options.hpp>
@@ -12,40 +14,15 @@
 namespace wot {
 
   // fetch a node from disk, and check if it is ok against given filters
-  // In order for rule-filter and to-filter to work properly in detailed listing, we should generate an array of nodes reduced by the filters
+  // In order for rule-filter and to-filter to work properly in detailed
+  // listing, we should generate an array of nodes reduced by the filters
   bool Db_nodes::filter_node(const po::variables_map & vm, const std::filesystem::directory_entry & file) {
     Node n = fetch_node(file);
-    //FILTERS are in 'and'
-    bool found = true;
-    if(vm.count("to-filter")) {
-      found = false;
-      auto to = vm["to-filter"].as<std::string>();
-      for(const auto & link : n.get_trust()) {
-        if(link.get_to() == vm["to-filter"].as<std::string>()) {
-          found = true;
-        }
-      }
-    }
-    if(not found) return false;
-    if(vm.count("rule-filter")) {
-      found = false;
-      auto rule = vm["rule-filter"].as<std::string>();
-      for(const auto & link : n.get_trust()) {
-        auto rules = link.get_rules();
-        if(find(rules.begin(), rules.end(), rule) != rules.end()) {
-          found = true;
-        }
-      }
-    }
-    if(not found) return false;
-    if(vm.count("from-filter")) {
-      auto from = vm["from-filter"].as<std::string>();
-      found = from == n.get_profile().get_key();
-    }
-    if(not found) return false;
-    if(vm.count("hash-filter")) {
-      auto hash = vm["from-filter"].as<std::string>();
-      found = hash == n.get_signature().get_hash();
+
+    // All the filters are evaluated in "and" mode
+    for(const auto & f : Filters().all) {
+      if(vm.count(f->get_name()) && !f->check(n,vm[f->get_name()].as<std::string>()) ) return false;
+      LOG << f->get_name();
     }
     return true;
   }
