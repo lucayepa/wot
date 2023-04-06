@@ -22,6 +22,17 @@ struct ConfigTest {
   Config & c = Config::get();
 };
 
+// What happens if Config is not initialized with `load`?
+BOOST_AUTO_TEST_SUITE(Config_suite_without_init);
+
+BOOST_AUTO_TEST_CASE(test_config_w0) {
+  BOOST_TEST_MESSAGE("In not loaded, load the default file, so signer is never NULL");
+  BOOST_CHECK(Config::get().get_signer() != nullptr);
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+
 BOOST_FIXTURE_TEST_SUITE(Config_suite, ConfigTest);
 
 //Config & c = Config::get();
@@ -31,11 +42,9 @@ BOOST_AUTO_TEST_CASE(test_config_1) {
   BOOST_CHECK(c.load("/tmp/test_file_config.toml"));
 }
 
-/*
 BOOST_AUTO_TEST_CASE(test_config_2) {
-  BOOST_CHECK(!c.absolute_default_config_dir().empty());
+  BOOST_CHECK(Config::get().get_signer() != nullptr);
 }
-*/
 
 /*
 BOOST_AUTO_TEST_CASE(test_config_3) {
@@ -61,6 +70,8 @@ BOOST_AUTO_TEST_CASE(test_config_7, * boost::unit_test::disabled()) {
   BOOST_TEST_MESSAGE("Beware: removing default config file from user home dir");
   DiskDb::generic_remove_file(DEFAULT_CONFIG_FILE);
   // TODO: modify HOME env to /tmp and enable the test
+  // Config is a singleton, so loading a different one has no sense
+  // because the fixture already loads one.
   Config & d = Config::get();
   d.load();
   BOOST_TEST_MESSAGE("Get will create a new default config file");
@@ -69,7 +80,7 @@ BOOST_AUTO_TEST_CASE(test_config_7, * boost::unit_test::disabled()) {
 }
 
 BOOST_AUTO_TEST_CASE(test_config_8) {
-  std::string cli = c.get().signer->sign_cli("","","");
+  std::string cli = c.get().get_signer()->sign_cli("","","");
   BOOST_CHECK(boost::algorithm::contains(cli, "electrum"));
 }
 

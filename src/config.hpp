@@ -38,6 +38,9 @@ private:
   // This is not in config file. It is the main command name of the program.
   std::string command;
 
+  std::shared_ptr<Signer> signer;
+  std::shared_ptr<Verifier> verifier;
+
   // Cache the information that init has been successfully completed
   bool init_done = false;
 
@@ -54,11 +57,13 @@ public:
   }
 
   toml::table config;
-  std::shared_ptr<Signer> signer;
-  std::shared_ptr<Verifier> verifier;
 
   const std::string & get_command() const { return command; }
   void set_command(const std::string & c) { this->command = c; }
+  const std::shared_ptr<Signer> & get_signer();
+  void set_signer(const std::shared_ptr<Signer> & s) { this->signer = s; }
+  const std::shared_ptr<Verifier> & get_verifier();
+  void set_verifier(const std::shared_ptr<Verifier> & s) { this->verifier = s; }
 
   inline static std::string default_config_file;
 

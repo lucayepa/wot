@@ -11,6 +11,24 @@
 
 namespace wot {
 
+const std::shared_ptr<Signer> & Config::get_signer() {
+  // If not loaded, load the default
+  load();
+  if(!signer) {
+    LOG << "Error: no signer on file";
+  }
+  return signer;
+}
+
+const std::shared_ptr<Verifier> & Config::get_verifier() {
+  // If not loaded, load the default
+  load();
+  if(!verifier) {
+    LOG << "Error: no verifier on file";
+  }
+  return verifier;
+}
+
 bool Config::load(const std::string & file) {
   if (init_done) return true;
 

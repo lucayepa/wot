@@ -64,6 +64,10 @@ public:
   Node(const Node & n) : in(n.in), json_s(n.json_s) {
     import(n);
   };
+  // Creating a Node with the constructor does not populate the internal node
+  // content. In order to have a fully functional Node from a toml file, a
+  // sign, or verify, action is needed:
+  // Node n(s); n.verify_node(true,true);
   Node(const std::string s) : in(s) {};
   Node() = default;
   ~Node() = default;

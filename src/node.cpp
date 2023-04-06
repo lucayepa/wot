@@ -163,7 +163,7 @@ namespace wot {
 
     if(Cache_sig().signature_verify_from_cache(*this)) return true;
 
-    if(Config::get().verifier->verify_signature(*this, Config::get().get_command())) {
+    if(Config::get().get_verifier()->verify_signature(*this, Config::get().get_command())) {
       // Add the signature to the cache of known signatures
       DiskDb("sig").add(get_signature().get_hash(),get_signature().get_sig());
       return true;
@@ -174,7 +174,7 @@ namespace wot {
       "     Address: " << get_profile().get_key() << endl <<
       "   Signature: " << get_signature().get_sig() << endl <<
       "Command to verify: " << endl <<
-      Config::get().verifier->verify_cli(get_signature().get_sig(),get_profile().get_key(),get_signature().get_hash()) << endl <<
+      Config::get().get_verifier()->verify_cli(get_signature().get_sig(),get_profile().get_key(),get_signature().get_hash()) << endl <<
       endl <<
       "If, on the other side, you want to generate a valid signature: " << Config::get().get_command() << " help sign" << endl;
       return false;
@@ -257,7 +257,8 @@ namespace wot {
       LOG << "No signature for this hash in the cache.";
 
       // Try to sign the message
-      std::optional<string> sig = Config::get().signer->sign(*this, Config::get().get_command());
+      std::optional<string> sig = Config::get().get_signer()->sign(*this, Config::get().get_command());
+
       if(!sig.has_value()) return std::nullopt;
 
       // Add the signature to the cache of known signatures
