@@ -82,6 +82,20 @@ namespace wot {
     return buffer;
   }
 
+  bool DiskDb::generic_read_file(const std::string & filename, std::string & content) {
+    std::ifstream f(filename);
+    if(f.fail()) return false;
+    std::stringstream buffer;
+    LOG << "Reading from " << filename;
+    try {
+      buffer << f.rdbuf();
+      content = buffer.str();
+      return true;
+    } catch(...) {
+      return false;
+    }
+  }
+
   bool DiskDb::generic_write_file(const std::string & filename, const std::string & content) {
     std::ofstream f;
     LOG << "Writing to " << filename;

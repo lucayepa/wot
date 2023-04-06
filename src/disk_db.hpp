@@ -36,12 +36,13 @@ public:
   };
   ~DiskDb() {};
 
-  // Generic functions. Return true on success.
+  // Generic functions walid for any file. Return true on success.
   static bool generic_file_exists(const std::string & file);
   static bool generic_dir_exists(const std::string & dir);
   static bool generic_mkdir(const std::string & dir);
   static bool generic_write_file(const std::string & filename, const std::string & content);
   static bool generic_remove_file(const std::string & filename);
+  static bool generic_read_file(const std::string & filename, std::string & content);
 
   // Wrap around generic_mkdir, with LOG and cerr
   // Does not create parents
