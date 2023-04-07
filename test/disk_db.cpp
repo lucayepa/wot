@@ -12,10 +12,11 @@ BOOST_AUTO_TEST_CASE(generic_read_file) {
   BOOST_CHECK(DiskDb::generic_read_file("/etc/passwd",s));
   BOOST_CHECK(boost::algorithm::contains(s, "root"));
 
-  BOOST_TEST_MESSAGE("This is false because current dir is build dir");
+  BOOST_TEST_MESSAGE("This is false because current dir is build dir/test");
   BOOST_CHECK( ! DiskDb::generic_read_file("test/node1s.toml",s));
 
-  BOOST_CHECK(DiskDb::generic_read_file("../test/node1s.toml",s));
+  BOOST_TEST_MESSAGE("The file is in current directory");
+  BOOST_CHECK(DiskDb::generic_read_file("node1s.toml",s));
 
   BOOST_CHECK(boost::algorithm::contains(s, "circle"));
 }

@@ -7,6 +7,8 @@ project(
   LANGUAGES CXX
 )
 
+set(CMAKE_CXX_STANDARD 17)
+
 enable_testing()
 
 # This part only if this is the main project and not included
@@ -30,67 +32,21 @@ FetchContent_Declare(
   json
   URL https://github.com/nlohmann/json/releases/download/v3.11.2/json.tar.xz
 )
+FetchContent_MakeAvailable(json)
 
 FetchContent_Declare(
   tomlplusplus
   GIT_REPOSITORY https://github.com/marzer/tomlplusplus.git
   GIT_TAG        v3.3.0
 )
-
-FetchContent_MakeAvailable(json)
 FetchContent_MakeAvailable(tomlplusplus)
 
-find_program (QUICKTYPE quicktype)
-if(NOT QUICKTYPE)
-    message(FATAL_ERROR "Quicktype not found. Please install it: `npm install -g quicktype`")
+set(CMAKE_BUILD_TYPE Debug)
+
+add_subdirectory(src)
+
+if( WITH_TEST )
+  add_subdirectory(test)
+else()
+  add_subdirectory(test EXCLUDE_FROM_ALL)
 endif()
-
-set(CMAKE_CXX_STANDARD 17)
-
-file(GLOB_RECURSE SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} CONFIGURE_DEPENDS src/*.cpp)
-list(REMOVE_ITEM SOURCES src/wot.cpp)
-
-add_executable(wot src/wot.cpp ${SOURCES} node_qt.hpp)
-
-add_custom_command(
-  OUTPUT node_qt.hpp
-  COMMAND ${QUICKTYPE} -s schema -t node -l C++ --namespace wot_qt --no-boost --include-location global-include -S ${CMAKE_CURRENT_SOURCE_DIR}/src/link.json -o node_qt.hpp ${CMAKE_CURRENT_SOURCE_DIR}/src/node.json
-  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/link.json ${CMAKE_CURRENT_SOURCE_DIR}/src/node.json
-  VERBATIM
-)
-
-function(includes_and_libs_for target)
-  target_include_directories(${target} PUBLIC src)
-  target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
-  target_include_directories(${target} PUBLIC ${tomlplusplus_SOURCE_DIR})
-  target_include_directories(${target} PUBLIC ${Boost_INCLUDE_DIR})
-  target_link_libraries(${target} ${Boost_LIBRARIES})
-  target_link_libraries(${target} OpenSSL::SSL)
-  target_link_libraries(${target} nlohmann_json)
-endfunction()
-
-includes_and_libs_for(wot)
-
-file(GLOB tests RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/test CONFIGURE_DEPENDS test/*.cpp)
-file(GLOB test-filters RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/test/filters CONFIGURE_DEPENDS test/filters/*.cpp)
-list(REMOVE_ITEM tests main.cpp)
-
-foreach(TESTFILE IN LISTS tests)
-  add_executable(${TESTFILE} test/main.cpp ${SOURCES} test/${TESTFILE} node_qt.hpp)
-
-  includes_and_libs_for(${TESTFILE})
-  target_link_libraries(${TESTFILE} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-  target_compile_definitions(${TESTFILE} PRIVATE "BOOST_TEST_DYN_LINK=1")
-
-  add_test(NAME ${TESTFILE} COMMAND ${TESTFILE})
-endforeach()
-
-foreach(TESTFILE IN LISTS test-filters)
-  add_executable(${TESTFILE} test/main.cpp ${SOURCES} test/filters/${TESTFILE} node_qt.hpp)
-
-  includes_and_libs_for(${TESTFILE})
-  target_link_libraries(${TESTFILE} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-  target_compile_definitions(${TESTFILE} PRIVATE "BOOST_TEST_DYN_LINK=1")
-
-  add_test(NAME ${TESTFILE} COMMAND ${TESTFILE})
-endforeach()

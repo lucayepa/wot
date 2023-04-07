@@ -13,7 +13,7 @@ BOOST_AUTO_TEST_SUITE(FromFilterTest)
 
 BOOST_AUTO_TEST_CASE(check) {
   std::string s;
-  BOOST_CHECK(DiskDb::generic_read_file("../test/node1s.toml",s));
+  BOOST_CHECK(DiskDb::generic_read_file("../node1s.toml",s));
   Node n(s);
 
   //Need to verify the node to fill up n
