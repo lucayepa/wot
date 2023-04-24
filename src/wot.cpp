@@ -15,6 +15,7 @@
 #include <disk_db.hpp>
 #include <db_nodes.hpp>
 #include <cache_sig.hpp>
+#include <filters.hpp>
 
 namespace wot {
 
@@ -53,14 +54,18 @@ int main(int argc, char *argv[]) {
     ("force-accept-sig", "Accept signature on object, without verification")
     ("json-output", "Output a TOML object as JSON (signature remains the TOML one) (sign-toml)")
     ("signature", po::value< string >(), "Signature to be added to the local db as a known signatures (add-sig)")
-    ("rule-filter,R", po::value< string >(), "rule filter (ls)")
-    ("to-filter,T", po::value< string >(), "to filter (ls)")
-    ("from-filter,F", po::value< string >(), "from filter (ls)")
-    ("hash-filter,H", po::value< string >(), "hash filter (ls)")
     ("input-file,I", po::value< string >(), "input file")
     ("command", /*po::value< string >()->default_value("verify"),*/ "help | sign | sign-toml | add | verify | ls | ls-rules | view | add-sig | rm-sig | ls-sig")
     ("param", /*po::value< string >(),*/ "parameter (view <hash>, ls <hash>)")
   ;
+
+  for(const auto & f : Filters().all) {
+    desc.add_options()
+      ( f->get_cli_option().c_str(),
+        po::value< string >(),
+        f->get_description().c_str()
+      );
+  }
 
   po::positional_options_description positional;
   positional.add("command", 1);

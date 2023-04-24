@@ -6,8 +6,7 @@
 #define FILTER_START(FILTER_NAME) \
   namespace wot { \
   struct FILTER_NAME : public Filter { \
-    std::string get_name() { return STRINGIFY( FILTER_NAME ); }\
-    std::string get_cli_option() { return STRINGIFY( FILTER_NAME ); }
+    std::string get_name() { return STRINGIFY( FILTER_NAME ); }
 
 #define FILTER_END() }; \
   } // namespace wot
@@ -25,8 +24,10 @@ struct Filter {
   virtual ~Filter() {}
   virtual std::string get_name() = 0;
   virtual std::string get_description() = 0;
-  virtual std::string get_cli_option() = 0;
   virtual bool check(const Node & n, const std::string & arg) const = 0;
+
+  // CamelCase to filter-name-cli-option style
+  const std::string get_cli_option();
 };
 
 } // namespace wot

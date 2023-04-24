@@ -6,10 +6,11 @@ See [doc/README.md](doc/README.md)
 
 See [doc/command_help.txt](doc/command_help.txt) for the help output from the program.
 
-## Build
+## Build and run
 ```
 cmake -S . -B build
 cmake --build build
+build/src/wot help
 ```
 
 ## Doxygen docs
