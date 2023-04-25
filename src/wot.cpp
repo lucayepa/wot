@@ -1,5 +1,4 @@
 #include <iostream>
-#include <toml.hpp>
 #include <boost/log/core.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/log/expressions.hpp>
@@ -7,30 +6,19 @@
 #include <iomanip>
 #include <sstream>
 #include <string>
-#include <filesystem>
-
-#include <node.hpp>
 
 #include <config.hpp>
-#include <disk_db.hpp>
-#include <db_nodes.hpp>
-#include <cache_sig.hpp>
 #include <filters.hpp>
 #include <commands.hpp>
-
-namespace wot {
-
-namespace po = boost::program_options;
-
-} // namespace wot
 
 int main(int argc, char *argv[]) {
 
   using std::string;
 
+  namespace po = boost::program_options;
+
   using namespace wot;
 
-  // ENV vars
   string command = argv[0];
   Config::get().set_command(command);
 
@@ -116,18 +104,23 @@ int main(int argc, char *argv[]) {
 
   if (vm.count("help") || vm["command"].as<string>() == "help" ) {
     if(vm.count("param")) {
-      //TODO - add a check if the help for that command does not exist
-      std::cout << help[vm["param"].as<string>()];
-      return 0;
+      std::string param{vm["param"].as<string>()};
+      if(help.count(param)) {
+        std::cout << help[param];
+        return EXIT_SUCCESS;
+      } else {
+        std::cerr << "No help content for command " << param << std::endl;
+        return EXIT_FAILURE;
+      }
     } else {
       std::cout << usage << std::endl << std::endl;
       std::cout << commands_help.str() << std::endl;
       std::cout << desc << std::endl;
       std::cout << "help <command> to get help on a command" << std::endl;
-      return 0;
+      return EXIT_SUCCESS;
     }
   }
 
   std::cerr << "Not a valid command" << std::endl;
-  return 1;
+  return EXIT_FAILURE;
 }
