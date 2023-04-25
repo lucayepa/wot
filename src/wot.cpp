@@ -21,12 +21,6 @@ namespace wot {
 
 namespace po = boost::program_options;
 
-void get_input(std::string & s) {
-  // Get the whole stdin in a string
-  s = std::string(std::istreambuf_iterator<char>(std::cin), {});
-  LOG << "Loaded input.";
-};
-
 } // namespace wot
 
 int main(int argc, char *argv[]) {

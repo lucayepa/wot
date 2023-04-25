@@ -67,6 +67,10 @@ public:
 
   inline static std::string default_config_file;
 
+  // Get the whole stdin in a string
+  // Return false if there is an exception
+  static bool get_input(std::string & s);
+
   // Try to load the config. If the file is not there and is different
   // from the default, return error.
   // If the file is not there and is the default file, create it with the

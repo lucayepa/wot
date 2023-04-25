@@ -65,4 +65,14 @@ bool Config::load(const std::string & file) {
   }
 }
 
+bool Config::get_input(std::string & s) {
+  try {
+    s = std::string(std::istreambuf_iterator<char>(std::cin), {});
+    LOG << "Loaded input.";
+    return true;
+  } catch(...) {
+    return false;
+  }
+}
+
 } // namespace wot
