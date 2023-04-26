@@ -27,7 +27,7 @@ Hash tables should be lexically sorted by key, as explained in RFC 8785 - 3.2.3.
 Integers are signed decimals. The + in front of a positive integer, if present, will be removed. There are no optional integers. No zero padding allowed.
 
 ## Helpers
-Internal links of the object to the two helpers hashes _defaults_ and _rules_ should be solved according to the main definition of a generic node object. Values should be inserted in the JSON object
+Internal links of the object to the two helpers hashes _defaults_ and _ref_ should be solved according to the main definition of a generic node object. Values should be inserted in the JSON object
 
 ## Notes
 For anything not written here, please use RFC 8785: <https://www.rfc-editor.org/rfc/rfc8785>
@@ -79,4 +79,4 @@ since = ...
 ```
 
 ## Helpers
-Internal links of the object to the two helpers tables _defaults_ and _rules_ can be solved and removed.
+Internal links of the object to the two helpers tables _defaults_ and _ref_ can be solved and removed.

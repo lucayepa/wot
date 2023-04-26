@@ -24,6 +24,7 @@ BOOST_AUTO_TEST_CASE(check) {
 
   std::string result;
   SolveCommand().solve_no_ui(before, result);
+  //BOOST_TEST_MESSAGE(result);
 
   BOOST_CHECK(result == after);
 }

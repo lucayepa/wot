@@ -22,7 +22,7 @@ namespace wot {
     return Program::cli_filter(toml,"head -n -2");
   }
 
-  // solve a TOML object by removing the two helping hashes: defaults and rules
+  // solve a TOML object by removing the two helping hashes: defaults and ref
   void Node::solve( std::string_view in, toml::table & t ) {
     t = toml::parse(in);
     if (toml::array* trust = t["trust"].as_array()) {
@@ -35,9 +35,9 @@ namespace wot {
         t.as_table()->erase("defaults");
       };
 
-      // Substitute rules
-      if (t["rules"].as_table()) {
-        t["rules"].as_table()->for_each([&](const toml::key& key, auto&& rule_value){
+      // Substitute ref
+      if (t["ref"].as_table()) {
+        t["ref"].as_table()->for_each([&](const toml::key& key, auto&& rule_value){
           if (toml::array* trust = t["trust"].as_array()) {
             trust->for_each([&](auto&& link){
               auto a = link.as_table()->at((std::string_view)"rules").as_array();
@@ -47,7 +47,7 @@ namespace wot {
             });
           };
         });
-        t.as_table()->erase("rules");
+        t.as_table()->erase("ref");
       };
     };
   }
@@ -158,7 +158,7 @@ namespace wot {
 
   bool Node::signature_verify() const {
     using std::endl;
-    
+
     if(!sanitize()) return false;
 
     if(Cache_sig().signature_verify_from_cache(*this)) return true;

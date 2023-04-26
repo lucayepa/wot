@@ -151,7 +151,7 @@ The generic node can be seen [here](../doc/examples/example.toml).
 Two hash tables are used to keep the node object as compact as possible. They are removed before signing the object. They are:
 
 * _defaults_, if present, contains the values to be considered when a trust _link_ does not contain a certain field.
-* _rules_, if present, contains references to versions of rules adopted by the community joined by the user. Keys of this table are local only and can be used in the _rule_ field of a _link_ of the _trust_ array.
+* _ref_, if present, contains references to versions of rules adopted by the community joined by the user. Keys of this table are local only and can be used in the _rules_ array of a _link_ of the _trust_ array.
 
 _implementation_ refers to a document describing the implementation schema that this object adheres to.
 
@@ -211,7 +211,7 @@ _trust_ is a key of the node object. The value is an array having _link_ element
 ### Link
 Every element of the _trust_ array has the following properties: _rules_, _since_, _to_, _unit_, _value_.
 
-_rules_ is an array of links to the rules that the user accepts to adhere to with this link. It can be a URL, an IPFS address, an IPNS address, or a reference to a key of the helper table _rules_, that contains a URL, IPFS or IPNS string.
+_rules_ is an array of links to the rules that the user accepts to adhere to with this link. It can be a URL, an IPFS address, an IPNS address, or a reference to a key of the helper table _ref_, that contains a URL, IPFS or IPNS string.
 
 _since_ (integer) is a timestamp of the creation of the link. For example, depending on implementations, it can be set to the block number height of the Bitcoin time chain at the time this link has been created. On the community layer, it can be used to avoid circular sponsorships, self sponsorships, and some Sybil attacks. Also, by using this number, a community can slow the pace of new links on a single path to a value of 10 minutes for each new node added to the path (on average).
 

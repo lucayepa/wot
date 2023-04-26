@@ -16,8 +16,8 @@ telegram = 'satoshinakamoto'
 twitter = 'satoshi'
 
 [signature]
-hash = '7fba4f494e78dd102c6fad4d6ab360e8618a00195889e162701ffac0addc2b52'
-sig = 'IE9TDJi7ECSljHGCKB6ER2oRefjgReNuc/lPlzFtqEuHK2hX1z3ZRotx0VdqMPWwBqktOKFWSXFvBI8MSlVfd5Q='
+hash = 'dad8630bad7eec85c68b8e2c81af8c9ec94073c699b7a638563de9a48553e3be'
+sig = 'IF2TjZHZ3ZoJldZPjE7zT1Vwk34ji9/m4jxudPe3CfwSN5NzqBypYPyQui6vtOIRQn/x09ufm0OX0FWAqJKIGGs='
 
 [sources]
 ipns = 'satoshi.bitcoin.org'
