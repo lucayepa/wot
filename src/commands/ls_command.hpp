@@ -1,3 +1,5 @@
+#pragma once
+
 #include <string>
 
 #include <boost/program_options.hpp>
@@ -8,9 +10,9 @@
 COMMAND_START(LsCommand)
   COMMAND_CLI("ls")
   COMMAND_SHORT_DESCRIPTION("List of the objects in the internal db filtered against the provided filters.")
-  COMMAND_SYNOPSIS("wot [--rule-filter RULE] [--to-filter TO] [from-filter FROM] ls")
+  COMMAND_SYNOPSIS("wot [--rule-filter RULE] [--to-filter TO] [--from-filter FROM] [...] ls")
   COMMAND_DESCRIPTION(R"(
-  List of the objects in the internal db filtered against the provided filters.
+  List of the objects of the internal db, filtered against the provided filters.
 
   BUG: The objects are first filtered, then are listed as full object.
   This means that if a single link of an object pass the filter, then all the links are shown.

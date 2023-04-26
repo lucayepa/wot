@@ -10,6 +10,7 @@
 #include "filters/from_filter.hpp"
 #include "filters/to_filter.hpp"
 #include "filters/rule_filter.hpp"
+#include "filters/grep_filter.hpp"
 
 namespace wot {
 
@@ -23,6 +24,7 @@ struct Filters {
     all.push_back(std::make_unique<FromFilter>());
     all.push_back(std::make_unique<ToFilter>());
     all.push_back(std::make_unique<RuleFilter>());
+    all.push_back(std::make_unique<GrepFilter>());
   }
 };
 
