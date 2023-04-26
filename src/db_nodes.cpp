@@ -62,7 +62,7 @@ namespace wot {
     }
   }
 
-  void Db_nodes::list_rules() {
+  void Db_nodes::list_on() {
     std::regex is_toml( "orig$" );
     std::regex is_sig( "sig$" );
     for (const auto & entry : std::filesystem::directory_iterator(DiskDb().get_dir())) {
@@ -73,13 +73,13 @@ namespace wot {
       LOG << "Checking: " << (std::string)entry.path().filename();
       Node n2(content.str());
       n2.verify_node(/*force_accpet_hash=*/true,/*force_accpet_sig=*/true);
-      std::map<std::string,int> rules;
+      std::map<std::string,int> on;
       for(const auto & link : n2.get_trust()) {
-        for(const auto & rule : link.get_rules()) {
-          rules[rule]++;
+        for(const auto & r : link.get_on()) {
+          on[r]++;
         }
       }
-      for(const auto & x : rules) {
+      for(const auto & x : on) {
         std::cout << x.first << " [" << x.second << "]" << std::endl;
       }
     }

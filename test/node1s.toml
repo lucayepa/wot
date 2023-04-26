@@ -16,8 +16,8 @@ telegram = 'satoshinakamoto'
 twitter = 'satoshi'
 
 [signature]
-hash = 'dad8630bad7eec85c68b8e2c81af8c9ec94073c699b7a638563de9a48553e3be'
-sig = 'IF2TjZHZ3ZoJldZPjE7zT1Vwk34ji9/m4jxudPe3CfwSN5NzqBypYPyQui6vtOIRQn/x09ufm0OX0FWAqJKIGGs='
+hash = 'bd4fdaea9f95d0fbe6027bf283f7f6f4fe0d1321b0367a15d33bd81b36b559c7'
+sig = 'IH263mg7MY+e1n+BswEfqrLR5wVngY2DvtWvkCj6PkO/BzJR6U7TLnW4jgWn9FfzzHzLXZx1RR5DMGuSe3Tkn5I='
 
 [sources]
 ipns = 'satoshi.bitcoin.org'
@@ -25,14 +25,14 @@ nostr = 'npub1gl23nnfmlewvvuz7xgrrauuexx2xj70whdf5yhd47tj0r8p68t6sww70gt'
 url = 'http://satoshi.bitcoin.org'
 
 [[trust]]
-rules = [ 'https://gist.github.com/lucayepa/3bec3ba83fcc9a576aa79a7f16326be3', 'http://other.community.rules.com' ]
+on = [ 'https://gist.github.com/lucayepa/3bec3ba83fcc9a576aa79a7f16326be3', 'http://other.community.rules.com' ]
 since = 11
 to = 'bc1qvhg867v620d7vtg4e5qnuh5py8esqhs65w0r4c'
 unit = 'USD'
 value = 70
 
 [[trust]]
-rules = [ 'https://gist.github.com/lucayepa/3bec3ba83fcc9a576aa79a7f16326be3' ]
+on = [ 'https://gist.github.com/lucayepa/3bec3ba83fcc9a576aa79a7f16326be3' ]
 since = 15
 to = '12c6DSiU4Rq3P4ZxziKxzrL5LmMBrzjrJX'
 unit = 'EUR'

@@ -44,7 +44,7 @@ This section assumes that the user is part of a community that uses the bitcoin 
 * Can different communities use the same web of trust?
   * Yes. For example, a community that wants to play tennis every Thursday, can share parts of a web of trust with a community that manages meetings to trade collectible cards. And both can use the web of trust already in place for a community that manages a bitcoin-to-fiat exchange market. 
 * What if a user is a member of multiple communities?
-  * Every link between users contains a field named _rules_ that defines against what rules the user is trusting the other users. This field can be used as a sort of agreement, meaning that a user is linked to another user with an agreement. For example, a community that manages a market can define that a user is liable for another user up to the value contained in the link between the users.
+  * Every link between users contains an array named _on_ that defines against what "tags", or "rules" the user is trusting the other users. This field can be used as a sort of agreement, meaning that a user is linked to another user with an agreement. For example, a community that manages a market can define that a user is liable for another user up to the value contained in the link between the users.
 
 ## FAQ - node
 * What is the content of a node?
@@ -151,7 +151,7 @@ The generic node can be seen [here](../doc/examples/example.toml).
 Two hash tables are used to keep the node object as compact as possible. They are removed before signing the object. They are:
 
 * _defaults_, if present, contains the values to be considered when a trust _link_ does not contain a certain field.
-* _ref_, if present, contains references to versions of rules adopted by the community joined by the user. Keys of this table are local only and can be used in the _rules_ array of a _link_ of the _trust_ array.
+* _ref_, if present, contains references to versions of rules adopted by the community joined by the user, contained in the array _on_. Keys of this table are local only and can be used in the _on_ array of a _link_ of the _trust_ array.
 
 _implementation_ refers to a document describing the implementation schema that this object adheres to.
 
@@ -209,9 +209,9 @@ The most important part of the node object is the set of links to other users. E
 _trust_ is a key of the node object. The value is an array having _link_ elements. These are the links of the graph, containing the weight ("value") expressed in "unit"s. As an example, the _trust_ array contains the sponsorships given by the owner of this node to other users.
 
 ### Link
-Every element of the _trust_ array has the following properties: _rules_, _since_, _to_, _unit_, _value_.
+Every element of the _trust_ array has the following properties: _on_, _since_, _to_, _unit_, _value_.
 
-_rules_ is an array of links to the rules that the user accepts to adhere to with this link. It can be a URL, an IPFS address, an IPNS address, or a reference to a key of the helper table _ref_, that contains a URL, IPFS or IPNS string.
+_on_ is an array of links to the rules that the user accepts to adhere to, with this link. It can be a URL, an IPFS address, an IPNS address, or a reference to a key of the helper table _ref_, that contains a URL, IPFS or IPNS string.
 
 _since_ (integer) is a timestamp of the creation of the link. For example, depending on implementations, it can be set to the block number height of the Bitcoin time chain at the time this link has been created. On the community layer, it can be used to avoid circular sponsorships, self sponsorships, and some Sybil attacks. Also, by using this number, a community can slow the pace of new links on a single path to a value of 10 minutes for each new node added to the path (on average).
 

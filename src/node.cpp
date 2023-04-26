@@ -40,7 +40,7 @@ namespace wot {
         t["ref"].as_table()->for_each([&](const toml::key& key, auto&& rule_value){
           if (toml::array* trust = t["trust"].as_array()) {
             trust->for_each([&](auto&& link){
-              auto a = link.as_table()->at((std::string_view)"rules").as_array();
+              auto a = link.as_table()->at((std::string_view)"on").as_array();
               a->for_each([&](auto&& b, size_t index){
                 if(b.value_or((std::string_view)"")==(std::string_view)key) { a->replace(a->cbegin()+index,rule_value); }
               });

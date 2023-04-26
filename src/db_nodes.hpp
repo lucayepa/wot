@@ -33,7 +33,7 @@ public:
   static bool filter_node(const po::variables_map & vm, const std::filesystem::directory_entry & file);
   static void add_node(const std::string & filename, const std::string & orig, const std::string & json);
   static void list_nodes(const po::variables_map & vm);
-  static void list_rules();
+  static void list_on();
 
 };
 

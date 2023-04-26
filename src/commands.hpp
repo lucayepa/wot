@@ -9,7 +9,7 @@
 #include "commands/sign_command.hpp"
 #include "commands/verify_command.hpp"
 #include "commands/add_command.hpp"
-#include "commands/ls_rules_command.hpp"
+#include "commands/ls_on_command.hpp"
 #include "commands/ls_command.hpp"
 #include "commands/add_sig_command.hpp"
 #include "commands/rm_sig_command.hpp"

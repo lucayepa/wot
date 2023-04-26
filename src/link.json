@@ -4,7 +4,7 @@
   "description": "A link of the web of trust",
       "type": "object",
       "properties": {
-        "rules": {
+        "on": {
           "type": "array",
           "items": { "type": "string" }
         },
@@ -13,6 +13,6 @@
         "unit": { "type": "string" },
         "value": { "type": "integer" }
       },
-      "required": [ "rules", "since", "to", "unit", "value" ],
+      "required": [ "on", "since", "to", "unit", "value" ],
       "additionalProperties": false
 }
