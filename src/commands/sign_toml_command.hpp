@@ -34,7 +34,7 @@ COMMAND_START(SignTomlCommand)
           std::cerr << "TOML signed object. To verify a toml object, see "
           "`help verify`." << std::endl;
         }
-        std::cout << result.value() << std::endl;
+        std::cout << result.value();
         return true;
     } else {
         std::cout << "NOT ok" << std::endl;

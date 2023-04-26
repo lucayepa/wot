@@ -21,4 +21,18 @@ BOOST_AUTO_TEST_CASE(generic_read_file) {
   BOOST_CHECK(boost::algorithm::contains(s, "circle"));
 }
 
+BOOST_AUTO_TEST_CASE(HighLevelInterface) {
+  std::string key("KEY");
+  std::string value("VALUE");
+  DiskDb("test").add(key, value);
+
+  BOOST_CHECK(DiskDb("test").get(key).has_value());
+
+  BOOST_CHECK(DiskDb("test").get(key) == "VALUE");
+
+  BOOST_CHECK(DiskDb("test").rm(key));
+
+  BOOST_CHECK(!DiskDb("test").get(key).has_value());
+}
+
 BOOST_AUTO_TEST_SUITE_END()

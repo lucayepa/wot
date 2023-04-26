@@ -48,7 +48,7 @@ void ElectrumSigner::suggest_external_sign(
   // Command to add a signature to the cache
   string cache_cmd = main_command + " --signature `" + sign_cmd + "` "
     "add-sig " + n.get_signature().get_hash();
-  std::cout << "Please sign the hash using the private key of the address: " <<
+  std::cout << "Please sign the hash using the private key of the address " <<
     n.get_profile().get_key() << " and add it to the db of known " <<
     "signatures using the following command: " << std::endl << cache_cmd << std::endl;
 }
@@ -58,8 +58,8 @@ std::optional<string> ElectrumSigner::sign(const Node & n, const string & main_c
 
   if(!env_wallet) {
     LOG << "No WALLET in env.";
-    std::cerr << "Environment variable WALLET is not set. If you want to automate"
-        "this step, and you have a wallet without password, you can set the"
+    std::cerr << "Environment variable WALLET is not set. If you want to automate "
+        "this step, and you have a wallet without password, you can set the "
         "environment variable WALLET to the full path of your wallet." << std::endl;
     suggest_external_sign( env_wallet?env_wallet:"PATH_TO_YOUR_WALLET", n, main_command );
     return std::nullopt;

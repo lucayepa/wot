@@ -114,7 +114,8 @@ namespace wot {
   }
 
   bool DiskDb::write_file(const std::string & filename, const std::string & content) {
-    return DiskDb::generic_write_file(filename, content);
+    std::string abs = (std::string)(DiskDb().get_dir()/filename);
+    return DiskDb::generic_write_file(abs, content);
   }
 
   bool DiskDb::remove_file(const std::string & filename) {
@@ -124,13 +125,13 @@ namespace wot {
   }
 
   bool DiskDb::add(const std::string & hash, const std::string & sig) {
-    LOG << "Writing signature to " << hash << ".sig as a known signature";
-    return DiskDb::write_file(hash+".sig",sig);
+    LOG << "Writing signature to " << hash << "." << get_ext() << " as a known signature";
+    return DiskDb::write_file(hash+"."+get_ext(),sig);
   }
 
   // remove a known signature from the local database
   bool DiskDb::rm(const std::string & hash) {
-    std::string filename = hash + ".sig";
+    std::string filename = hash + "." + get_ext();
     return remove_file(filename);
   }
 
@@ -154,7 +155,7 @@ namespace wot {
   void DiskDb::print_list() const {
     // list all the known signatures in the database
     std::regex is_sig( get_table() + "$" );
-    std::cout << "hash: signature" << std::endl;
+    std::cout << "hash : signature" << std::endl;
     for (const auto & entry : std::filesystem::directory_iterator(DiskDb().get_dir())) {
       if(std::regex_search( (std::string)entry.path(), is_sig )) {
         std::stringstream content = DiskDb::read_file(entry.path().filename());
