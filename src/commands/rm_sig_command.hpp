@@ -18,7 +18,7 @@ COMMAND_START(RmSigCommand)
 )")
 
   bool act(const boost::program_options::variables_map & vm) const override {
-    DiskDb("sig").rm(vm["param"].as<string>());
+    DiskDb("sig").rm(vm["param"].as<std::string>());
     return true;
   }
 

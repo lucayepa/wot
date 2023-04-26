@@ -13,13 +13,11 @@
 
 int main(int argc, char *argv[]) {
 
-  using std::string;
-
   namespace po = boost::program_options;
 
   using namespace wot;
 
-  string command = argv[0];
+  std::string command = argv[0];
   Config::get().set_command(command);
 
   const std::string config_help =
@@ -31,12 +29,12 @@ int main(int argc, char *argv[]) {
   desc.add_options()
     ("help,h", "help message")
     ("verbose,v", "verbose output")
-    ("config", po::value< string >(), config_help.c_str())
+    ("config", po::value< std::string >(), config_help.c_str())
     ("force-accept-hash", "Accept node hash, without verification")
     ("force-accept-sig", "Accept signature on node, without verification")
     ("json-output", "Output a TOML node as JSON (signature remains the TOML one) (sign-toml)")
-    ("signature", po::value< string >(), "Signature to be added to the local db as a known signatures (add-sig)")
-    ("input-file,I", po::value< string >(), "input file")
+    ("signature", po::value< std::string >(), "Signature to be added to the local db as a known signatures (add-sig)")
+    ("input-file,I", po::value< std::string >(), "input file")
     ("command", "Command to execute (can even be positional after all the options)")
     ("param", "Argument of the command (can even be positional after command)")
   ;
@@ -44,7 +42,7 @@ int main(int argc, char *argv[]) {
   for(const auto & f : Filters().all) {
     desc.add_options()
       ( f->get_cli_option().c_str(),
-        po::value< string >(),
+        po::value< std::string >(),
         f->get_description().c_str()
       );
   }
@@ -56,10 +54,10 @@ int main(int argc, char *argv[]) {
   po::variables_map vm;
   po::store(po::command_line_parser(argc, argv).
             options(desc).positional(positional).run(), vm);
-  if (!vm.count("command")) { vm.emplace("command",po::variable_value((string)"help", true)); }
+  if (!vm.count("command")) { vm.emplace("command",po::variable_value((std::string)"help", true)); }
   po::notify(vm);
 
-  std::map<string,string> help;
+  std::map<std::string,std::string> help;
 
   if (!vm.count("verbose")) {
     using namespace boost::log;
@@ -73,7 +71,7 @@ int main(int argc, char *argv[]) {
   // Parse the configuration file
   try{
     if(vm.count("config")) {
-      Config::get().load(vm["config"].as<string>());
+      Config::get().load(vm["config"].as<std::string>());
     } else {
       Config::get().load();
     }
@@ -92,7 +90,7 @@ int main(int argc, char *argv[]) {
         c->get_short_description() << "\n";
       help[c->get_cli()] = c->get_synopsis() + "\n" + c->get_description();
     }
-    if (vm["command"].as<string>() == c->get_cli()) {
+    if (vm["command"].as<std::string>() == c->get_cli()) {
       if(!c->args_ok(vm)) {
         std::cerr << help[c->get_cli()] << std::endl;
         return EXIT_FAILURE;
@@ -102,9 +100,9 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  if (vm.count("help") || vm["command"].as<string>() == "help" ) {
+  if (vm.count("help") || vm["command"].as<std::string>() == "help" ) {
     if(vm.count("param")) {
-      std::string param{vm["param"].as<string>()};
+      std::string param{vm["param"].as<std::string>()};
       if(help.count(param)) {
         std::cout << help[param];
         return EXIT_SUCCESS;

@@ -21,7 +21,7 @@ COMMAND_START(AddSigCommand)
 )")
 
   bool act(const boost::program_options::variables_map & vm) const override {
-    DiskDb("sig").add(vm["param"].as<string>(), vm["signature"].as<string>());
+    DiskDb("sig").add(vm["param"].as<std::string>(), vm["signature"].as<std::string>());
     return true;
   }
 

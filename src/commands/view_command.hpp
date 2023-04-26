@@ -16,7 +16,7 @@ COMMAND_START(ViewCommand)
 )")
 
   bool act(const boost::program_options::variables_map & vm) const override {
-    DiskDb((std::string)"").print(vm["param"].as<string>());
+    DiskDb((std::string)"").print(vm["param"].as<std::string>());
     return true;
   }
 

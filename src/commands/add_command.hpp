@@ -7,6 +7,7 @@
 #include <command.hpp>
 #include <node.hpp>
 #include <db_nodes.hpp>
+#include <config.hpp>
 
 COMMAND_START(AddCommand)
   COMMAND_CLI("add")
