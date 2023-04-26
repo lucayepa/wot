@@ -26,3 +26,4 @@ foreach(testfile IN LISTS tests)
 endforeach()
 
 add_subdirectory(filters)
+add_subdirectory(commands)
