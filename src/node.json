@@ -26,14 +26,8 @@
     },
     "serial": { "type": "integer" },
     "sources": {
-      "type": "object",
-      "properties": {
-        "ipns": { "type": "string" },
-        "nostr": { "type": "string" },
-        "url": { "type": "string" }
-      },
-      "required": [ "ipns", "url", "nostr" ],
-      "additionalProperties": false
+      "type": "array",
+      "items": { "type": "string" }
     },
     "trust": {
       "type": "array",

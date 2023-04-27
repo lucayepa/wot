@@ -7,9 +7,7 @@ serial = 9
 implementation = "Bitcoin Italia Wot 1.1"
 
 #Examples of sources
-sources.ipns = "satoshi.bitcoin.org"
-sources.url = "http://satoshi.bitcoin.org"
-sources.nostr = "npub1gl23nnfmlewvvuz7xgrrauuexx2xj70whdf5yhd47tj0r8p68t6sww70gt"
+sources = [ "ipns://satoshi.bitcoin.org", "http://satoshi.bitcoin.org", "nostr://npub1gl23nnfmlewvvuz7xgrrauuexx2xj70whdf5yhd47tj0r8p68t6sww70gt" ]
 
 #Profile
 # This is your id. Substitute it with your identity key.
@@ -56,5 +54,5 @@ to = "12c6DSiU4Rq3P4ZxziKxzrL5LmMBrzjrJX"
 # Both signature.hash and signature.sig are mandatory.
 # Substitute with your address and signature as explained in WebOfTrustSign.md.
 [signature]
-hash = "bd4fdaea9f95d0fbe6027bf283f7f6f4fe0d1321b0367a15d33bd81b36b559c7"
-sig = "IH263mg7MY+e1n+BswEfqrLR5wVngY2DvtWvkCj6PkO/BzJR6U7TLnW4jgWn9FfzzHzLXZx1RR5DMGuSe3Tkn5I="
+hash = "d37a47c98a58f415a1e78af09415ee8cf61f5fafd0964e1e07f68c7a8938eb0b"
+sig = "H3Td60Pfi4R1PNm11wLjHnqIJOIr3YKyH/DU5Naf0F9cfh91hOkt9G7oZSSwGwqTXfgOlSLbNVrTSacMImAtjag="

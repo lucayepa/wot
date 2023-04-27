@@ -172,27 +172,29 @@ Rationale. Since every identity can maintain multiple node objects, without this
 
 A node object having the same _id_ and the same _circle_ string, with a greater _serial_ is considered a newer version of the same object.
 
-### Sources hash table
+### Sources array
 A node object can contain some information on where new versions of the same node object can be found.
 
-If the hash table _sources_ is present, the keys are protocols and the values are strings containing references to the sources.
+If the array _sources_ is present, it contains information on where to find new versions of the same node object.
 
-Any user or system receiving a new node object, or periodically re-checking some node objects already in memory, is supposed to check all the sources, to verify if there is a newer version of the same object. If a new object is found with the same _circle_ and a _serial_ greater than the _serial_ of the object in memory, the legacy object should be discarded and substituted with the new one. This behavior can be changed by implementations. For example, an implementation can state that a node object expires after a certain period.
+Any user or system receiving a new node object, or periodically re-checking some node objects already in memory, is supposed to check all the sources, to verify if there is a newer version of the same object. If a new object is found with the same _circle_ and a _serial_ greater than the _serial_ of the object in memory, the legacy object should be discarded and substituted with the new one. This behavior can be changed by implementations. For example, an implementation can state that a node object expires after a certain period of time.
 
-_sources.ipns_ contains a pointer to the IPFS hash of the node object in the form of an IPNS address or a domain name. For example: `luca.yepa.com` or `k51qzi5uqu5dlvj2baxnqndepeb86cbk3ng7n3i46uzyxzyqj2xjonzllnv0v8`.
+The array _sources_ can contain the following type of elements:
 
-_sources.url_ contains a URL of the node object (for example, `http://luca.yepa.com/friends.toml`).
+ipns://ipns-address: contains a pointer to the IPFS hash of the node object in the form of an IPNS address or a domain name. For example: `luca.yepa.com` or `k51qzi5uqu5dlvj2baxnqndepeb86cbk3ng7n3i46uzyxzyqj2xjonzllnv0v8`.
 
-_sources.nostr_ is the nostr id where new versions of the node object can be found. The IPFS hash will be in the Nostr field _name_, in the kind 0 event. For example, `npub1gl23nnfmlewvvuz7xgrrauuexx2xj70whdf5yhd47tj0r8p68t6sww70gt`.
+URL (http://..., https://..., ...): contains a URL of the node object (for example, `http://luca.yepa.com/friends.toml`).
+
+nostr://nostr-address: contains the nostr id where new versions of the node object can be found. The IPFS hash will be in the Nostr field _name_, in the kind 0 event. For example, `npub1gl23nnfmlewvvuz7xgrrauuexx2xj70whdf5yhd47tj0r8p68t6sww70gt`.
 
 In order to publish a node object, first the hash should be calculated as specified in [hash.md](hash.md), then the hash should be signed as specified in implementation -> sign. Then _hash_ and _sig_ should be added to the object in the _signature_ table.
 
 Example of publication to some sources:
 * The node object can be published on IPFS by pinning it. For example: `ipfs add node.toml`.
 * Then, depending on the source:
-   * _url_: change your web server and set the content of the URL to the new object
-   * _ipns_: publish it to your ipns: `ipfs name publish /ipfs/<ipfs key returned from the pinning command>
-   * _nostr_: change _sources.nostr_ event 0 _name_ and set it to a web URL, or to an IPFS hash
+   * URL: change your web server and set the content of the URL to the new object
+   * IPNS: publish it to your ipns: `ipfs name publish /ipfs/<ipfs key returned from the pinning command>
+   * Nostr: change _sources.nostr_ event 0 _name_ and set it to a web URL, or to an IPFS hash
 
 ### Profile hash table
 The _profile_ hash table, if present, contains information on how the user wants to be contacted. This information can be used by communities to define protocols of communication between users.

@@ -12,7 +12,7 @@
 
 namespace wot {
 
-using wot_qt::Profile, wot_qt::Signature, wot_qt::Sources, wot_qt::Link;
+using wot_qt::Profile, wot_qt::Signature, wot_qt::Link;
 
 // Common interface that hides if something is made on json or toml
 // It contains both the input as a string and a node, because some
