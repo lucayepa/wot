@@ -1,6 +1,6 @@
-// Basic db interface. Every object of this class contains a single
-// table. The class contains the name of the table. Keys and values
-// are strings.
+// Basic interface to access a database. Every object of this class contains a
+// single table. The class contains the name that identifies the table. Keys
+// and values are strings.
 
 #pragma once
 
@@ -15,6 +15,8 @@ private:
   const std::string table;
 
 public:
+  // A new created object is supposed to find the persistent data of the
+  // underlying table
   DbInterface(const std::string & table) : table(table) {};
   DbInterface() : table("") {};
   ~DbInterface() {};

@@ -16,7 +16,7 @@ COMMAND_START(LsRulesCommand)
 )")
 
   bool act(const boost::program_options::variables_map & vm) const override {
-    Db_nodes().list_on();
+    Db_nodes().list_on(vm);
     return true;
   }
 COMMAND_END()
