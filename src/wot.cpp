@@ -1,11 +1,12 @@
 #include <iostream>
+#include <iomanip>
+#include <sstream>
+#include <string>
+
 #include <boost/log/core.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/log/expressions.hpp>
 #include <boost/program_options.hpp>
-#include <iomanip>
-#include <sstream>
-#include <string>
 
 #include <config.hpp>
 #include <filters.hpp>
@@ -35,6 +36,9 @@ int main(int argc, char *argv[]) {
     ("json-output", "Output a TOML node as JSON (signature remains the TOML one) (sign-toml)")
     ("signature", po::value< std::string >(), "Signature to be added to the local db as a known signatures (add-sig)")
     ("input-file,I", po::value< std::string >(), "input file")
+    ("algo", po::value< std::string >(), "alorithm for identities (i.e. bitcoin)")
+    ("signer", po::value< std::string >(), "signer helper (i.e. electrum)")
+    ("verifier", po::value< std::string >(), "verifier helper (i.e. electrum)")
     ("command", "Command to execute (can even be positional after all the options)")
     ("param", "Argument of the command (can even be positional after command)")
   ;
@@ -55,10 +59,10 @@ int main(int argc, char *argv[]) {
   po::store(po::command_line_parser(argc, argv).
             options(desc).positional(positional).run(), vm);
   if (!vm.count("command")) { vm.emplace("command",po::variable_value((std::string)"help", true)); }
-  po::notify(vm);
 
   std::map<std::string,std::string> help;
 
+  // Check verbose right now, so we can use LOG in Config.load
   if (!vm.count("verbose")) {
     using namespace boost::log;
     core::get()->set_filter(
@@ -78,6 +82,25 @@ int main(int argc, char *argv[]) {
   } catch(...) {
     return EXIT_FAILURE;
   };
+
+  std::string af = Config::get().get_abs_file();
+  po::store(parse_config_file(af.c_str(), desc), vm);
+
+  if (vm.count("verbose")) {
+    using namespace boost::log;
+    core::get()->set_filter(
+      [](const attribute_value_set& attr_set) {
+        return true;
+      }
+    );
+  } else {
+    using namespace boost::log;
+    core::get()->set_filter(
+      [](const attribute_value_set& attr_set) {
+        return attr_set["Severity"].extract<trivial::severity_level>() > trivial::info;
+      }
+    );
+  }
 
   std::stringstream commands_help;
   commands_help << "Commands:\n" << std::setw(27) << std::left <<
