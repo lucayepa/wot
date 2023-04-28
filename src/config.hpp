@@ -35,6 +35,8 @@ private:
   Config() = default;
   ~Config() = default;
 
+  std::filesystem::path abs_file;
+
   // This is not in config file. It is the main command name of the program.
   std::string command;
 
@@ -49,7 +51,7 @@ public:
   Config(const Config&) = delete;
   Config& operator=(const Config&) = delete;
 
-  // First get initialize based on file. Then no file is needed.
+  // First call of `get` initialize based on file. Then no file is needed.
   static Config & get() {
     default_config_file = DEFAULT_CONFIG_FILE;
     static Config instance;
@@ -66,6 +68,8 @@ public:
   void set_verifier(const std::shared_ptr<Verifier> & s) { this->verifier = s; }
 
   inline static std::string default_config_file;
+
+  const std::filesystem::path & get_abs_file() const { return abs_file; };
 
   // Get the whole stdin in a string
   // Return false if there is an exception
