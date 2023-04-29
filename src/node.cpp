@@ -105,7 +105,7 @@ namespace wot {
     std::cout << " " << l.get_value() << " " << l.get_unit() << " -> " << l.get_to() << std::endl;
   }
 
-  const std::string Node::to_j(const bool withsig) const {
+  std::string Node::to_j(const bool withsig) const {
     auto j = nlohmann::json::object();
     j["circle"] = get_circle();
     j["implementation"] = get_implementation();
@@ -124,7 +124,7 @@ namespace wot {
    vi /tmp/test.json
    tr --delete '\n' < /tmp/test.json | sha256sum
   */
-  const std::string Node::hash_calc() const {
+  std::string Node::hash_calc() const {
     std::string j = to_j(/*withsig=*/false);
     LOG << "hash_calc: Object without signature: " << j;
     std::string s = sha256(j);
@@ -328,14 +328,14 @@ namespace wot {
     LOG << "First verify if the hash is based on json";
     bool b = node_hash_verify();
     LOG << "Hash is " << (b ? "" : "NOT ") << "a correct JSON hash.";
-    if(b) return b;
+    if(b) return true;
 
     bool c = input_hash_verify_toml();
-    if(c) return c;
+    if(c) return true;
 
     // TODO: input is json, but verify based on orig file
 
-    cout << "Input is a TOML object, without a valid json-calculated hash nor a valid TOML hash. " << endl <<
+    cout << "Input is an object without a valid json-calculated hash nor a valid TOML hash. " << endl <<
     "If you are sure of the hash, you can rerun the program, adding " <<
     "the option `--force-accept-hash`." << endl;
     cout << endl << "   Hash on file: " << get_signature().get_hash() << endl;

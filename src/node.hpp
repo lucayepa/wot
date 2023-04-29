@@ -16,8 +16,7 @@ using wot_qt::Profile, wot_qt::Signature, wot_qt::Link;
 
 // Common interface that hides if something is made on json or toml
 // It contains both the input as a string and a node, because some
-// functions need the input. The input is hold in a JsonView or
-// TomlView enhanced strings
+// functions need the input. The input is held in strings
 class Node : public wot_qt::Node {
 private:
   const std::string in;
@@ -29,12 +28,12 @@ private:
    vi /tmp/test.json
    tr --delete '\n' < /tmp/test.json | sha256sum
   */
-  const std::string hash_calc() const;
+  std::string hash_calc() const;
 
   // Can be done in C++, but we mimic the user via CLI
   static std::string hash_calc(const std::string & toml);
 
-  const std::string to_j(const bool withsig) const;
+  std::string to_j(const bool withsig) const;
 
   static bool is_bitcoin_address( const std::string & addr ) {
     std::regex is_bitcoin( "^(bc1|[13])[a-zA-HJ-NP-Z0-9]{25,62}$" );
@@ -49,7 +48,7 @@ private:
   // Check the object format, and transform toml -> json (if needed)
   // Populate json_s with a valid json in any case, and throw if not possible
   bool pre_parse();
-  // Populate n based on json_s coming from pre_parse
+  // Populate the node core information based on json_s coming from pre_parse
   bool generate_node();
 
   bool verify_hash();
@@ -66,19 +65,19 @@ public:
   };
   // Creating a Node with the constructor does not populate the internal node
   // content. In order to have a fully functional Node from a toml file, a
-  // sign, or verify, action is needed:
+  // sign, or verify, action is needed. For example:
   // Node n(s); n.verify_node(true,true);
   Node(const std::string s) : in(s) {};
   Node() = default;
   ~Node() = default;
 
-  // Import from another node only the basic node content, not json_s
+  // Import from another node only the core node content, not json_s, nor in
   void import(const wot_qt::Node & n);
 
   void print_node_summary(bool with_links) const;
 
   const std::string & get_json() const { return json_s; }
-  // const Node & get_node() const { return n; }
+  // Node & get_node() const { return n; }
 
   static void solve( std::string_view in, toml::table & t );
 
@@ -89,26 +88,28 @@ public:
 
   // Generate hash and signature for a node
   //
-  // in is the input that can be json or toml
+  // Since in can be json or toml, the caller is supposed to know already what
+  // is the format, and set the argument `as_toml` accordingly.
   //
-  // the caller is supposed to know already what it is, and set as_toml accordingly
-  //
-  // if the input is json (as_toml == false), return a valid and signed json node
+  // If in is json (as_toml == false), return a valid and signed json node
   // else, sign the toml object, and return both a toml object and a json node
   // with hash and signature that are NOT valid for json, but are taken from
   // the toml object.
   //
-  // Populate n with a valid Node structure
-  // Populate json_s with a valid json (having the wrong hash if the input was a toml)
-  // Return a string with json or toml signed node if signature was correctly generated,
-  // nullopt if the user has been informed on next steps. In this case json_s
-  // can be an half-ready artifact.
+  // Populate the core node information with a valid Node structure
+  //
+  // Populate json_s with a valid json (having the wrong hash if the input was
+  // toml, like explained above)
+  //
+  // Return a string with a json or toml signed node if signature was correctly
+  // generated, nullopt if the user has been informed on what are the next
+  // steps. In this case json_s can contain an half-ready artifact.
   std::optional<std::string> get_signed(const bool as_toml, const bool force_accept_hash);
 
   // General node verification and generation of json_s
   // Modify json_s
   // Return a valid Node structure in n
-  // Return a valid json in s (having the wrong hash if the input was a toml)
+  // Return a valid json in json_s (having the wrong hash if the input was a toml)
   // Return true if it is a valid node
   bool verify_node(const bool force_accept_hash, const bool force_accept_sig );
 

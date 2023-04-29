@@ -11,13 +11,13 @@
 
 COMMAND_START(AddCommand)
   COMMAND_CLI("add")
-  COMMAND_SHORT_DESCRIPTION("Add an object to the internal db")
+  COMMAND_SHORT_DESCRIPTION("Add a node object to the internal db")
   COMMAND_DESCRIPTION(R"(
-  Add an object to the internal db.
+  Add a node object to the internal db.
   The object is read from stdin and is verified before of adding it.
 
-  --force-accept-hash do not check the hash of the object
-  --force-accept-sig do not check the signature of the object
+  --force-accept-hash do not verify the hash of the node
+  --force-accept-sig do not verify the signature of the node
 )")
 
   bool act(const boost::program_options::variables_map & vm) const override {

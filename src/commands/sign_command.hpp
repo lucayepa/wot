@@ -25,7 +25,7 @@ COMMAND_START(SignCommand)
     Node n(s);
     auto result = n.get_signed(/*as_toml=*/false, vm.count("force-accept-hash"));
     if(result.has_value()) {
-      std::cout << "Signed object:" << std::endl << result.value() << std::endl;
+      std::cout << result.value() << std::endl;
       return true;
     } else {
       std::cout << "NOT ok" << std::endl;
