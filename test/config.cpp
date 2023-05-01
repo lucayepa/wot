@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_CASE(test_config_6) {
 // This destroys the config file. For the moment it is disabled.
 BOOST_AUTO_TEST_CASE(test_config_7, * boost::unit_test::disabled()) {
   BOOST_TEST_MESSAGE("Beware: removing default config file from user home dir");
-  DiskDb::generic_remove_file(DEFAULT_CONFIG_FILE);
+  DiskDb::generic_remove_file(Config::default_config_file);
   // TODO: modify HOME env to /tmp and enable the test
   // Config is a singleton, so loading a different one has no sense
   // because the fixture already loads one.
@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE(test_config_7, * boost::unit_test::disabled()) {
   d.load();
   BOOST_TEST_MESSAGE("Get will create a new default config file");
   BOOST_CHECK(d.load());
-  BOOST_CHECK(DiskDb::generic_file_exists(DEFAULT_CONFIG_FILE));
+  BOOST_CHECK(DiskDb::generic_file_exists(Config::default_config_file));
 }
 
 BOOST_AUTO_TEST_CASE(test_config_8) {

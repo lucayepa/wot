@@ -9,17 +9,18 @@
 #include <interfaces/verifier.hpp>
 #include <interfaces/signer.hpp>
 
-// Default config directory RELATIVE TO HOME directory
-#define DEFAULT_DIR ".config/wot"
-#define DEFAULT_FILE "config.toml"
-#define DEFAULT_CONFIG_FILE DEFAULT_DIR "/" DEFAULT_FILE
+namespace{
+  // Default config directory RELATIVE TO HOME directory
+  constexpr auto DEFAULT_DIR = ".config/wot";
+  constexpr auto DEFAULT_FILE = "config.toml";
+} // namespace
 
 namespace wot {
 
 namespace {
 
-  std::string default_content = R"(
-# Web of trust configuration file
+  std::string default_content =
+R"(# Web of trust configuration file
 
 #algo = "nostr"
 algo = "bitcoin"
@@ -43,7 +44,7 @@ private:
   // This is not in config file. It is the main command name of the program.
   std::string command;
 
-  // Store the vm here, so anyone can see it.
+  // Store the vm here, so anyone can see it through this singleton
   boost::program_options::variables_map vm;
 
   std::shared_ptr<Signer> signer;
@@ -57,9 +58,7 @@ public:
   Config(const Config&) = delete;
   Config& operator=(const Config&) = delete;
 
-  // First call of `get` initialize based on file. Then no file is needed.
   static Config & get() {
-    default_config_file = DEFAULT_CONFIG_FILE;
     static Config instance;
     return instance;
   }
@@ -76,7 +75,7 @@ public:
   const boost::program_options::variables_map & get_vm() const { return vm; }
   void set_vm(const boost::program_options::variables_map & v) { vm = v; }
 
-  inline static std::string default_config_file;
+  inline static std::string default_config_file = (std::string)DEFAULT_DIR+"/"+DEFAULT_FILE;
 
   const std::filesystem::path & get_abs_file() const { return abs_file; };
 

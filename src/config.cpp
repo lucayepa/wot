@@ -34,7 +34,7 @@ bool Config::load(const std::string & file) {
 
   if(file == std::string()) {
     std::filesystem::path abs_dir = DiskDb().home_dir() / (std::filesystem::path)DEFAULT_DIR;
-    abs_file = DiskDb().home_dir() / DEFAULT_CONFIG_FILE;
+    abs_file = DiskDb().home_dir() / default_config_file;
 
     DiskDb::generic_check_or_write_file_with_interaction(abs_dir, abs_file, default_content);
   } else {

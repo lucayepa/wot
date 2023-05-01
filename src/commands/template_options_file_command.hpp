@@ -10,20 +10,13 @@
 namespace {
 
 static std::string header =
-R"(# Web of trust configuration file
+R"(# Web of trust options file
 
 # This file contains the same options of the command line.
 # If an option is used both here and on the command line, the latter prevails.
-# Every option is set to its default argument and is commented.
+# In the file, every option is set to its default argument and is commented.
 # Feel free to uncomment some lines, change the arguments, and save the file.
-# The file can be loaded with the command line option "--config FILE".
-
-#algo = "nostr"
-algo = "bitcoin"
-
-signer = "electrum"
-
-verifier = "electrum"
+# The file can be loaded with the command line option "--options FILE".
 
 ### FILTERS
 # The filters are considered in a "AND" relationship. This means that a node
@@ -32,15 +25,15 @@ verifier = "electrum"
 )";
 
 } // namespace
-COMMAND_START(TemplateConfigFileCommand)
-  COMMAND_CLI("template-config-file")
-  COMMAND_SHORT_DESCRIPTION("Print a template config file")
+COMMAND_START(TemplateOptionsFileCommand)
+  COMMAND_CLI("template-options-file")
+  COMMAND_SHORT_DESCRIPTION("Print a template options file")
   COMMAND_DESCRIPTION(R"(
-Generate a template of a config file, with all the possible options. Any
+Generate a template of file with all the possible command line options. Any
 option is set to the default value and is commented.
 
 The idea is that the user can save the file and modify it. Then it can be
-used as input of the option "--config FILE". The header
+used as input of the option "--options FILE". The header
 of the file is:
 )" + header)
 

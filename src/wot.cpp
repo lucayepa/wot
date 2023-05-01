@@ -22,7 +22,10 @@ int main(int argc, char *argv[]) {
   Config::get().set_command(command);
 
   const std::string config_help =
-    "Alternate config file location (default is HOME_DIR/" + std::string(DEFAULT_CONFIG_FILE) + ")";
+    "Alternate config file location (default is HOME_DIR/" + Config::default_config_file + ")";
+
+  const std::string options_help =
+    "Options file. See `help template_options_file`";
 
   // Declare the supported options.
   std::string usage = "Usage: wot [OPTIONS] command [parameter]";
@@ -31,6 +34,7 @@ int main(int argc, char *argv[]) {
     ("help,h", "help message")
     ("verbose,v", "verbose output")
     ("config", po::value< std::string >(), config_help.c_str())
+    ("options", po::value< std::string >(), options_help.c_str())
     ("force-accept-hash", "Accept node hash, without verification")
     ("force-accept-sig", "Accept signature on node, without verification")
     ("json-output", "Output a TOML node as JSON (signature remains the TOML one) (sign-toml)")
@@ -103,8 +107,10 @@ int main(int argc, char *argv[]) {
     return EXIT_FAILURE;
   };
 
-  std::string af = Config::get().get_abs_file();
-  po::store(parse_config_file(af.c_str(), desc), vm);
+  if(vm.count("options")) {
+    po::store(parse_config_file(vm["options"].as<std::string>().c_str(), desc), vm);
+  }
+
   Config::get().set_vm(vm);
 
   if (vm.count("verbose")) {

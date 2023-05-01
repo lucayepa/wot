@@ -16,7 +16,7 @@
 #include "commands/ls_sig_command.hpp"
 #include "commands/view_command.hpp"
 #include "commands/solve_command.hpp"
-#include "commands/template_config_file_command.hpp"
+#include "commands/template_options_file_command.hpp"
 #include "commands/compose_command.hpp"
 
 namespace wot {
@@ -37,7 +37,7 @@ struct Commands {
     all.push_back(std::make_unique<LsSigCommand>());
     all.push_back(std::make_unique<ViewCommand>());
     all.push_back(std::make_unique<SolveCommand>());
-    all.push_back(std::make_unique<TemplateConfigFileCommand>());
+    all.push_back(std::make_unique<TemplateOptionsFileCommand>());
     all.push_back(std::make_unique<ComposeCommand>());
   }
 };
