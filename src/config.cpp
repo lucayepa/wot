@@ -11,7 +11,7 @@
 
 namespace wot {
 
-const std::shared_ptr<Signer> & Config::get_signer() {
+std::shared_ptr<Signer> Config::get_signer() {
   // If not loaded, load the default
   load();
   if(!signer) {
@@ -20,7 +20,7 @@ const std::shared_ptr<Signer> & Config::get_signer() {
   return signer;
 }
 
-const std::shared_ptr<Verifier> & Config::get_verifier() {
+std::shared_ptr<Verifier> Config::get_verifier() {
   // If not loaded, load the default
   load();
   if(!verifier) {
@@ -31,8 +31,6 @@ const std::shared_ptr<Verifier> & Config::get_verifier() {
 
 bool Config::load(const std::string & file) {
   if (init_done) return true;
-
-  std::filesystem::path abs_file;
 
   if(file == std::string()) {
     std::filesystem::path abs_dir = DiskDb().home_dir() / (std::filesystem::path)DEFAULT_DIR;

@@ -105,6 +105,7 @@ int main(int argc, char *argv[]) {
 
   std::string af = Config::get().get_abs_file();
   po::store(parse_config_file(af.c_str(), desc), vm);
+  Config::get().set_vm(vm);
 
   if (vm.count("verbose")) {
     using namespace boost::log;

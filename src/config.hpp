@@ -2,6 +2,8 @@
 #pragma once
 #include <filesystem>
 
+#include <boost/program_options.hpp>
+
 #include <toml.hpp>
 
 #include <interfaces/verifier.hpp>
@@ -16,7 +18,7 @@ namespace wot {
 
 namespace {
 
-  static std::string default_content = R"(
+  std::string default_content = R"(
 # Web of trust configuration file
 
 #algo = "nostr"
@@ -35,10 +37,14 @@ private:
   Config() = default;
   ~Config() = default;
 
+  // Absolute path of the config file in use
   std::filesystem::path abs_file;
 
   // This is not in config file. It is the main command name of the program.
   std::string command;
+
+  // Store the vm here, so anyone can see it.
+  boost::program_options::variables_map vm;
 
   std::shared_ptr<Signer> signer;
   std::shared_ptr<Verifier> verifier;
@@ -62,10 +68,13 @@ public:
 
   const std::string & get_command() const { return command; }
   void set_command(const std::string & c) { this->command = c; }
-  const std::shared_ptr<Signer> & get_signer();
+  std::shared_ptr<Signer> get_signer();
   void set_signer(const std::shared_ptr<Signer> & s) { this->signer = s; }
-  const std::shared_ptr<Verifier> & get_verifier();
+  std::shared_ptr<Verifier> get_verifier();
   void set_verifier(const std::shared_ptr<Verifier> & s) { this->verifier = s; }
+
+  const boost::program_options::variables_map & get_vm() const { return vm; }
+  void set_vm(const boost::program_options::variables_map & v) { vm = v; }
 
   inline static std::string default_config_file;
 
