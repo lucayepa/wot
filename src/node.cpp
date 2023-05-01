@@ -7,6 +7,7 @@
 #include <program.hpp>
 #include <cache_sig.hpp>
 #include <config.hpp>
+#include <identity.hpp>
 
 #include <boost/log/trivial.hpp>
 #include <boost/log/expressions.hpp>
@@ -145,7 +146,7 @@ namespace wot {
       LOG << "Not a well formed signature";
       return false;
     }
-    if(!Node::is_bitcoin_address(get_profile().get_key())) {
+    if( !Identity(*this).is_well_formed() ) {
       LOG << "Not a well formed identity key (bitcoin address)";
       return false;
     }
@@ -284,11 +285,13 @@ namespace wot {
   bool Node::verify_node( const bool force_accept_hash, const bool force_accept_sig ) {
     try{
       if(!pre_parse()) throw;
+      LOG << "Pre parse is ok.";
 
       // Let's see if `in` is valid against our schema and populate n
       if(!generate_node()) throw;
+      LOG << "Generate is ok.";
 
-      if( Node::is_bitcoin_address( get_profile().get_key() ) ) {
+      if( Identity(*this).is_well_formed() ) {
         LOG << get_profile().get_key() << " is a well formed bitcoin address.";
       } else {
         std::cerr << get_profile().get_key() << " is not a well formed bitcoin address.";
@@ -301,6 +304,7 @@ namespace wot {
         throw;
       };
     } catch(...) {
+      LOG << "Not a good node";
       return false;
     };
 

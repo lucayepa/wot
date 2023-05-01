@@ -35,11 +35,6 @@ private:
 
   std::string to_j(const bool withsig) const;
 
-  static bool is_bitcoin_address( const std::string & addr ) {
-    std::regex is_bitcoin( "^(bc1|[13])[a-zA-HJ-NP-Z0-9]{25,62}$" );
-    return std::regex_search( addr, is_bitcoin );
-  }
-
   static bool is_base64( const std::string & sig ) {
     std::regex base64( "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$" );
     return std::regex_search( sig, base64 );
