@@ -9,22 +9,85 @@
 #include <command.hpp>
 #include <config.hpp>
 
+namespace {
+
+// Complete a node JSON object with all the required information
+// to be accepted to be a node. They are listed in the `required`
+// fields of the json schema.
+//
+// This is not enough to be fed to the `add` command, because of
+// another constraint like the identity that should be well formed.
+void complete(nlohmann::json & n) {
+  for(auto k : {"circle", "implementation"}) {
+    if(!n.contains(k)) { n[k] = ""; }
+  }
+
+  if(!n.contains("serial")) { n["serial"] = 0; }
+
+  for(auto k : {"profile", "signature"}) {
+    if(!n.contains(k)) {
+      n[k] = nlohmann::json::object();
+    }
+  }
+
+  for(auto k : {"hash", "sig"}) {
+    if(!n["signature"].contains(k)) { n["signature"][k] = ""; }
+  }
+
+  for(auto k : {"sources", "trust"}) {
+    if(!n.contains(k)) {
+      n[k] = nlohmann::json::array();
+    }
+  }
+
+  for(auto k : {"about", "aka", "dob", "facebook", "key", "name", "nostr",
+    "picture", "telegram", "twitter"}) {
+    if(!n["profile"].contains(k)) {
+      n["profile"][k] = "";
+    }
+  }
+}
+
+} // namespace
+
 COMMAND_START(ComposeCommand)
   COMMAND_CLI("compose")
   COMMAND_SYNOPSIS("wot [--name NAME] [--circle CIRCLE] [...] compose")
-  COMMAND_SHORT_DESCRIPTION("Compose a new json node")
+  COMMAND_SHORT_DESCRIPTION("Compose a new node object")
   COMMAND_DESCRIPTION(R"(
-  Compose a new json node based on the options provided.
-  An artifact can be received in stdin and will be edit based on the command
-  line options received.
-  The node object is then printed to stdout.
+  Compose a new node object based on the options provided.
+  A JSON artifact can be received from stdin and will be edited.
+  A JSON node object is then printed to stdout.
 
-  Examples
+  `--start` says to compose an object without consider stdin, but to generate
+  a new node. If there is no `--start` option, then the stdin will be parsed as
+  a JSON object.
 
-  # A node not completed
-  wot compose --start | wot --name Satoshi compose | wot --circle club compose
+  If there is an option `--source`, the argument will be added to the sources
+  array.
 
-  # A completed node, signed and  added to the internal database
+  If there is one of `--unit`, `--value`, `--since`, `--to`, `--on`, all of
+  them need to be present. `--on` can be used multiple times. A new trust link
+  will be added to the object.
+
+  All of the options --profile-*, if not specified or present in the object
+  passed in stdin, will be considered empty strings.
+
+  The following default values will be considered for other options that are
+  not specified and are not in the object received from stdin:
+  `--circle "" --serial 0 --implementation ""`
+
+  The signature information will not be altered, but usually they are empty,
+  because the hash of the node will be altered by this command, so it needs
+  to be signed after this command.
+
+  Examples:
+
+  # A simple node
+  wot compose --start | \
+  wot compose --profile-key bc1qa37y5tnfcg84k5df3sejn0zy2htpax0cmwyzsq
+
+  # A completed node, signed and added to the internal database
   wot compose --start | \
   wot compose --circle circle2 --profile-name name2 --serial 15 | \
   wot compose --circle "c3" | \
@@ -63,10 +126,6 @@ COMMAND_START(ComposeCommand)
       ks += k;
       if(vm.count(ks.c_str())) {
         n["profile"][k] = vm[ks.c_str()].as<std::string>();
-      } else {
-        if(!n["profile"].contains(k)) {
-          n["profile"][k] = "";
-        }
       }
     }
 
@@ -74,9 +133,6 @@ COMMAND_START(ComposeCommand)
       for(std::string s : vm["source"].as<std::vector<std::string>>()) {
         n["sources"].push_back(s);
       }
-    }
-    if(!n.contains("sources")) {
-      n["sources"] = nlohmann::json::array();
     }
 
     // Object will be not-signed. If the user want to sign, should be passed
@@ -103,6 +159,8 @@ COMMAND_START(ComposeCommand)
       }
       n["trust"].push_back(l);
     }
+
+    complete(n);
 
     std::cout << n.dump() << std::endl;
     return true;
