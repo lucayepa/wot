@@ -90,6 +90,12 @@ public:
   // default content.
   // file is relative to home dir
   bool load(const std::string & file = std::string());
+
+  // This is used in tests only
+  bool forced_load(const std::string & file = std::string()) {
+    init_done = false;
+    return load(file);
+  }
 };
 
 } //namespace wot
