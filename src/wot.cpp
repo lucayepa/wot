@@ -98,12 +98,15 @@ int main(int argc, char *argv[]) {
 
   // Parse the configuration file
   try{
+    bool res;
     if(vm.count("config")) {
-      Config::get().load(vm["config"].as<std::string>());
+      res = Config::get().load(vm["config"].as<std::string>());
     } else {
-      Config::get().load();
+      res = Config::get().load();
     }
+    if(!res) throw(std::runtime_error(""));
   } catch(...) {
+    std::cerr << "Error while parsing config file" << std::endl;
     return EXIT_FAILURE;
   };
 

@@ -13,7 +13,7 @@ namespace wot {
 
 std::shared_ptr<Signer> Config::get_signer() {
   // If not loaded, load the default
-  load();
+  if(!load()) throw("Parsing failed");
   if(!signer) {
     LOG << "Error: no signer on file";
   }
@@ -22,7 +22,7 @@ std::shared_ptr<Signer> Config::get_signer() {
 
 std::shared_ptr<Verifier> Config::get_verifier() {
   // If not loaded, load the default
-  load();
+  if(!load()) throw("Parsing failed");
   if(!verifier) {
     LOG << "Error: no verifier on file";
   }

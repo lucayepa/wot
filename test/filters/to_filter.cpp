@@ -14,7 +14,7 @@ BOOST_AUTO_TEST_SUITE(ToFilterTest)
 
 BOOST_AUTO_TEST_CASE(check) {
 
-  Config::get().load();
+  BOOST_CHECK(Config::get().load());
 
   std::string s;
   BOOST_CHECK(DiskDb::generic_read_file("../node1s.toml",s));
