@@ -22,8 +22,10 @@ namespace {
   std::string default_content =
 R"(# Web of trust configuration file
 
-#algo = "nostr"
-algo = "bitcoin"
+# Possible algoritms for public key and signature accepted
+#"nostr" will be here
+#"dummy" is used for tests and consider the key always well formed
+algos = [ "bitcoin" ]
 
 signer = "electrum"
 
@@ -49,6 +51,7 @@ private:
 
   std::shared_ptr<Signer> signer;
   std::shared_ptr<Verifier> verifier;
+  std::vector<std::string> algos;
 
   // Cache the information that init has been successfully completed
   bool init_done = false;
@@ -68,9 +71,8 @@ public:
   const std::string & get_command() const { return command; }
   void set_command(const std::string & c) { this->command = c; }
   std::shared_ptr<Signer> get_signer();
-  void set_signer(const std::shared_ptr<Signer> & s) { this->signer = s; }
   std::shared_ptr<Verifier> get_verifier();
-  void set_verifier(const std::shared_ptr<Verifier> & s) { this->verifier = s; }
+  const std::vector<std::string> & get_algos() { return algos; };
 
   const boost::program_options::variables_map & get_vm() const { return vm; }
   void set_vm(const boost::program_options::variables_map & v) { vm = v; }

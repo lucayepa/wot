@@ -54,10 +54,21 @@ bool Config::load(const std::string & file) {
     if(config["verifier"].value<string>().value_or("electrum") == "electrum") {
       verifier = std::make_shared<ElectrumVerifier>();
     }
+
+    // Check if algos is an array
+    if(!config["algos"].is_array()) return false;
+
+    toml::array & a = * config.get_as<toml::array>("algos");
+    for(auto & name : a) {
+      auto s = name.value<std::string>();
+      algos.push_back(*s);
+    }
+
+    if(algos.empty()) return false;
+
     init_done = true;
     return true;
-  }
-  catch (const toml::parse_error& err) {
+  } catch (const toml::parse_error& err) {
     std::cerr << "Parsing failed: " << err << std::endl;
     return false;
   }

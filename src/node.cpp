@@ -8,6 +8,7 @@
 #include <cache_sig.hpp>
 #include <config.hpp>
 #include <identity.hpp>
+#include <signature.hpp>
 
 #include <boost/log/trivial.hpp>
 #include <boost/log/expressions.hpp>
@@ -56,13 +57,15 @@ namespace wot {
   // Add a toml signature to a toml file with hash and sig from node
   std::string add_signature(const std::string & toml, const Node & n) {
     std::string s = remove_two_lines(toml);
-    return s + "hash = \"" + n.get_signature().get_hash() + "\"\n" + "sig = \"" + n.get_signature().get_sig() + "\"\n";
+    return s +
+      "hash = \"" + n.get_signature().get_hash() + "\"\n" +
+      "sig = \"" + n.get_signature().get_sig() + "\"\n";
   }
 
   void Node::print_node_summary(bool with_links) const {
-    using std::cout, std::endl;
-    cout << get_signature().get_hash() << endl;
-    cout << " " << get_profile().get_name() << " (" << get_profile().get_key() << ", " << get_circle() << ")" << endl;
+    std::cout << get_signature().get_hash() << std::endl;
+    std::cout << " " << get_profile().get_name() <<
+      " (" << get_profile().get_key() <<"."<< get_circle() << ")" << std::endl;
     if(not with_links) return;
     for(const auto & link : get_trust()) {
       print_link_summary(link);
@@ -103,7 +106,8 @@ namespace wot {
   }
 
   void Node::print_link_summary(const Link & l) const {
-    std::cout << " " << l.get_value() << " " << l.get_unit() << " -> " << l.get_to() << std::endl;
+    std::cout << " " << l.get_value() << " " << l.get_unit() <<
+      " -> " << l.get_to() << std::endl;
   }
 
   std::string Node::to_j(const bool withsig) const {
@@ -134,15 +138,17 @@ namespace wot {
   }
 
   // Can be done in C++, but we mimic the user via CLI
+  // With this in front, removes comments:
+  // grep -v ^\\# | grep . | ...
   std::string Node::hash_calc(const std::string & toml) {
-    // This removes comments as well
-    // return cli_filter(toml,"grep -v ^\\# | grep . | head -n -2 | sha256sum | cut -f1 -d' ' | tr -d '\\n'");
-    return Program::cli_filter(toml,"head -n -2 | sha256sum | cut -f1 -d' ' | tr -d '\\n'");
+    return Program::cli_filter(toml,
+      "head -n -2 | sha256sum | cut -f1 -d' ' | tr -d '\\n'");
   }
 
   // Check some fields of the node. Useful before of system calls.
   bool Node::sanitize() const {
-    if(get_signature().get_sig()!="signature_here" && !Node::is_base64(get_signature().get_sig())) {
+    if( get_signature().get_sig()!="signature_here" &&
+       !(Signature(*this).is_well_formed()) ) {
       LOG << "Not a well formed signature";
       return false;
     }
@@ -297,7 +303,7 @@ namespace wot {
         std::cerr << get_profile().get_key() << " is not a well formed bitcoin address.";
         throw;
       };
-      if( Node::is_base64( get_signature().get_sig() ) ) {
+      if( Signature(*this).is_well_formed() ) {
         LOG << get_signature().get_sig() << " is a well formed signature.";
       } else {
         std::cerr << get_signature().get_sig() << " is not a well formed signature.";

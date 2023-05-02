@@ -12,7 +12,7 @@
 
 namespace wot {
 
-using wot_qt::Profile, wot_qt::Signature, wot_qt::Link;
+using wot_qt::Profile, wot_qt::Link;
 
 // Common interface that hides if something is made on json or toml
 // It contains both the input as a string and a node, because some
@@ -34,11 +34,6 @@ private:
   static std::string hash_calc(const std::string & toml);
 
   std::string to_j(const bool withsig) const;
-
-  static bool is_base64( const std::string & sig ) {
-    std::regex base64( "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$" );
-    return std::regex_search( sig, base64 );
-  }
 
   // Check the object format, and transform toml -> json (if needed)
   // Populate json_s with a valid json in any case, and throw if not possible
