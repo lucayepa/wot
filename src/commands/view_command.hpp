@@ -15,13 +15,14 @@ COMMAND_START(ViewCommand)
   View the content of the node having hash HASH, from the internal db.
 )")
 
-  bool act(const boost::program_options::variables_map & vm) const override {
+  bool act(const vm_t & vm) const override {
     DiskDb((std::string)"").print(vm["param"].as<std::string>());
     return true;
   }
 
-  bool args_ok(const boost::program_options::variables_map & vm) const override {
-    return(vm.count("param"));
+  std::pair<bool, std::string> args_ok(const vm_t & vm) const override {
+    if(vm.count("param")) return Command::args_ok(vm);
+    return {false, "Usage: wot view <HASH>"};
   }
 
 COMMAND_END()

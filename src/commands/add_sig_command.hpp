@@ -20,12 +20,13 @@ COMMAND_START(AddSigCommand)
   See also `help ls-sig`, `help rm-sig`.
 )")
 
-  bool act(const boost::program_options::variables_map & vm) const override {
+  bool act(const vm_t & vm) const override {
     DiskDb("sig").add(vm["param"].as<std::string>(), vm["signature"].as<std::string>());
     return true;
   }
 
-  bool args_ok(const boost::program_options::variables_map & vm) const override {
-    return(vm.count("signature") && vm.count("param"));
+  std::pair<bool, std::string> args_ok(const vm_t & vm) const override {
+    if(vm.count("signature") && vm.count("param")) return Command::args_ok(vm);
+    return {false, "Usage: wot --signature <SIGNATURE> add-sig <HASH>"};
   }
 COMMAND_END()

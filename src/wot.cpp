@@ -144,8 +144,8 @@ int main(int argc, char *argv[]) {
       help[c->get_cli()] = c->get_synopsis() + "\n" + c->get_description();
     }
     if (vm["command"].as<std::string>() == c->get_cli()) {
-      if(!c->args_ok(vm)) {
-        std::cerr << help[c->get_cli()] << std::endl;
+      if(!c->args_ok(vm).first) {
+        std::cerr << c->args_ok(vm).second << std::endl;
         return EXIT_FAILURE;
       }
       if(!c->act(vm)) return EXIT_FAILURE;

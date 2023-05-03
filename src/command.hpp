@@ -6,15 +6,15 @@
 #define COMMAND_START(COMMAND_NAME) \
   namespace wot { \
   struct COMMAND_NAME : public Command { \
-    std::string get_name() { return STRINGIFY( COMMAND_NAME ); }
+    std::string get_name() const { return STRINGIFY( COMMAND_NAME ); }
 
 #define COMMAND_END() }; \
   } // namespace wot
 
-#define COMMAND_CLI(x) std::string get_cli() override { return x; }
+#define COMMAND_CLI(x) std::string get_cli() const override { return x; }
 #define COMMAND_SYNOPSIS(x) std::string get_synopsis() const override { return x; }
-#define COMMAND_SHORT_DESCRIPTION(x) std::string get_short_description() override { return x; }
-#define COMMAND_DESCRIPTION(x) std::string get_description() override { return x; }
+#define COMMAND_SHORT_DESCRIPTION(x) std::string get_short_description() const override { return x; }
+#define COMMAND_DESCRIPTION(x) std::string get_description() const override { return x; }
 
 #include <string>
 
@@ -22,16 +22,23 @@
 
 namespace wot {
 
+typedef boost::program_options::variables_map vm_t;
+
 // Abstract base class for commands
 struct Command {
   virtual ~Command() {}
-  virtual std::string get_name() = 0;
-  virtual std::string get_cli() = 0;
+  virtual std::string get_name() const = 0;
+  virtual std::string get_cli() const = 0;
   virtual std::string get_synopsis() const { return(""); };
-  virtual std::string get_short_description() = 0;
-  virtual std::string get_description() = 0;
-  virtual bool args_ok(const boost::program_options::variables_map & vm) const { return true; };
-  virtual bool act(const boost::program_options::variables_map & vm) const = 0;
+  virtual std::string get_short_description() const = 0;
+  virtual std::string get_description() const = 0;
+
+  // Checks if variables_map is ok for the command. If not, return the error
+  // that can be sent to the user
+  virtual std::pair<bool, std::string> args_ok(const vm_t & vm) const {
+    return {true,""};
+  };
+  virtual bool act(const vm_t & vm) const = 0;
   virtual bool hidden() const { return false; };
 };
 

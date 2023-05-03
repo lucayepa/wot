@@ -22,8 +22,9 @@ COMMAND_START(RmSigCommand)
     return true;
   }
 
-  bool args_ok(const boost::program_options::variables_map & vm) const override {
-    return(vm.count("param"));
+  std::pair<bool, std::string> args_ok(const vm_t & vm) const override {
+    if(vm.count("param")) return Command::args_ok(vm);
+    return {false, "Usage: wot rm-sig <HASH>"};
   }
 
 COMMAND_END()
