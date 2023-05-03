@@ -67,7 +67,7 @@ public:
   void print_node_summary(bool with_links) const;
 
   const std::string & get_json() const { return json_s; }
-  // Node & get_node() const { return n; }
+  const std::string & get_in() const { return in; }
 
   static void solve( std::string_view in, toml::table & t );
 

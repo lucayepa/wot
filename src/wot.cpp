@@ -38,6 +38,7 @@ int main(int argc, char *argv[]) {
     ("force-accept-hash", "Accept node hash, without verification")
     ("force-accept-sig", "Accept signature on node, without verification")
     ("json-output", "Output a TOML node as JSON (signature remains the TOML one) (sign-toml)")
+    ("jsonl", "Export the matched nodes as json lines (ls)")
     ("signature", po::value< std::string >(), "Signature to be added to the local db as a known signatures (add-sig)")
     ("input-file,I", po::value< std::string >(), "input file")
     ("algo", po::value< std::string >(), "alorithm for identities (i.e. bitcoin)")

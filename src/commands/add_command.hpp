@@ -20,14 +20,12 @@ COMMAND_START(AddCommand)
   --force-accept-sig do not verify the signature of the node
 )")
 
-  bool act(const boost::program_options::variables_map & vm) const override {
+  bool act(const vm_t & vm) const override {
     std::string in;
     if(!Config::get_input(in)) return false;
     Node n(in);
     if( n.verify_node(vm.count("force-accept-hash"),vm.count("force-accept-sig")) ) {
-      std::string filename = n.get_signature().get_hash();
-      Db_nodes().add_node(filename, in, n.get_json());
-      return true;
+      return Db_nodes().add_node(n);
     } else {
       std::cerr << "Node is not valid" << std::endl;
       return false;

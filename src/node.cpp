@@ -15,14 +15,25 @@
 #include <boost/program_options.hpp>
 #define LOG BOOST_LOG_TRIVIAL(info)
 
-namespace wot {
+namespace {
 
-  // Can be done in C++, but we mimic the user via CLI
-  std::string remove_two_lines(const std::string & toml) {
-    // This removes comments as well
-    // return cli_filter(toml,"grep -v ^\\# | grep . | head -n -2");
-    return Program::cli_filter(toml,"head -n -2");
-  }
+// Can be done in C++, but we mimic the user via CLI
+std::string remove_two_lines(const std::string & toml) {
+  // This removes comments as well
+  // return cli_filter(toml,"grep -v ^\\# | grep . | head -n -2");
+  return wot::Program::cli_filter(toml,"head -n -2");
+}
+
+// Add a toml signature to a toml file with hash and sig from node
+std::string add_signature(const std::string & toml, const wot::Node & n) {
+  std::string s = remove_two_lines(toml);
+  return s +
+    "hash = \"" + n.get_signature().get_hash() + "\"\n" +
+    "sig = \"" + n.get_signature().get_sig() + "\"\n";
+}
+
+} // namespace
+namespace wot {
 
   // solve a TOML object by removing the two helping hashes: defaults and ref
   void Node::solve( std::string_view in, toml::table & t ) {
@@ -52,14 +63,6 @@ namespace wot {
         t.as_table()->erase("ref");
       };
     };
-  }
-
-  // Add a toml signature to a toml file with hash and sig from node
-  std::string add_signature(const std::string & toml, const Node & n) {
-    std::string s = remove_two_lines(toml);
-    return s +
-      "hash = \"" + n.get_signature().get_hash() + "\"\n" +
-      "sig = \"" + n.get_signature().get_sig() + "\"\n";
   }
 
   void Node::print_node_summary(bool with_links) const {
@@ -281,7 +284,7 @@ namespace wot {
 
     string toml_s;
     if(as_toml) {
-      // set toml for toml requests
+      // set toml_s for toml requests
       toml_s = add_signature(in,*this);
     }
     json_s = to_j(/*with_sig=*/true);

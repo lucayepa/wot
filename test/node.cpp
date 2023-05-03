@@ -16,6 +16,8 @@ BOOST_AUTO_TEST_CASE(exec) {
   BOOST_CHECK(DiskDb::generic_read_file("node1s.toml",s));
 
   Node n(s);
+  BOOST_CHECK(n.get_in()==s);
+
   // Verify fill the data in the node
   BOOST_CHECK(n.verify_node(true,true));
 

@@ -13,7 +13,7 @@
 namespace wot {
 
 bool Db_nodes::filter_node(
-  const po::variables_map & vm,
+  const vm_t & vm,
   const std::filesystem::directory_entry & file
 ) const {
   Node n = fetch_node(file);
@@ -28,18 +28,19 @@ bool Db_nodes::filter_node(
   return true;
 }
 
-void Db_nodes::add_node(
+bool Db_nodes::add_node(
   const std::string & filename,
   const std::string & orig,
   const std::string & json
 ) {
   LOG << "Writing " << filename << " having original content: " << orig <<
     " and json content " << json;
-  db.write_file(filename,json);
+  if(!db.write_file(filename,json)) return false;
   if (orig != json) {
-    db.write_file(filename+".orig",orig);
+    if(!db.write_file(filename+".orig",orig)) return false;
   }
   on_needs_update = true;
+  return true;
 }
 
 const Node Db_nodes::fetch_node(
@@ -54,8 +55,9 @@ const Node Db_nodes::fetch_node(
 }
 
 void Db_nodes::visit(
-  const po::variables_map & vm,
-  bool quiet
+  const vm_t & vm,
+  bool quiet,
+  bool jsonl
 ) const {
   std::regex is_toml( "orig$" );
   std::regex is_sig( "sig$" );
@@ -65,11 +67,15 @@ void Db_nodes::visit(
     if(std::regex_search( (std::string)entry.path(), is_sig )) continue;
     if(Db_nodes().filter_node(vm, entry)) {
       LOG << "Found file " << entry.path().filename();
-      Node n2 = fetch_node(entry);
-      for(const auto & link : n2.get_trust()) {
-        for(const auto & r : link.get_on()) { on_m[r]++; }
+      if(jsonl) {
+        std::cout << db.read_file(entry.path().filename()).str();
+      } else {
+        Node n2 = fetch_node(entry);
+        for(const auto & link : n2.get_trust()) {
+          for(const auto & r : link.get_on()) { on_m[r]++; }
+        }
+        if(!quiet) n2.print_node_summary(/*with_links=*/false);
       }
-      if(!quiet) n2.print_node_summary(/*with_links=*/false);
     }
   }
 }
