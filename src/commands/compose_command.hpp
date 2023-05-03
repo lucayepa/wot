@@ -9,47 +9,6 @@
 #include <command.hpp>
 #include <config.hpp>
 
-namespace {
-
-// Complete a node JSON object with all the required information
-// to be accepted to be a node. They are listed in the `required`
-// fields of the json schema.
-//
-// This is not enough to be fed to the `add` command, because of
-// another constraint like the identity that should be well formed.
-void complete(nlohmann::json & n) {
-  for(auto k : {"circle", "implementation"}) {
-    if(!n.contains(k)) { n[k] = ""; }
-  }
-
-  if(!n.contains("serial")) { n["serial"] = 0; }
-
-  for(auto k : {"profile", "signature"}) {
-    if(!n.contains(k)) {
-      n[k] = nlohmann::json::object();
-    }
-  }
-
-  for(auto k : {"hash", "sig"}) {
-    if(!n["signature"].contains(k)) { n["signature"][k] = ""; }
-  }
-
-  for(auto k : {"sources", "trust"}) {
-    if(!n.contains(k)) {
-      n[k] = nlohmann::json::array();
-    }
-  }
-
-  for(auto k : {"about", "aka", "dob", "facebook", "key", "name", "nostr",
-    "picture", "telegram", "twitter"}) {
-    if(!n["profile"].contains(k)) {
-      n["profile"][k] = "";
-    }
-  }
-}
-
-} // namespace
-
 COMMAND_START(ComposeCommand)
   COMMAND_CLI("compose")
   COMMAND_SYNOPSIS("wot [--name NAME] [--circle CIRCLE] [...] compose")
@@ -97,23 +56,10 @@ COMMAND_START(ComposeCommand)
   wot sign | wot add
 )")
 
-  bool act(const boost::program_options::variables_map & vm) const override {
-    std::string in;
-
-    if(vm.count("start")) {
-      in = "{}";
-    } else {
-      if(!Config::get_input(in)) return false;
-    }
-
-    nlohmann::json n;
-    try{
-      n = nlohmann::json::parse(in);
-    } catch(nlohmann::json::out_of_range& ex) {
-      std::cerr << ex.what() << std::endl;
-      return false;
-    }
-
+  void fill_with(
+    const vm_t & vm,
+    nlohmann::json & n
+  ) const noexcept {
     if(vm.count("circle")) { n["circle"] = vm["circle"].as<std::string>(); }
     if(vm.count("implementation")) {
       n["implementation"] = vm["implementation"].as<std::string>();
@@ -140,11 +86,9 @@ COMMAND_START(ComposeCommand)
     n["signature"]["hash"] = "";
     n["signature"]["sig"] = "";
 
-    if(vm.count("to") || vm.count("since") || vm.count("unit") || vm.count("value")) {
-      if(!vm.count("to") || !vm.count("since") || !vm.count("unit") || !vm.count("value")) {
-        std::cerr << "Compose error: to, since, unit and value should all be set together" << std::endl;
-        return false;
-      }
+    // Suppose args are already checked, so this means there are since, value
+    // and unit as well (see args_ok)
+    if(vm.count("to")) {
       nlohmann::json l;
       l["to"] = vm["to"].as<std::string>();
       l["since"] = vm["since"].as<int>();
@@ -159,10 +103,85 @@ COMMAND_START(ComposeCommand)
       }
       n["trust"].push_back(l);
     }
+  }
 
+  // Complete a node JSON object with all the required information
+  // to be accepted to be a node. They are listed in the `required`
+  // fields of the json schema.
+  //
+  // This is not enough to be fed to the `add` command, because of
+  // another constraint like the identity that should be well formed.
+  void complete(nlohmann::json & n) const noexcept {
+    for(auto k : {"circle", "implementation"}) {
+      if(!n.contains(k)) { n[k] = ""; }
+    }
+
+    if(!n.contains("serial")) { n["serial"] = 0; }
+
+    for(auto k : {"profile", "signature"}) {
+      if(!n.contains(k)) {
+        n[k] = nlohmann::json::object();
+      }
+    }
+
+    for(auto k : {"hash", "sig"}) {
+      if(!n["signature"].contains(k)) { n["signature"][k] = ""; }
+    }
+
+    for(auto k : {"sources", "trust"}) {
+      if(!n.contains(k)) {
+        n[k] = nlohmann::json::array();
+      }
+    }
+
+    for(auto k : {"about", "aka", "dob", "facebook", "key", "name", "nostr",
+      "picture", "telegram", "twitter"}) {
+      if(!n["profile"].contains(k)) {
+        n["profile"][k] = "";
+      }
+    }
+  }
+
+  bool act(const vm_t & vm) const override {
+    std::string in;
+
+    if(vm.count("start")) {
+      in = "{}";
+    } else {
+      if(!Config::get_input(in)) return false;
+    }
+
+    nlohmann::json n;
+    try{
+      n = nlohmann::json::parse(in);
+    } catch(nlohmann::json::out_of_range& ex) {
+      std::cerr << ex.what() << std::endl;
+      return false;
+    }
+
+    fill_with(vm, n);
     complete(n);
 
     std::cout << n.dump() << std::endl;
     return true;
   }
+
+  std::pair<bool, std::string> args_ok(const vm_t & vm) const override {
+    if(
+      ( vm.count("to") ||
+        vm.count("since") ||
+        vm.count("unit") ||
+        vm.count("value") )
+      &&
+      ( !vm.count("to") ||
+        !vm.count("since") ||
+        !vm.count("unit") ||
+        !vm.count("value") )
+    ) {
+      return {false,
+        "Compose error: to, since, unit and value should all be set together"};
+    }
+    return Command::args_ok(vm);
+  }
+
 COMMAND_END()
