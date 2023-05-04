@@ -12,6 +12,9 @@
 #include "filters/rule_filter.hpp"
 #include "filters/grep_filter.hpp"
 #include "filters/bitcoin_key_filter.hpp"
+#include "filters/serial_epoch_in_future_filter.hpp"
+#include "filters/serial_epoch_in_past_filter.hpp"
+#include "filters/serial_yyyymmdd_filter.hpp"
 
 namespace wot {
 
@@ -27,6 +30,9 @@ struct Filters {
     all.push_back(std::make_unique<RuleFilter>());
     all.push_back(std::make_unique<GrepFilter>());
     all.push_back(std::make_unique<BitcoinKeyFilter>());
+    all.push_back(std::make_unique<SerialEpochInPastFilter>());
+    all.push_back(std::make_unique<SerialEpochInFutureFilter>());
+    all.push_back(std::make_unique<SerialYyyymmddFilter>());
   }
 };
 
