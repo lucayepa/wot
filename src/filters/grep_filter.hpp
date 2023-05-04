@@ -13,7 +13,7 @@
 FILTER_START(GrepFilter)
   FILTER_DESCRIPTION("grep filter (ls)")
   FILTER_LONG_DESCRIPTION("check if the arg is somehow present in the node")
-  bool check(const Node & n, const std::string & arg) const override {
+  bool check(const NodeBase & n, const std::string & arg) const override {
     return(
       HashFilter().check(n,arg) ||
       FromFilter().check(n,arg) ||

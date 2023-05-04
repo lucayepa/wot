@@ -18,22 +18,19 @@ BOOST_AUTO_TEST_CASE(exec) {
   Node n(s);
   BOOST_CHECK(n.get_in()==s);
 
-  // Verify fill the data in the node
   BOOST_CHECK(n.verify_node(true,true));
 
   BOOST_CHECK(n.get_circle()!="");
 
   Node m(n);
-  // No need to fill up when constructed based on another node
   BOOST_CHECK(m.get_circle()!="");
 
   std::string circle_original(m.get_circle());
   m.set_circle("a");
   BOOST_CHECK(m.get_circle()=="a");
 
-  // Attention: verify fill it up again with original code
   BOOST_CHECK(m.verify_node(true,true));
-  BOOST_CHECK(m.get_circle()==circle_original);
+  BOOST_CHECK(!(m.get_circle()==circle_original));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

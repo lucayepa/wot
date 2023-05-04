@@ -23,13 +23,14 @@ COMMAND_START(SignCommand)
     string s, json;
     if(!Config::get_input(s)) return false;
     Node n(s);
-    auto result = n.get_signed(/*as_toml=*/false, vm.count("force-accept-hash"));
-    if(result.has_value()) {
-      std::cout << result.value() << std::endl;
-      return true;
-    } else {
-      std::cout << "NOT ok" << std::endl;
+    std::string res;
+    try {
+      res = n.get_signed(vm.count("force-accept-hash"));
+    } catch (...) {
+      std::cerr << "NOT ok" << std::endl;
       return false;
     }
+    std::cout << res << std::endl;
+    return true;
   }
 COMMAND_END()

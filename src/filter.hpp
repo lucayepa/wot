@@ -25,7 +25,7 @@ struct Filter {
   virtual std::string get_name() = 0;
   virtual std::string get_description() = 0;
   virtual std::string get_long_description() = 0;
-  virtual bool check(const Node & n, const std::string & arg) const = 0;
+  virtual bool check(const NodeBase & n, const std::string & arg) const = 0;
 
   // CamelCase to filter-name-cli-option style
   const std::string get_cli_option();
