@@ -9,6 +9,7 @@
 #include <config.hpp>
 #include <identity.hpp>
 #include <signature.hpp>
+#include <filters.hpp>
 
 #include <boost/log/trivial.hpp>
 #include <boost/log/expressions.hpp>
@@ -337,7 +338,6 @@ namespace wot {
   }
 
   bool Node::verify_hash() {
-    using std::cout, std::endl;
     LOG << "First verify if the hash is based on json";
     bool b = node_hash_verify();
     LOG << "Hash is " << (b ? "" : "NOT ") << "a correct JSON hash.";
@@ -348,16 +348,35 @@ namespace wot {
 
     // TODO: input is json, but verify based on orig file
 
-    cout << "Input is an object without a valid json-calculated hash nor a valid TOML hash. " << endl <<
+    std::cout <<
+    "Input node without a valid json-calculated hash nor a valid TOML hash.\n"<<
     "If you are sure of the hash, you can rerun the program, adding " <<
-    "the option `--force-accept-hash`." << endl;
-    cout << endl << "   Hash on file: " << get_signature().get_hash() << endl;
-    cout <<         "JSON based hash: " << hash_calc() << endl;
-    cout <<         "TOML based hash: " << hash_calc(in) << endl;
-    cout << endl << "TO VERIFY A TOML HASH" << endl;
-    cout << "Check the requirements in doc/canonic/toml.md" << endl;
-    cout << "cat $FILE | head -n -2 | sha256sum | cut -f1 -d' ' | tr -d '\\n'" << endl;
+    "the option `--force-accept-hash`.\n\n" <<
+    "   Hash on file: " << get_signature().get_hash() << "\n" <<
+    "JSON based hash: " << hash_calc() << "\n" <<
+    "TOML based hash: " << hash_calc(in) << "\n\n" <<
+
+    "TO VERIFY A TOML HASH\n" <<
+    "Check the requirements in doc/canonic/toml.md\n" <<
+    "cat $FILE | head -n -2 | sha256sum | cut -f1 -d' ' | tr -d '\\n'" << std::endl;
     return false;
+  }
+
+  bool Node::check_filters(const vm_t & vm) const {
+    // All the filters are evaluated using "and" mode
+    for(const auto & f : Filters().all) {
+      const std::string name = f->get_name();
+      const std::string cli_option = f->get_cli_option();
+      if( !vm.count(cli_option) ) continue;
+      if( f->check(*this,vm[cli_option].as<std::string>()) ) {
+        LOG << name << " passed";
+        continue;
+      } else {
+        LOG << name << " NOT passed";
+        return false;
+      }
+    }
+    return true;
   }
 
 } // namespace wot

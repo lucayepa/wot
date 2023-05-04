@@ -16,6 +16,9 @@ COMMAND_START(AddCommand)
   Add a node object to the internal db.
   The object is read from stdin and is verified before of adding it.
 
+  Any filter can be passed on command line. If the node does not pass all the
+  filters specified, it will not be added.
+
   --force-accept-hash do not verify the hash of the node
   --force-accept-sig do not verify the signature of the node
 )")
@@ -25,7 +28,12 @@ COMMAND_START(AddCommand)
     if(!Config::get_input(in)) return false;
     Node n(in);
     if( n.verify_node(vm.count("force-accept-hash"),vm.count("force-accept-sig")) ) {
-      return Db_nodes().add_node(n);
+      if(!Db_nodes().add_node(n)) {
+        std::cerr << "Node has not been added" << std::endl;
+        return false;
+      } else {
+        return true;
+      }
     } else {
       std::cerr << "Node is not valid" << std::endl;
       return false;

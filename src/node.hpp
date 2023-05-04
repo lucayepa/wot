@@ -6,11 +6,15 @@
 #include <string>
 #include <fstream>
 
+#include <boost/program_options.hpp>
+
 #include <toml.hpp>
 
 #include <node_qt.hpp>
 
 namespace wot {
+
+typedef boost::program_options::variables_map vm_t;
 
 using wot_qt::Profile, wot_qt::Link;
 
@@ -103,6 +107,9 @@ public:
   // Return true if it is a valid node
   bool verify_node(const bool force_accept_hash, const bool force_accept_sig );
 
+  // Check if the node is ok with all the filters provided. The filters are
+  // evaluated in "AND" and are short circuited.
+  bool check_filters(const vm_t & vm) const;
 };
 
 } // namespace wot

@@ -3,8 +3,6 @@
 #include <fstream>
 #include <regex>
 
-#include <filters.hpp>
-
 #include <boost/log/trivial.hpp>
 #include <boost/log/expressions.hpp>
 #include <boost/program_options.hpp>
@@ -17,15 +15,7 @@ bool Db_nodes::filter_node(
   const std::filesystem::directory_entry & file
 ) const {
   Node n = fetch_node(file);
-
-  // All the filters are evaluated in "and" mode
-  for(const auto & f : Filters().all) {
-    const std::string name = f->get_name();
-    if( vm.count(name) && !f->check(n,vm[name].as<std::string>()) )
-      return false;
-    LOG << name << " passed";
-  }
-  return true;
+  return n.check_filters(vm);
 }
 
 bool Db_nodes::add_node(

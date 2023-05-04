@@ -58,6 +58,12 @@ public:
     return( add_node(filename, n.get_in(), n.get_json()) );
   }
 
+  // add a node to the local database
+  // Apply filters: if node is not ok with all filters, it will not be added
+  inline bool add_node(const Node & n, vm_t vm) {
+    if(!n.check_filters(vm)) return false;
+    return( add_node(n) );
+  }
 
   // list all the nodes in the database that are selected by vm filters
   inline void list_nodes(const vm_t & vm) const {
