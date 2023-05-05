@@ -184,4 +184,31 @@ COMMAND_START(ComposeCommand)
     return Command::args_ok(vm);
   }
 
+  po::options_description cli_options() const override {
+    po::options_description od("Compose command options (help compose)");
+    od.add_options()
+      ("start", "start a new node")
+      ("implementation", po::value< std::string >(), "implementation")
+      ("circle", po::value< std::string >(), "circle")
+      ("profile-about", po::value< std::string >(), "about")
+      ("profile-aka", po::value< std::string >(), "aka")
+      ("profile-dob", po::value< std::string >(), "dob")
+      ("profile-facebook", po::value< std::string >(), "facebook")
+      ("profile-key", po::value< std::string >(), "key")
+      ("profile-name", po::value< std::string >(), "name")
+      ("profile-nostr", po::value< std::string >(), "nostr")
+      ("profile-picture", po::value< std::string >(), "picture")
+      ("profile-telegram", po::value< std::string >(), "telegram")
+      ("profile-twitter", po::value< std::string >(), "twitter")
+      ("source", po::value< std::vector<std::string> >()->multitoken(), "source to be added to sources array - can be used multiple times")
+      ("serial", po::value< int >(), "serial")
+      ("to", po::value< std::string >(), "to")
+      ("since", po::value< int >(), "since")
+      ("unit", po::value< std::string >(), "unit")
+      ("value", po::value< int >(), "value")
+      ("on", po::value< std::vector<std::string> >()->multitoken(), "on - can be set multiple times")
+    ;
+    return od;
+  };
+
 COMMAND_END()

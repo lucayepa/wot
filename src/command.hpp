@@ -22,7 +22,8 @@
 
 namespace wot {
 
-typedef boost::program_options::variables_map vm_t;
+namespace po = boost::program_options;
+typedef po::variables_map vm_t;
 
 // Abstract base class for commands
 struct Command {
@@ -40,6 +41,9 @@ struct Command {
   };
   virtual bool act(const vm_t & vm) const = 0;
   virtual bool hidden() const { return false; };
+  virtual po::options_description cli_options() const {
+    return po::options_description();
+  };
 };
 
 } // namespace wot

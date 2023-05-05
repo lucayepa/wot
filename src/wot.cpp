@@ -43,49 +43,51 @@ int main(int argc, char *argv[]) {
     ("algo", po::value< std::string >(), "alorithm for identities (i.e. bitcoin)")
     ("signer", po::value< std::string >(), "signer helper (i.e. electrum)")
     ("verifier", po::value< std::string >(), "verifier helper (i.e. electrum)")
-    ("start", "start a new node (compose)")
-    ("implementation", po::value< std::string >(), "implementation (compose)")
-    ("circle", po::value< std::string >(), "circle (compose)")
-    ("profile-about", po::value< std::string >(), "about (compose)")
-    ("profile-aka", po::value< std::string >(), "aka (compose)")
-    ("profile-dob", po::value< std::string >(), "dob (compose)")
-    ("profile-facebook", po::value< std::string >(), "facebook (compose)")
-    ("profile-key", po::value< std::string >(), "key (compose)")
-    ("profile-name", po::value< std::string >(), "name (compose)")
-    ("profile-nostr", po::value< std::string >(), "nostr (compose)")
-    ("profile-picture", po::value< std::string >(), "picture (compose)")
-    ("profile-telegram", po::value< std::string >(), "telegram (compose)")
-    ("profile-twitter", po::value< std::string >(), "twitter (compose)")
-    ("source", po::value< std::vector<std::string> >()->multitoken(), "source to be added to sources array - can be used multiple times (compose)")
-    ("serial", po::value< int >(), "serial (compose)")
-    ("to", po::value< std::string >(), "to (compose)")
-    ("since", po::value< int >(), "since (compose)")
-    ("unit", po::value< std::string >(), "unit (compose)")
-    ("value", po::value< int >(), "value (compose)")
-    ("on", po::value< std::vector<std::string> >()->multitoken(), "on - can be set multiple times (compose)")
     ("command", "Command to execute (can even be positional after all the options)")
     ("param", "Argument of the command (can even be positional after command)")
   ;
 
+  po::options_description cmdline_options;
+  cmdline_options.add(desc);
+
+  po::options_description filter_options("Filters (use with add or ls)");
   auto filters = Config::get().get_filters();
   for(const auto & [k, f] : filters) {
-    desc.add_options()
+    filter_options.add_options()
       ( f->get_cli_option().c_str(),
         po::value< std::string >(),
         f->get_description().c_str()
       );
   }
 
+  cmdline_options.add(filter_options);
+
   po::positional_options_description positional;
   positional.add("command", 1);
   positional.add("param", 1);
 
-  po::variables_map vm;
-  po::store(po::command_line_parser(argc, argv).
-            options(desc).positional(positional).run(), vm);
-  if (!vm.count("command")) { vm.emplace("command",po::variable_value((std::string)"help", true)); }
+  std::stringstream commands_help;
+  commands_help << "Commands:\n" << std::setw(27) << std::left <<
+    "  help" << "This help message\n";
 
   std::map<std::string,std::string> help;
+
+  for(const auto & c : Commands().all) {
+    if(c->cli_options().options().size() > 0) {
+      cmdline_options.add(c->cli_options());
+    }
+    if(!c->hidden()) {
+      commands_help <<
+        std::setw(27) << std::left << "  " + c->get_cli() <<
+        c->get_short_description() << "\n";
+      help[c->get_cli()] = c->get_synopsis() + "\n" + c->get_description();
+    }
+  }
+
+  po::variables_map vm;
+  po::store(po::command_line_parser(argc, argv).
+    options(cmdline_options).
+    positional(positional).run(), vm);
 
   // Check verbose right now, so we can use LOG in Config.load
   if (!vm.count("verbose")) {
@@ -133,17 +135,9 @@ int main(int argc, char *argv[]) {
     );
   }
 
-  std::stringstream commands_help;
-  commands_help << "Commands:\n" << std::setw(27) << std::left <<
-    "  help" << "This help message\n";
+  if (!vm.count("command")) { vm.emplace("command",po::variable_value((std::string)"help", true)); }
 
   for(const auto & c : Commands().all) {
-    if(!c->hidden()) {
-      commands_help <<
-        std::setw(27) << std::left << "  " + c->get_cli() <<
-        c->get_short_description() << "\n";
-      help[c->get_cli()] = c->get_synopsis() + "\n" + c->get_description();
-    }
     if (vm["command"].as<std::string>() == c->get_cli()) {
       if(!c->args_ok(vm).first) {
         std::cerr << c->args_ok(vm).second << std::endl;
@@ -167,8 +161,8 @@ int main(int argc, char *argv[]) {
     } else {
       std::cout << usage << std::endl << std::endl;
       std::cout << commands_help.str() << std::endl;
-      std::cout << desc << std::endl;
-      std::cout << "help <command> to get help on a command" << std::endl;
+      std::cout << "help <command> to get help on a command\n";
+      std::cout << cmdline_options << std::endl;
       return EXIT_SUCCESS;
     }
   }
