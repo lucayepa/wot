@@ -1,9 +1,3 @@
-#pragma once
-
-#include <string>
-
-#include <node.hpp>
-
 #include <filter.hpp>
 
 FILTER_START(RuleFilter)

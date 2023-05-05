@@ -9,7 +9,6 @@
 #include <boost/program_options.hpp>
 
 #include <config.hpp>
-#include <filters.hpp>
 #include <commands.hpp>
 
 int main(int argc, char *argv[]) {
@@ -68,7 +67,8 @@ int main(int argc, char *argv[]) {
     ("param", "Argument of the command (can even be positional after command)")
   ;
 
-  for(const auto & f : Filters().all) {
+  auto filters = Config::get().get_filters();
+  for(const auto & [k, f] : filters) {
     desc.add_options()
       ( f->get_cli_option().c_str(),
         po::value< std::string >(),

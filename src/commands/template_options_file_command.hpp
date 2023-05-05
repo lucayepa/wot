@@ -5,7 +5,7 @@
 #include <boost/program_options.hpp>
 
 #include <command.hpp>
-#include <filters.hpp>
+#include <config.hpp>
 
 namespace {
 
@@ -40,7 +40,8 @@ of the file is:
   inline void act_no_ui(std::string & out) const {
     // scan filters and output as options
     out = header;
-    for(const auto & f : Filters().all) {
+    auto filters = Config::get().get_filters();
+    for(const auto & [k, f] : filters) {
       out += "# " + f->get_description() + "\n";
       out += "# \n";
       out += "# " + f->get_long_description() + "\n";

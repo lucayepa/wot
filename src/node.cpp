@@ -9,7 +9,6 @@
 #include <config.hpp>
 #include <identity.hpp>
 #include <signature.hpp>
-#include <filters.hpp>
 
 #include <boost/log/trivial.hpp>
 #include <boost/log/expressions.hpp>
@@ -338,7 +337,8 @@ namespace wot {
 
   bool NodeBase::check_filters(const vm_t & vm) const {
     // All the filters are evaluated using "and" mode
-    for(const auto & f : Filters().all) {
+    auto filters = Config::get().get_filters();
+    for(const auto & [k, f] : filters) {
       const std::string name = f->get_name();
       const std::string cli_option = f->get_cli_option();
       if( !vm.count(cli_option) ) continue;

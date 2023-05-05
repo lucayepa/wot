@@ -8,6 +8,7 @@
 
 #include <interfaces/verifier.hpp>
 #include <interfaces/signer.hpp>
+#include <filter.hpp>
 
 namespace{
   // Default config directory RELATIVE TO HOME directory
@@ -46,6 +47,8 @@ private:
   // This is not in config file. It is the main command name of the program.
   std::string command;
 
+  std::map<std::string, Filter*> filters;
+
   // Store the vm here, so anyone can see it through this singleton
   boost::program_options::variables_map vm;
 
@@ -67,6 +70,10 @@ public:
   }
 
   toml::table config;
+
+  void add_filter(Filter * f) { filters[f->get_name()] = f; }
+  const Filter * get_filter(std::string name) { return filters[name]; }
+  std::map<std::string, Filter*> & get_filters() { return filters; }
 
   const std::string & get_command() const { return command; }
   void set_command(const std::string & c) { this->command = c; }

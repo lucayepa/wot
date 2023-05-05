@@ -1,8 +1,3 @@
-#pragma once
-
-#include <string>
-
-#include <node.hpp>
 #include <identity.hpp>
 #include <algo.hpp>
 

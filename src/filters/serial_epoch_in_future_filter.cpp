@@ -1,9 +1,5 @@
-#pragma once
-
 #include <string>
 #include <ctime>
-
-#include <node.hpp>
 
 #include <filter.hpp>
 

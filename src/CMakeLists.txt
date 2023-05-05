@@ -13,7 +13,7 @@ add_custom_command(
   VERBATIM
 )
 
-file(GLOB filters RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} CONFIGURE_DEPENDS filters/*.hpp)
+file(GLOB filters RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} CONFIGURE_DEPENDS filters/*cpp)
 file(GLOB sources RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} CONFIGURE_DEPENDS *.cpp)
 list(REMOVE_ITEM sources wot.cpp)
 
