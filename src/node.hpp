@@ -8,6 +8,8 @@
 
 #include <boost/program_options.hpp>
 
+#include <nlohmann/json.hpp>
+
 #include <toml.hpp>
 
 #include <node_qt.hpp>
@@ -20,19 +22,20 @@ using wot_qt::Profile, wot_qt::Link;
 
 // Operations on node that don't need to know anything about source/hash/sig and
 // similar stuff. This is for managing nodes that come from internal db, so they
-// are already trusted, and are on disk as json objects. This is supposed to be
-// fast.
+// are already trusted, and are on disk as json objects that are valid as JSON
+// and valid for our schema. This is supposed to be fast.
 //
 // Objects of this class do not contain enough information to verify.
 //
 // Hash is not supposed to be correct, because maybe it is related to the hash
 // of an original document.
 //
-// Signature is correct, because it is based on profile.key and hash
+// Signature is correct, because it is based on hash and profile.key
 class NodeBase : public wot_qt::Node {
 private:
   void print_link_summary(const Link & l) const;
-
+protected:
+  NodeBase(const nlohmann::json & j);
 public:
   NodeBase(const std::string & jsons);
   NodeBase() = default; // TODO: delete?
@@ -66,8 +69,7 @@ private:
   // Can be done in C++, but we mimic the user via CLI
   static std::string hash_calc(const std::string & toml);
 
-  // Check the object format
-  bool pre_parse(toml::table &);
+  nlohmann::json parse(const std::string & input);
 
   bool verify_hash() const;
 
@@ -79,8 +81,9 @@ private:
   void generate_hash();
 
 public:
-  //Node(const Node & n) : NodeBase(n.in), in{n.in} {};
-  Node(const std::string s);
+  //Node(const Node & n) : NodeBase(n.in), in{n.in} {}
+  Node(const std::string s) : NodeBase(parse(s)), in{s} {}
+
   Node() = default; // TODO: delete?
   ~Node() = default;
 

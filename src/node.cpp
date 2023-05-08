@@ -27,43 +27,68 @@ std::string remove_two_lines(const std::string & toml) {
 } // namespace
 namespace wot {
 
-   NodeBase::NodeBase(const std::string & jsons){
+  NodeBase::NodeBase(const std::string & jsons){
     try {
       auto j = nlohmann::json::parse(jsons);
       from_json(j, *this);
     }
-    catch (nlohmann::json::out_of_range& ex) {
+    catch (...) {
+      // Wrong json format or good format, but wrong for our schema
       throw(std::runtime_error("It is not possible to parse node"));
     }
   }
 
-  Node::Node(const std::string s) : in{s} {
+  NodeBase::NodeBase(const nlohmann::json & j){
     try {
+      LOG << "Is it valid for the schema?";
+      from_json(j, *this);
+      LOG << "Yes.";
+    } catch (nlohmann::json::out_of_range& ex) {
+      LOG << "No. Node object does not match our protocol (is it composed "
+        "with a different version?)";
+      std::cerr << ex.what() << std::endl;
+      throw(std::runtime_error("The node is not valid"));
+    }
+  }
+
+  nlohmann::json Node::parse(const std::string & in) {
+    nlohmann::json j;
+    try {
+      LOG << "Parsing object: " << in;
+      LOG << "Is it a valid json? ";
+      j = nlohmann::json::parse(in); // throws ej
+      LOG << "Yes.";
+      origin_is_toml = false;
+    } catch (nlohmann::json::parse_error& ej) {
+      LOG << "No. Not a valid JSON";
+      LOG << "Is it a valid TOML?";
       toml::table t;
-      if(!pre_parse(t)) throw;
-      // Let's see if `in` is valid against our schema and populate n
-      std::string jsons;
-      if(origin_is_toml) {
-        std::stringstream ss;
-        ss << toml::json_formatter{t};
-        jsons = ss.str();
-      } else {
-        jsons = in;
-      }
       try {
-        LOG << "Is it valid for the schema? ";
-        auto j = nlohmann::json::parse(jsons);
-        from_json(j, *this);
-        LOG << "Yes.";
-      } catch (nlohmann::json::out_of_range& ex) {
+        std::string_view sv = in;
+        t = toml::parse(sv); // throws ep
+        LOG << "Yes. TOML parsed.";
+        LOG << "Is it solvable?";
+        solve( sv, t ); // can throw
+        LOG << "TOML solved" << t;
+      } catch (const toml::parse_error& ep) {
         LOG << "No.";
-        std::cerr << ex.what() << std::endl;
-        throw;
+        std::cerr << "If it was supposed to be JSON, parse error at byte " <<
+          ej.byte << std::endl;
+        std::cerr << "If it was supposed to be TOML, parse error: " << ep <<
+          std::endl;
+        throw(std::runtime_error(
+          "Object is not a recognized format (JSON or TOML)"));
+      } catch (...) {
+        throw(std::runtime_error(
+          "Object is TOML, but cannot be solved as a valid node object"));
       }
-    } catch(...) {
-      throw(std::runtime_error("Not a good node"));
-    };
-  };
+      std::stringstream ss;
+      ss << toml::json_formatter{t};
+      j = nlohmann::json::parse(ss.str());
+      origin_is_toml = true;
+    }
+    return j;
+  }
 
   // solve a TOML object by removing the two helping hashes: defaults and ref
   void Node::solve( std::string_view in, toml::table & t ) {
@@ -188,38 +213,6 @@ namespace wot {
       "If, on the other side, you want to generate a valid signature: " <<
       Config::get().get_command() << " help sign" << std::endl;
       return false;
-    }
-  }
-
-  // Check the object format, and transform toml -> json (if needed)
-  // Assign origin_is_toml in any case. Return false if parsing is impossible
-  bool Node::pre_parse(toml::table & t) {
-    try {
-      LOG << "Is it a valid json? ";
-      auto _ = nlohmann::json::parse(in);
-      LOG << "Yes.";
-      origin_is_toml = false;
-      return true;
-    } catch (nlohmann::json::parse_error& ej) {
-      LOG << "No.";
-      LOG << "Is it a valid TOML?";
-      try {
-        std::string_view sv = in;
-        t = toml::parse(sv);
-        LOG << "Yes: TOML parsed" << std::endl << sv;
-        solve( sv, t );
-        LOG << "Yes: TOML solved" << t;
-      }
-      catch (const toml::parse_error& e) {
-        LOG << "No." << std::endl;
-        std::cerr << "If it was supposed to be JSON, parse error at byte " <<
-          ej.byte << std::endl;
-        std::cerr << "If it was supposed to be TOML, parse error: " << e <<
-          std::endl;
-        return false;
-      }
-      origin_is_toml = true;
-      return true;
     }
   }
 
