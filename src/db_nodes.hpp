@@ -12,13 +12,29 @@
 typedef boost::program_options::variables_map vm_t;
 
 #include <node.hpp>
+#include <interfaces/readonly_db.hpp>
 #include <disk_db.hpp>
+
+namespace {
+using Hash = std::string;
+using JsonString = std::string;
+using OrigString = std::string;
+
+using Key = Hash;
+using Value = std::pair<OrigString,JsonString>;
+}
 
 namespace wot {
 
-class Db_nodes {
+// Db of complete nodes, that permits verification or not, based on how
+// input was received and accepted. This is all the data we have.
+class DbNodes : DbInterface<Key,Value>, ReadonlyDb<Key,NodeBase> {
 private:
+  // Database implementation of internal json node objects
   DiskDb db;
+
+  // Database implementation of original input, useful for verification of hash
+  DiskDb orig_db;
 
   // Remember how many occurrences of a certain `on` from last visit
   mutable std::map<std::string,int> on_m;
@@ -34,8 +50,8 @@ private:
   const Node fetch_node(const std::filesystem::directory_entry & file) const;
 
 public:
-  Db_nodes() : db(), on_needs_update(true) {};
-  ~Db_nodes() {};
+  DbNodes() : db(), orig_db("orig"), on_needs_update(true) {};
+  ~DbNodes() {};
 
   // fetch a node from disk, and check if it is ok against given filters
   // In order for rule-filter and to-filter to work properly in detailed
@@ -46,26 +62,54 @@ public:
   ) const;
 
   // add a node to the local database
-  bool add_node(
-    const std::string & filename,
-    const std::string & orig,
-    const std::string & json
+  bool add(
+    const Hash & filename,
+    const OrigString & orig,
+    const JsonString & json
   );
 
   // add a node to the local database
-  inline bool add_node(const Node & n) {
-    std::string filename = n.get_signature().get_hash();
-    return( add_node(filename, n.get_in(), n.get_json()) );
+  bool add (
+    const Key & k,
+    const Value & v
+  ) override {
+    return add(k, v.first, v.second);
+  }
+
+  // add a node to the local database
+  inline bool add(const Node & n) {
+    Hash filename = n.get_signature().get_hash();
+    return( add(filename, n.get_in(), n.get_json()) );
   }
 
   // add a node to the local database
   // Apply filters: if node is not ok with all filters, it will not be added
-  inline bool add_node(const Node & n, vm_t vm) {
+  inline bool add(const Node & n, vm_t vm) {
     if(!n.check_filters(vm)) return false;
-    return( add_node(n) );
+    return( add(n) );
   }
 
-  // list all the nodes in the database that are selected by vm filters
+  // Interface of ReadonlyDb
+  bool get(const Key & k, NodeBase & n) const override;
+  void keys(std::set<std::string> &) const override;
+
+  // TODO
+  std::optional<Value> get(const Key &) const override { return std::nullopt; };
+
+  // TODO
+  bool rm(const Key &) override { return false; };
+
+  void print(const Key & k) const override {
+    db.print(k);
+  };
+
+  // list all the nodes in the database that match filters defined in vm
+  void print_list() const override {
+    const vm_t vm{};
+    visit(vm, /*quiet=*/false);
+  };
+
+  // list all the nodes in the database that match filters defined in vm
   inline void list_nodes(const vm_t & vm) const {
     visit(vm, /*quiet=*/false);
   };

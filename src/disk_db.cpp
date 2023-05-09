@@ -124,9 +124,13 @@ namespace wot {
     return !remove(s.c_str());
   }
 
-  bool DiskDb::add(const std::string & hash, const std::string & sig) {
-    LOG << "Writing signature to " << hash << "." << get_ext() << " as a known signature";
-    return DiskDb::write_file(hash+"."+get_ext(),sig);
+  bool DiskDb::add(const std::string & hash, const std::string & value) {
+    LOG << "Writing " << hash << "." << get_ext();
+    std::string filename{hash};
+    if(get_ext() != "") {
+      filename = hash+"."+get_ext();
+    }
+    return DiskDb::write_file(filename,value);
   }
 
   // remove a known signature from the local database
@@ -135,7 +139,6 @@ namespace wot {
     return remove_file(filename);
   }
 
-  // if there is no file at all, return an empty string
   std::optional<std::string> DiskDb::get(const std::string & hash) const {
     std::stringstream content = DiskDb::read_file(get_ext()=="" ? hash : hash+"."+get_ext());
     if(content.fail()) return std::nullopt;
@@ -153,17 +156,29 @@ namespace wot {
   }
 
   void DiskDb::print_list() const {
-    // list all the known signatures in the database
-    std::regex is_sig( get_table() + "$" );
-    std::cout << "hash : signature" << std::endl;
-    for (const auto & entry : std::filesystem::directory_iterator(DiskDb().get_dir())) {
-      if(std::regex_search( (std::string)entry.path(), is_sig )) {
-        std::stringstream content = DiskDb::read_file(entry.path().filename());
-        std::string filename = entry.path().filename().string();
-        std::cout << filename.substr(0, filename.size()-4) << " : " << content.str() << std::endl;
+    std::set<std::string> my_keys;
+    keys(my_keys);
+    for(const auto & k : my_keys) {
+      auto res = get(k);
+      if(res.has_value()) {
+        std::cout << k << " : " << res.value() << std::endl;
       }
     }
-    return;
+  }
+
+  void DiskDb::keys(std::set<std::string> & result) const {
+    std::regex is_my_db( get_database_name() + "$" );
+    for (const auto & entry : std::filesystem::directory_iterator(DiskDb().get_dir())) {
+      if(std::regex_search( (std::string)entry.path(), is_my_db )) {
+        std::string filename = entry.path().filename().string();
+        if(get_database_name() == "") {
+          result.insert(filename);
+        } else {
+          // remove ext
+          result.insert( filename.substr(0, filename.size()-get_database_name().size()-1) );
+        }
+      }
+    }
   }
 
 } // namespace wot

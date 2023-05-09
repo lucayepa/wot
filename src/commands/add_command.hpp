@@ -28,7 +28,7 @@ COMMAND_START(AddCommand)
     if(!Config::get_input(in)) return false;
     Node n(in);
     if( n.verify_node(vm.count("force-accept-hash"),vm.count("force-accept-sig")) ) {
-      if(!Db_nodes().add_node(n)) {
+      if(!DbNodes().add(n)) {
         std::cerr << "Node has not been added" << std::endl;
         return false;
       } else {

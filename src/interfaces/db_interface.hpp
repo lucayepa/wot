@@ -9,24 +9,25 @@
 
 namespace wot {
 
+template<class K, class V>
 class DbInterface {
 private:
-  // Table "" is accepted and is considered the default
-  const std::string table;
+  // Database "" is accepted and is considered the default
+  const std::string name;
 
 public:
   // A new created object is supposed to find the persistent data of the
-  // underlying table
-  DbInterface(const std::string & table) : table(table) {};
-  DbInterface() : table("") {};
+  // underlying database. No open needed.
+  DbInterface(const std::string & db) : name{db} {};
+  DbInterface() : name("") {};
   ~DbInterface() {};
 
-  const std::string & get_table() const { return table; }
+  const std::string & get_database_name() const { return name; }
 
-  virtual bool add(const std::string & key, const std::string & value) = 0;
-  virtual bool rm(const std::string & key) = 0;
-  virtual std::optional<std::string> get(const std::string & key) const = 0;
-  virtual void print(const std::string & key) const = 0;
+  virtual bool add(const K &, const V &) = 0;
+  virtual bool rm(const K &) = 0;
+  virtual std::optional<V> get(const K &) const = 0;
+  virtual void print(const K & key) const = 0;
   virtual void print_list() const = 0;
   // get_filtered();
 };

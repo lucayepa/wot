@@ -15,10 +15,11 @@
 #define LOG BOOST_LOG_TRIVIAL(info)
 
 #include <interfaces/db_interface.hpp>
+#include <interfaces/db.hpp>
 
 namespace wot {
 
-class DiskDb : public DbInterface {
+class DiskDb : public DbInterface<std::string,std::string>, Db<std::string,std::string> {
 private:
   std::filesystem::path dir;
 
@@ -63,11 +64,20 @@ public:
   const std::filesystem::path & get_dir() const { return dir; }
   void set_dir(const std::string & value) { this->dir = value; }
 
-  const std::string & get_ext() const { return get_table(); }
+  const std::string & get_ext() const { return get_database_name(); }
 
-  bool add(const std::string & key, const std::string & value);
-  bool rm(const std::string & key);
+  bool add(const std::string & key, const std::string & value) override;
+  bool rm(const std::string & key) override;
   std::optional<std::string> get(const std::string & key) const;
+  bool get(const std::string & key, std::string & value) const override {
+    auto res = get(key);
+    if(res.has_value()) {
+      value = res.value();
+      return true;
+    }
+    return false;
+  }
+  void keys(std::set<std::string> &) const override;
   void print(const std::string & hash) const;
 
   void print_list() const;

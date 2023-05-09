@@ -9,8 +9,12 @@
 
 COMMAND_START(LsCommand)
   COMMAND_CLI("ls")
-  COMMAND_SHORT_DESCRIPTION("List of the objects in the internal db filtered against the provided filters.")
-  COMMAND_SYNOPSIS("wot [--jsonl] [--rule-filter RULE] [--to-filter TO] [--from-filter FROM] [...] ls")
+  COMMAND_SHORT_DESCRIPTION(
+    "List of the objects in the internal db that match the requested filters."
+  )
+  COMMAND_SYNOPSIS(
+    "wot [--jsonl] [FILTERS ...] ls"
+  )
   COMMAND_DESCRIPTION(R"(
   List of the objects of the internal db, filtered against the provided filters.
 
@@ -27,10 +31,10 @@ COMMAND_START(LsCommand)
 
   bool act(const vm_t & vm) const override {
     if(vm.count("jsonl")) {
-      Db_nodes().filtered_export(vm);
+      DbNodes().filtered_export(vm);
       return true;
     } else {
-      Db_nodes().list_nodes(vm);
+      DbNodes().list_nodes(vm);
       return true;
     }
   }

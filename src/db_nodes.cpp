@@ -10,7 +10,22 @@
 
 namespace wot {
 
-bool Db_nodes::filter_node(
+// Interface of ReadonlyDb
+bool DbNodes::get(const Key & k, NodeBase & n) const {
+  std::optional<std::string> result = db.get(k);
+  if(result.has_value()) {
+    from_json(result.value(), n);
+    return true;
+  } else {
+    return false;
+  }
+}
+
+void DbNodes::keys(std::set<std::string> & ks) const {
+  db.keys(ks);
+}
+
+bool DbNodes::filter_node(
   const vm_t & vm,
   const std::filesystem::directory_entry & file
 ) const {
@@ -18,22 +33,22 @@ bool Db_nodes::filter_node(
   return n.check_filters(vm);
 }
 
-bool Db_nodes::add_node(
-  const std::string & filename,
+bool DbNodes::add(
+  const std::string & hash,
   const std::string & orig,
   const std::string & json
 ) {
-  LOG << "Writing " << filename << " having original content: " << orig <<
+  LOG << "Writing " << hash << " having original content: " << orig <<
     " and json content " << json;
-  if(!db.write_file(filename,json)) return false;
+  if(!db.add(hash,json)) return false;
   if (orig != json) {
-    if(!db.write_file(filename+".orig",orig)) return false;
+    if(!orig_db.add(hash,orig)) return false;
   }
   on_needs_update = true;
   return true;
 }
 
-const Node Db_nodes::fetch_node(
+const Node DbNodes::fetch_node(
   const std::filesystem::directory_entry & file
 ) const {
   std::stringstream content = db.read_file(file.path().filename());
@@ -44,7 +59,7 @@ const Node Db_nodes::fetch_node(
   return n2;
 }
 
-void Db_nodes::visit(
+void DbNodes::visit(
   const vm_t & vm,
   bool quiet,
   bool jsonl
@@ -55,7 +70,7 @@ void Db_nodes::visit(
   for (const auto & entry : it) {
     if(std::regex_search( (std::string)entry.path(), is_toml )) continue;
     if(std::regex_search( (std::string)entry.path(), is_sig )) continue;
-    if(Db_nodes().filter_node(vm, entry)) {
+    if(DbNodes().filter_node(vm, entry)) {
       LOG << "Found file " << entry.path().filename();
       if(jsonl) {
         std::cout << db.read_file(entry.path().filename()).str();
