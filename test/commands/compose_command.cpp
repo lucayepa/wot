@@ -37,12 +37,12 @@ BOOST_AUTO_TEST_CASE(check) {
   ComposeCommand().fill_with(vm, n);
   BOOST_CHECK( n.dump() == R"({"circle":"friends","serial":7,"signature":{"hash":"","sig":""},"trust":[{"on":[],"since":8,"to":"to","unit":"USD","value":50}]})" );
   ComposeCommand().complete(n);
-  BOOST_CHECK( n.dump() == R"({"circle":"friends","implementation":"","profile":{"about":"","aka":"","dob":"","facebook":"","key":"","name":"","nostr":"","picture":"","telegram":"","twitter":""},"serial":7,"signature":{"hash":"","sig":""},"sources":[],"trust":[{"on":[],"since":8,"to":"to","unit":"USD","value":50}]})" );
+  BOOST_CHECK( n.dump() == R"({"circle":"friends","profile":{"about":"","aka":"","dob":"","facebook":"","key":"","name":"","nostr":"","picture":"","telegram":"","twitter":""},"serial":7,"signature":{"hash":"","sig":""},"sources":[],"trust":[{"on":[],"since":8,"to":"to","unit":"USD","value":50}],"version":""})" );
 
   BOOST_TEST_MESSAGE("Twice with the same vm will add a new link");
-  vm.emplace("implementation",po::variable_value((std::string)"0.1", true));
+  vm.emplace("version",po::variable_value((std::string)"0.1", true));
   ComposeCommand().fill_with(vm, n);
-  BOOST_CHECK( n.dump() == R"({"circle":"friends","implementation":"0.1","profile":{"about":"","aka":"","dob":"","facebook":"","key":"","name":"","nostr":"","picture":"","telegram":"","twitter":""},"serial":7,"signature":{"hash":"","sig":""},"sources":[],"trust":[{"on":[],"since":8,"to":"to","unit":"USD","value":50},{"on":[],"since":8,"to":"to","unit":"USD","value":50}]})" );
+  BOOST_CHECK( n.dump() == R"({"circle":"friends","profile":{"about":"","aka":"","dob":"","facebook":"","key":"","name":"","nostr":"","picture":"","telegram":"","twitter":""},"serial":7,"signature":{"hash":"","sig":""},"sources":[],"trust":[{"on":[],"since":8,"to":"to","unit":"USD","value":50},{"on":[],"since":8,"to":"to","unit":"USD","value":50}],"version":"0.1"})" );
 
 }
 

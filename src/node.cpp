@@ -141,7 +141,7 @@ namespace wot {
   std::string NodeBase::to_j(const bool withsig) const {
     auto j = nlohmann::json::object();
     j["circle"] = get_circle();
-    j["implementation"] = get_implementation();
+    j["version"] = get_version();
     j["profile"] = get_profile();
     j["serial"] = get_serial();
     j["sources"] = get_sources();

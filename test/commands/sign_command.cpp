@@ -47,7 +47,7 @@ BOOST_AUTO_TEST_CASE(check) {
   vm.emplace("value",po::variable_value((int)50, true));
   vm.emplace("since",po::variable_value((int)8, true));
 
-  vm.emplace("implementation",po::variable_value((std::string)"0.1", true));
+  vm.emplace("version",po::variable_value((std::string)"0.1", true));
 
   vm.emplace("profile-key",po::variable_value((std::string)"dummy-key", true));
 
@@ -59,10 +59,10 @@ BOOST_AUTO_TEST_CASE(check) {
   Node n(j.dump());
 
   std::string s = n.get_signed(/*force-accept-hash=*/false);
-  BOOST_CHECK( s == R"({"circle":"friends","implementation":"0.1","profile":{"about":"","aka":"","dob":"","facebook":"","key":"dummy-key","name":"","nostr":"","picture":"","telegram":"","twitter":""},"serial":7,"signature":{"hash":"d473f6f1e829932b68fb1d6889e6f12df4daafc4fba0a4be2510c3b6dc3b7c08","sig":"dummy-sig-for-d473f6f1e829932b68fb1d6889e6f12df4daafc4fba0a4be2510c3b6dc3b7c08"},"sources":[],"trust":[{"on":[],"since":8,"to":"to","unit":"USD","value":50}]})" );
+  BOOST_CHECK( s == R"({"circle":"friends","profile":{"about":"","aka":"","dob":"","facebook":"","key":"dummy-key","name":"","nostr":"","picture":"","telegram":"","twitter":""},"serial":7,"signature":{"hash":"7db44102834343c24ef2daacc753ae0c895a9c9aa4290e4f1b6d594183c292f7","sig":"dummy-sig-for-7db44102834343c24ef2daacc753ae0c895a9c9aa4290e4f1b6d594183c292f7"},"sources":[],"trust":[{"on":[],"since":8,"to":"to","unit":"USD","value":50}],"version":"0.1"})" );
 
   s = n.get_signed(/*force-accept-hash=*/false);
-  BOOST_CHECK( s == R"({"circle":"friends","implementation":"0.1","profile":{"about":"","aka":"","dob":"","facebook":"","key":"dummy-key","name":"","nostr":"","picture":"","telegram":"","twitter":""},"serial":7,"signature":{"hash":"d473f6f1e829932b68fb1d6889e6f12df4daafc4fba0a4be2510c3b6dc3b7c08","sig":"dummy-sig-for-d473f6f1e829932b68fb1d6889e6f12df4daafc4fba0a4be2510c3b6dc3b7c08"},"sources":[],"trust":[{"on":[],"since":8,"to":"to","unit":"USD","value":50}]})" );
+  BOOST_CHECK( s == R"({"circle":"friends","profile":{"about":"","aka":"","dob":"","facebook":"","key":"dummy-key","name":"","nostr":"","picture":"","telegram":"","twitter":""},"serial":7,"signature":{"hash":"7db44102834343c24ef2daacc753ae0c895a9c9aa4290e4f1b6d594183c292f7","sig":"dummy-sig-for-7db44102834343c24ef2daacc753ae0c895a9c9aa4290e4f1b6d594183c292f7"},"sources":[],"trust":[{"on":[],"since":8,"to":"to","unit":"USD","value":50}],"version":"0.1"})" );
 
   std::string hash = n.get_signature().get_hash();
 

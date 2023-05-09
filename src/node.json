@@ -5,7 +5,7 @@
   "type": "object",
   "properties": {
     "circle": { "type": "string" },
-    "implementation": { "type": "string" },
+    "version": { "type": "string" },
     "profile": {
       "type": "object",
       "properties": {
@@ -43,7 +43,7 @@
       "additionalProperties": false
     }
   },
-  "required": [ "circle", "implementation", "profile", "serial", "sources",
+  "required": [ "circle", "version", "profile", "serial", "sources",
   "trust", "signature"],
   "additionalProperties": false
 }

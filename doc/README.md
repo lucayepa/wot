@@ -86,7 +86,7 @@ This section assumes that the user is part of a community that uses the bitcoin 
 This section assumes that there are different communities using different consensus methods on how to use the web of trust. For the moment it can be skipped unless you want to help with the porting to different identity algorithms.
 
 * What if I have node objects from different communities, that use different algorithms for identity keys?
-  * Every node object contains a field named _implementation_. It contains a reference to the implementation of that node object.
+  * Every node object contains a field named _version_. It contains a reference to the implementation of that node object.
 * What if I am in different communities, having different implementations?
   * If this case you need to maintain a node for every implementation. Since nodes are identified by identity keys, different identity keys are different nodes.
 
@@ -153,7 +153,7 @@ Two hash tables are used to keep the node object as compact as possible. They ar
 * _defaults_, if present, contains the values to be considered when a trust _link_ does not contain a certain field.
 * _ref_, if present, contains references to versions of rules adopted by the community joined by the user, contained in the array _on_. Keys of this table are local only and can be used in the _on_ array of a _link_ of the _trust_ array.
 
-_implementation_ refers to a document describing the implementation schema that this object adheres to.
+_version_ refers to a document describing the implementation schema that this object adheres to.
 
 No string can contain the double quote character (").
 

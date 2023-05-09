@@ -1,11 +1,7 @@
 circle = 'work'
-implementation = 'Bitcoin Italia Wot 1.1'
 serial = 9
-sources = [
-    'ipns://satoshi.bitcoin.org',
-    'http://satoshi.bitcoin.org',
-    'nostr://npub1gl23nnfmlewvvuz7xgrrauuexx2xj70whdf5yhd47tj0r8p68t6sww70gt'
-]
+sources = [ 'http://satoshi.bitcoin.org', 'nostr://npub1gl23nnfmlewvvuz7xgrrauuexx2xj70whdf5yhd47tj0r8p68t6sww70gt' ]
+version = '1.1'
 
 [profile]
 about = "I'm Satoshi Nakamoto"
@@ -21,8 +17,8 @@ telegram = 'satoshinakamoto'
 twitter = 'satoshi'
 
 [signature]
-hash = 'd37a47c98a58f415a1e78af09415ee8cf61f5fafd0964e1e07f68c7a8938eb0b'
-sig = 'H3Td60Pfi4R1PNm11wLjHnqIJOIr3YKyH/DU5Naf0F9cfh91hOkt9G7oZSSwGwqTXfgOlSLbNVrTSacMImAtjag='
+hash = '059f9b21653fa8877fc0707d0fae9b8e9624193436ca0c1a435332d408dcae12'
+sig = 'H2MJu+NnYmY2BrpSsERNNBV/yhT9krncs1oSjDBrhi1rBf095LPXiq1nK0KpiLQe+VHqVF35jcGVsejZjNfB43Y='
 
 [[trust]]
 on = [ 'https://gist.github.com/lucayepa/3bec3ba83fcc9a576aa79a7f16326be3', 'http://other.community.rules.com' ]

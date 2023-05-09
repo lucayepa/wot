@@ -34,7 +34,7 @@ COMMAND_START(ComposeCommand)
 
   The following default values will be considered for other options that are
   not specified and are not in the object received from stdin:
-  `--circle "" --serial 0 --implementation ""`
+  `--circle "" --serial 0 --version ""`
 
   The signature information will not be altered, but usually they are empty,
   because the hash of the node will be altered by this command, so it needs
@@ -52,7 +52,7 @@ COMMAND_START(ComposeCommand)
   wot compose --circle "c3" | \
   wot compose --unit "EUR" --value 50 --since 3 --to aa --on a --on b | \
   wot compose --profile-key bc1qa37y5tnfcg84k5df3sejn0zy2htpax0cmwyzsq | \
-  wot compose --implementation impl | \
+  wot compose --version v0.1 | \
   wot sign | wot add
 )")
 
@@ -61,8 +61,8 @@ COMMAND_START(ComposeCommand)
     nlohmann::json & n
   ) const noexcept {
     if(vm.count("circle")) { n["circle"] = vm["circle"].as<std::string>(); }
-    if(vm.count("implementation")) {
-      n["implementation"] = vm["implementation"].as<std::string>();
+    if(vm.count("version")) {
+      n["version"] = vm["version"].as<std::string>();
     }
     if(vm.count("serial")) { n["serial"] = vm["serial"].as<int>(); }
 
@@ -112,7 +112,7 @@ COMMAND_START(ComposeCommand)
   // This is not enough to be fed to the `add` command, because of
   // another constraint like the identity that should be well formed.
   void complete(nlohmann::json & n) const noexcept {
-    for(auto k : {"circle", "implementation"}) {
+    for(auto k : {"circle", "version"}) {
       if(!n.contains(k)) { n[k] = ""; }
     }
 
@@ -188,7 +188,7 @@ COMMAND_START(ComposeCommand)
     po::options_description od("Compose command options (help compose)");
     od.add_options()
       ("start", "start a new node")
-      ("implementation", po::value< std::string >(), "implementation")
+      ("version", po::value< std::string >(), "version of the node object")
       ("circle", po::value< std::string >(), "circle")
       ("profile-about", po::value< std::string >(), "about")
       ("profile-aka", po::value< std::string >(), "aka")

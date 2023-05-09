@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE(check) {
   vm.emplace("value",po::variable_value((int)50, true));
   vm.emplace("since",po::variable_value((int)8, true));
 
-  vm.emplace("implementation",po::variable_value((std::string)"0.1", true));
+  vm.emplace("version",po::variable_value((std::string)"0.1", true));
 
   nlohmann::json j;
 
@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_CASE(check) {
   // Check what happens here - TODO
   //BOOST_CHECK( DbNodes().add(n) );
 
-  std::string signed_object = R"({"circle":"friends","implementation":"0.1","profile":{"about":"","aka":"","dob":"","facebook":"","key":"dummy-key","name":"","nostr":"","picture":"","telegram":"","twitter":""},"serial":7,"signature":{"hash":"d473f6f1e829932b68fb1d6889e6f12df4daafc4fba0a4be2510c3b6dc3b7c08","sig":"dummy-sig-for-d473f6f1e829932b68fb1d6889e6f12df4daafc4fba0a4be2510c3b6dc3b7c08"},"sources":[],"trust":[{"on":[],"since":8,"to":"to","unit":"USD","value":50}]})";
+  std::string signed_object = R"({"circle":"friends","version":"0.1","profile":{"about":"","aka":"","dob":"","facebook":"","key":"dummy-key","name":"","nostr":"","picture":"","telegram":"","twitter":""},"serial":7,"signature":{"hash":"7db44102834343c24ef2daacc753ae0c895a9c9aa4290e4f1b6d594183c292f7","sig":"dummy-sig-for-7db44102834343c24ef2daacc753ae0c895a9c9aa4290e4f1b6d594183c292f7"},"sources":[],"trust":[{"on":[],"since":8,"to":"to","unit":"USD","value":50}]})";
 
   // Start from the artifact that arrives from sign test
   Node m(signed_object);
@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE(check) {
   bitcoin_vm.emplace("bitcoin-key-filter",po::variable_value((std::string)"1", true));
   BOOST_CHECK( ! DbNodes().add(m, bitcoin_vm) );
 
-  std::string not_signed_object = R"({"circle":"friends","implementation":"0.1","profile":{"about":"","aka":"","dob":"","facebook":"","key":"dummy-key","name":"","nostr":"","picture":"","telegram":"","twitter":""},"serial":7,"signature":{"hash":"1234","sig":"dummy-sig-for-1234"},"sources":[],"trust":[{"on":[],"since":8,"to":"to","unit":"USD","value":50}]})";
+  std::string not_signed_object = R"({"circle":"friends","version":"0.1","profile":{"about":"","aka":"","dob":"","facebook":"","key":"dummy-key","name":"","nostr":"","picture":"","telegram":"","twitter":""},"serial":7,"signature":{"hash":"1234","sig":"dummy-sig-for-1234"},"sources":[],"trust":[{"on":[],"since":8,"to":"to","unit":"USD","value":50}]})";
   Node m2(not_signed_object);
   BOOST_CHECK( m2.verify_node(/*force-accept-hash=*/true,/*force-accept-sig=*/true) );
 
