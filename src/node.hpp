@@ -41,7 +41,7 @@ public:
   NodeBase() = default; // TODO: delete?
   ~NodeBase() = default;
 
-  // Check if the node is ok with all the filters provided. The filters are
+  // Check if the node matches all the filters provided. The filters are
   // evaluated in "AND" and are short circuited.
   bool check_filters(const vm_t & vm) const;
 

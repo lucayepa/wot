@@ -42,10 +42,10 @@ of the file is:
     out = header;
     auto filters = Config::get().get_filters();
     for(const auto & [k, f] : filters) {
-      out += "# " + f->get_description() + "\n";
+      out += "# " + f->desc() + "\n";
       out += "# \n";
-      out += "# " + f->get_long_description() + "\n";
-      out += "#" + f->get_cli_option() + R"( = "arg")" + "\n\n";
+      out += "# " + f->long_desc() + "\n";
+      out += "#" + f->cli_option() + R"( = "arg")" + "\n\n";
     }
   }
 

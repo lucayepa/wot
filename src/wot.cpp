@@ -53,11 +53,22 @@ int main(int argc, char *argv[]) {
   po::options_description filter_options("Filters (use with add or ls)");
   auto filters = Config::get().get_filters();
   for(const auto & [k, f] : filters) {
-    filter_options.add_options()
-      ( f->get_cli_option().c_str(),
-        po::value< std::string >(),
-        f->get_description().c_str()
-      );
+    const auto name = f->cli_option();
+    const auto desc = f->desc();
+    switch(f->tokens()) {
+      case 1:
+        filter_options.add_options()
+          ( name.c_str(), po::value<std::string>(), desc.c_str() );
+        break;
+      case 0:
+        filter_options.add_options()
+          ( name.c_str(), desc.c_str() );
+        break;
+      default:
+        using multi_t = std::vector<std::string>;
+        filter_options.add_options()
+          ( name.c_str(), po::value<multi_t>()->multitoken(), desc.c_str() );
+    }
   }
 
   cmdline_options.add(filter_options);

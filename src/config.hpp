@@ -71,7 +71,7 @@ public:
 
   toml::table config;
 
-  void add_filter(Filter * f) { filters[f->get_name()] = f; }
+  void add_filter(Filter * f) { filters[f->name()] = f; }
   const Filter * get_filter(std::string name) { return filters[name]; }
   std::map<std::string, Filter*> & get_filters() { return filters; }
 

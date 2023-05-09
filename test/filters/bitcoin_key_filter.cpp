@@ -25,7 +25,7 @@ BOOST_AUTO_TEST_CASE(check) {
   //Need to verify the node to fill up n
   BOOST_CHECK(n.verify_node(true,true));
 
-  BOOST_CHECK(f->check(n, ""));
+  BOOST_CHECK(f->check(n));
 
   //Should try with a node that does not pass the check (TODO)
 }

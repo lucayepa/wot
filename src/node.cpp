@@ -69,7 +69,7 @@ namespace wot {
         LOG << "Yes. TOML parsed.";
         LOG << "Is it solvable?";
         solve( sv, t ); // can throw
-        LOG << "TOML solved" << t;
+        LOG << "TOML solved:\n" << t;
       } catch (const toml::parse_error& ep) {
         LOG << "No.";
         std::cerr << "If it was supposed to be JSON, parse error at byte " <<
@@ -328,22 +328,37 @@ namespace wot {
     return false;
   }
 
-  bool NodeBase::check_filters(const vm_t & vm) const {
-    // All the filters are evaluated using "and" mode
-    auto filters = Config::get().get_filters();
-    for(const auto & [k, f] : filters) {
-      const std::string name = f->get_name();
-      const std::string cli_option = f->get_cli_option();
-      if( !vm.count(cli_option) ) continue;
-      if( f->check(*this,vm[cli_option].as<std::string>()) ) {
-        LOG << name << " passed";
-        continue;
-      } else {
-        LOG << name << " NOT passed";
-        return false;
+bool NodeBase::check_filters(const vm_t & vm) const {
+  // All the filters are evaluated using "and" mode
+  auto filters = Config::get().get_filters();
+  for(const auto & [k, f] : filters) {
+    const std::string cli_option = f->cli_option();
+    if( !vm.count(cli_option) ) continue;
+    const std::string name = f->name();
+    bool res;
+    switch(f->tokens()) {
+      case 1: {
+        const auto arg = vm[cli_option].as<std::string>();
+        res = f->check(*this,arg);
+        break;
+      }
+      case 0:
+        res = f->check(*this);
+        break;
+      default: {
+        const auto arg_v = & vm[cli_option].as<std::vector<std::string>>();
+        res = f->check(*this,*arg_v);
       }
     }
-    return true;
+    if( res ) {
+      LOG << name << " passed";
+      continue;
+    } else {
+      LOG << name << " NOT passed";
+      return false;
+    }
   }
+  return true;
+}
 
 } // namespace wot
