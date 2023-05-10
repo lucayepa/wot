@@ -74,7 +74,7 @@ void DbNodes::visit(
     if(DbNodes().filter_node(vm, entry)) {
       LOG << "Found file " << entry.path().filename();
       if(jsonl) {
-        std::cout << db.read_file(entry.path().filename()).str();
+        std::cout << db.read_file(entry.path().filename()).str() << std::endl;
       } else {
         Node n2 = fetch_node(entry);
         for(const auto & link : n2.get_trust()) {
