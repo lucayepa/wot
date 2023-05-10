@@ -167,10 +167,16 @@ namespace wot {
   }
 
   void DiskDb::keys(std::set<std::string> & result) const {
-    std::regex is_my_db( get_database_name() + "$" );
+    std::regex is_my_db;
+    if(get_database_name() == "") {
+      // if contains dot is not in the default db
+      is_my_db = R"(^[^.]*$)";
+    } else {
+      is_my_db = R"(\.)" + get_database_name() + "$";
+    }
     for (const auto & entry : std::filesystem::directory_iterator(DiskDb().get_dir())) {
-      if(std::regex_search( (std::string)entry.path(), is_my_db )) {
-        std::string filename = entry.path().filename().string();
+      std::string filename = entry.path().filename().string();
+      if(std::regex_search( filename, is_my_db )) {
         if(get_database_name() == "") {
           result.insert(filename);
         } else {

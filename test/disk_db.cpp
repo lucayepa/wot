@@ -35,4 +35,23 @@ BOOST_AUTO_TEST_CASE(HighLevelInterface) {
   BOOST_CHECK(!DiskDb("test").get(key).has_value());
 }
 
+BOOST_AUTO_TEST_CASE(ReadonlyDbInterface) {
+  // Add a object in test db
+  std::string key("KEY");
+  std::string value("VALUE");
+  DiskDb("test").add(key, value);
+
+  // Scan keys of default db
+  std::set<std::string> ks;
+  DiskDb("").keys(ks);
+
+  for(const auto & k : ks ) {
+    // Test element should not be present in default db
+    BOOST_CHECK(k != "KEY.test");
+  }
+
+  // Rm object from test db
+  BOOST_CHECK(DiskDb("test").rm(key));
+}
+
 BOOST_AUTO_TEST_SUITE_END()
