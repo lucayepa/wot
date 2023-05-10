@@ -3,9 +3,10 @@
 #include <fstream>
 #include <regex>
 
+#include <boost/program_options.hpp>
+
 #include <boost/log/trivial.hpp>
 #include <boost/log/expressions.hpp>
-#include <boost/program_options.hpp>
 #define LOG BOOST_LOG_TRIVIAL(info)
 
 namespace wot {
@@ -14,7 +15,8 @@ namespace wot {
 bool DbNodes::get(const Key & k, NodeBase & n) const {
   std::optional<std::string> result = db.get(k);
   if(result.has_value()) {
-    from_json(result.value(), n);
+    auto j = nlohmann::json::parse(result.value());
+    from_json(j, n);
     return true;
   } else {
     return false;
@@ -55,7 +57,6 @@ const Node DbNodes::fetch_node(
   Node n2(content.str());
   // Since they are already in our db, do not verify hash and signature
   // We assume that checks are done at add time
-  n2.verify_node(/*force_accpet_hash=*/true,/*force_accpet_sig=*/true);
   return n2;
 }
 
