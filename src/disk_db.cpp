@@ -135,8 +135,12 @@ namespace wot {
 
   // remove a known signature from the local database
   bool DiskDb::rm(const std::string & hash) {
-    std::string filename = hash + "." + get_ext();
-    return remove_file(filename);
+    if(get_database_name() == "") {
+      return remove_file(hash);
+    } else {
+      std::string filename = hash + "." + get_ext();
+      return remove_file(filename);
+    }
   }
 
   std::optional<std::string> DiskDb::get(const std::string & hash) const {
