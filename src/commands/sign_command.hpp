@@ -30,7 +30,7 @@ COMMAND_START(SignCommand)
       std::cerr << "NOT ok" << std::endl;
       return false;
     }
-    std::cout << res << std::endl;
+    std::cout << res;
     return true;
   }
 COMMAND_END()

@@ -58,15 +58,16 @@ BOOST_AUTO_TEST_CASE(check) {
 
   Node n(j);
 
-  // Check what happens here - TODO
-  //BOOST_CHECK( DbNodes().add(n) );
+  BOOST_CHECK( DbNodes().add(n) );
 
   std::string signed_object = R"({"circle":"friends","version":"0.1","profile":{"about":"","aka":"","dob":"","facebook":"","key":"dummy-key","name":"","nostr":"","picture":"","telegram":"","twitter":""},"serial":7,"signature":{"hash":"7db44102834343c24ef2daacc753ae0c895a9c9aa4290e4f1b6d594183c292f7","sig":"dummy-sig-for-7db44102834343c24ef2daacc753ae0c895a9c9aa4290e4f1b6d594183c292f7"},"sources":[],"trust":[{"on":[],"since":8,"to":"to","unit":"USD","value":50}]})";
 
   // Start from the artifact that arrives from sign test
   Node m(signed_object);
   // Verify the new node
-  BOOST_CHECK( m.verify_node(/*force-accept-hash=*/false,/*force-accept-sig=*/false) );
+  DiskDb().rm(m.get_signature().get_hash());
+  DiskDb("sig").add(m.get_signature().get_hash(), m.get_signature().get_sig());
+  BOOST_CHECK( m.verify_node() );
 
   BOOST_CHECK( DbNodes().add(m) );
 
@@ -77,16 +78,23 @@ BOOST_AUTO_TEST_CASE(check) {
   bitcoin_vm.emplace("bitcoin-key-filter",po::variable_value((std::string)"1", true));
   BOOST_CHECK( ! DbNodes().add(m, bitcoin_vm) );
 
-  std::string not_signed_object = R"({"circle":"friends","version":"0.1","profile":{"about":"","aka":"","dob":"","facebook":"","key":"dummy-key","name":"","nostr":"","picture":"","telegram":"","twitter":""},"serial":7,"signature":{"hash":"1234","sig":"dummy-sig-for-1234"},"sources":[],"trust":[{"on":[],"since":8,"to":"to","unit":"USD","value":50}]})";
+  std::string not_signed_object = R"({"circle":"friends2","version":"0.1","profile":{"about":"","aka":"","dob":"","facebook":"","key":"dummy-key","name":"","nostr":"","picture":"","telegram":"","twitter":""},"serial":7,"signature":{"hash":"1234","sig":"dummy-sig-for-1234"},"sources":[],"trust":[{"on":[],"since":8,"to":"to","unit":"USD","value":50}]})";
   Node m2(not_signed_object);
-  BOOST_CHECK( m2.verify_node(/*force-accept-hash=*/true,/*force-accept-sig=*/true) );
 
+  // No verify, because hash and signature are wrong. Directly add.
   BOOST_CHECK( !DbNodes().add(m2, bitcoin_vm) );
 
   vm_t empty_vm;
   Node m3(not_signed_object);
-  BOOST_CHECK( m3.verify_node(/*force-accept-hash=*/true,/*force-accept-sig=*/true) );
+  // No verify, because hash and signature are wrong
   BOOST_CHECK( DbNodes().add(m3, empty_vm) );
+
+  DiskDb().rm(m.get_signature().get_hash());
+  DiskDb("orig").rm(m.get_signature().get_hash());
+  DiskDb("orig").rm("");
+  DiskDb("sig").rm(m.get_signature().get_hash());
+  DiskDb().rm("1234");
+  DiskDb("orig").rm("1234");
 
   BOOST_TEST_MESSAGE("Removing the config test file");
   DiskDb::generic_remove_file("/tmp/test_file_config.toml");

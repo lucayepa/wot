@@ -19,24 +19,27 @@ COMMAND_START(AddCommand)
   Any filter can be passed on command line. If the node does not pass all the
   filters specified, it will not be added.
 
-  --force-accept-hash do not verify the hash of the node
-  --force-accept-sig do not verify the signature of the node
+  Three options can be used to force acceptance of a node that is not compliant
+  with the protocol. The three options are:
+  --force-accept-hash - do not check the hash of the object
+  --force-accept-sig - do not check the signature of the object
+  --force-no-db-check - do not use internal database to verify the object
+
+  See "help verify".
 )")
 
   bool act(const vm_t & vm) const override {
     std::string in;
     if(!Config::get_input(in)) return false;
     Node n(in);
-    if( n.verify_node(vm.count("force-accept-hash"),vm.count("force-accept-sig")) ) {
-      if(!DbNodes().add(n)) {
-        std::cerr << "Node has not been added" << std::endl;
-        return false;
-      } else {
-        return true;
-      }
-    } else {
+    if( !n.verify_node(vm) ) {
       std::cerr << "Node is not valid" << std::endl;
       return false;
-    };
+    }
+    if( !DbNodes().add(n) ) {
+      std::cerr << "Node has not been added" << std::endl;
+      return false;
+    }
+    return true;
   }
 COMMAND_END()

@@ -110,9 +110,11 @@ public:
 
   // General node verification
   // Return true if it is a valid node
-  bool verify_node(
-    const bool force_accept_hash,
-    const bool force_accept_sig ) const;
+  bool verify_node(const vm_t & vm) const;
+  bool verify_node() const {
+    const vm_t vm{};
+    return verify_node(vm);
+  }
 };
 
 } // namespace wot

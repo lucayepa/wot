@@ -58,22 +58,29 @@ BOOST_AUTO_TEST_CASE(check) {
 
   Node n(j.dump());
 
+  std::string hash = "7db44102834343c24ef2daacc753ae0c895a9c9aa4290e4f1b6d594183c292f7";
+  DiskDb("sig").rm(n.get_signature().get_hash());
+
+  // Dummy algo throws without a signature in the cache
+  BOOST_CHECK_THROW(n.get_signed(/*force-accept-hash=*/false),std::runtime_error);
+
+  DiskDb("sig").add(n.get_signature().get_hash(), "dummy-sig-for-" +  hash);
+
   std::string s = n.get_signed(/*force-accept-hash=*/false);
   BOOST_CHECK( s == R"({"circle":"friends","profile":{"about":"","aka":"","dob":"","facebook":"","key":"dummy-key","name":"","nostr":"","picture":"","telegram":"","twitter":""},"serial":7,"signature":{"hash":"7db44102834343c24ef2daacc753ae0c895a9c9aa4290e4f1b6d594183c292f7","sig":"dummy-sig-for-7db44102834343c24ef2daacc753ae0c895a9c9aa4290e4f1b6d594183c292f7"},"sources":[],"trust":[{"on":[],"since":8,"to":"to","unit":"USD","value":50}],"version":"0.1"})" );
 
   s = n.get_signed(/*force-accept-hash=*/false);
   BOOST_CHECK( s == R"({"circle":"friends","profile":{"about":"","aka":"","dob":"","facebook":"","key":"dummy-key","name":"","nostr":"","picture":"","telegram":"","twitter":""},"serial":7,"signature":{"hash":"7db44102834343c24ef2daacc753ae0c895a9c9aa4290e4f1b6d594183c292f7","sig":"dummy-sig-for-7db44102834343c24ef2daacc753ae0c895a9c9aa4290e4f1b6d594183c292f7"},"sources":[],"trust":[{"on":[],"since":8,"to":"to","unit":"USD","value":50}],"version":"0.1"})" );
 
-  std::string hash = n.get_signature().get_hash();
-
-  BOOST_CHECK( n.verify_node(/*force-accept-hash=*/false,/*force-accept-sig=*/false) );
+  BOOST_CHECK( n.verify_node() );
   BOOST_CHECK(n.get_json() == s);
 
   // Create a new node with the correct get_json
   Node m(n.get_json());
   // Verify the new node
-  BOOST_CHECK( m.verify_node(/*force-accept-hash=*/false,/*force-accept-sig=*/false) );
+  BOOST_CHECK( m.verify_node() );
 
+  DiskDb("sig").rm(n.get_signature().get_hash());
   BOOST_TEST_MESSAGE("Removing the config test file");
   DiskDb::generic_remove_file("/tmp/test_file_config.toml");
 }

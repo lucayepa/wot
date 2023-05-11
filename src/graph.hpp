@@ -16,6 +16,7 @@ private:
   DbNodes impl;
 
 public:
+  using KeySet = std::set<K>;
   GraphView() : impl() {};
   ~GraphView() {};
 

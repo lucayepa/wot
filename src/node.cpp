@@ -9,6 +9,7 @@
 #include <config.hpp>
 #include <identity.hpp>
 #include <signature.hpp>
+#include <filter.hpp>
 
 #include <boost/log/trivial.hpp>
 #include <boost/log/expressions.hpp>
@@ -33,7 +34,7 @@ namespace wot {
       from_json(j, *this);
     }
     catch (...) {
-      // Wrong json format or good format, but wrong for our schema
+      // Wrong json format, or good format, but wrong for our schema
       throw(std::runtime_error("It is not possible to parse node"));
     }
   }
@@ -160,15 +161,15 @@ namespace wot {
   std::string Node::hash_calc() const {
     if(origin_is_toml) {
       // Can be done in C++, but we mimic the user via CLI
-      // With this in front, removes comments:
+      // to remove comments we can add this in front:
       // grep -v ^\\# | grep . | ...
       return Program::cli_filter(in,
         "head -n -2 | sha256sum | cut -f1 -d' ' | tr -d '\\n'");
     } else {
       std::string j = to_j(/*withsig=*/false);
-      LOG << "hash_calc: Object without signature: " << j;
+      LOG << "json string without signature: " << j;
       std::string s = sha256(j);
-      LOG << "hash_calc: SHA256 of the object: " << s;
+      LOG << "SHA256 of the json string: " << s;
       return s;
     }
   }
@@ -229,7 +230,7 @@ namespace wot {
     s.set_sig("signature_here");
     set_signature(s);
 
-    if(!sanitize()) throw(std::runtime_error("Signature not possible"));
+    if(!sanitize()) throw(std::runtime_error("Signature not possible."));
 
     // Check if there is already a signature in the cache for this hash
     auto sig_on_file = DiskDb("sig").get(s.get_hash());
@@ -246,7 +247,7 @@ namespace wot {
       DiskDb("sig").add(s.get_hash(),sig.value());
 
       sig_on_file.emplace(sig.value());
-      LOG << "Written the signature in the cache";
+      LOG << "Signature written in the cache";
     }
 
     LOG << "There is a signature for this hash in the cache";
@@ -269,10 +270,7 @@ namespace wot {
     return to_j(/*with_sig=*/true);
   }
 
-  bool Node::verify_node(
-    const bool force_accept_hash,
-    const bool force_accept_sig
-  ) const {
+  bool Node::verify_node( const vm_t & vm ) const {
     try{
       if( Identity(*this).is_well_formed() ) {
         LOG << get_profile().get_key() << " is a well formed identity key.";
@@ -293,21 +291,35 @@ namespace wot {
       return false;
     };
 
-    if(force_accept_hash) {
+    if(vm.count("force-accept-hash")) {
       LOG << "Hash accepted because of force-accept-hash option";
     } else {
-      LOG << "Verify hash";
-      if(hash_calc() != get_signature().get_hash()) return false;
+      LOG << "Verify hash...";
+      if(hash_calc() != get_signature().get_hash()) {
+         LOG << " Wrong hash";
+         return false;
+      }
+      LOG << " Hash is ok";
     }
 
-    if(force_accept_sig) {
+    if(vm.count("force-accept-sig")) {
       LOG << "Signature accepted because of force-accept-sig option";
+    } else {
+      bool c = signature_verify();
+      LOG << "Signature is " << (c ? "" : "NOT ") << "correct.";
+      if(!c) return false;
+    }
+
+    if(vm.count("force-no-db-check")) {
+      LOG << "Primary key accepted because of force-no-db-check option";
       return true;
     }
-
-    bool c = signature_verify();
-    LOG << "Signature is " << (c ? "" : "NOT ") << "correct.";
-    if(c) return true;
+    auto f = Config::get().get_filters();
+    bool d = f["NewSerialFilter"]->check(*this);
+    LOG << "Primary key " << get_profile().get_key() << "."
+      << get_circle() << "." << get_serial() << " is " <<
+      (d ? "" : "NOT ") << "ok.";
+    if(d) return true;
 
     return false;
   }

@@ -22,9 +22,6 @@ BOOST_AUTO_TEST_CASE(check) {
   BOOST_CHECK(DiskDb::generic_read_file("../node1s.toml",s));
   Node n(s);
 
-  //Need to verify the node to fill it up
-  BOOST_CHECK(n.verify_node(true,true));
-
   BOOST_CHECK(f->check(n, "https://gist.github.com/lucayepa/3bec3ba83fcc9a576aa79a7f16326be3"));
 }
 

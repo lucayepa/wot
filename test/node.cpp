@@ -18,8 +18,6 @@ BOOST_AUTO_TEST_CASE(exec) {
   Node n(s);
   BOOST_CHECK(n.get_in()==s);
 
-  BOOST_CHECK(n.verify_node(true,true));
-
   BOOST_CHECK(n.get_circle()!="");
 
   Node m(n);
@@ -29,7 +27,6 @@ BOOST_AUTO_TEST_CASE(exec) {
   m.set_circle("a");
   BOOST_CHECK(m.get_circle()=="a");
 
-  BOOST_CHECK(m.verify_node(true,true));
   BOOST_CHECK(!(m.get_circle()==circle_original));
 }
 

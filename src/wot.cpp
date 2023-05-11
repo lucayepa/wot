@@ -36,6 +36,7 @@ int main(int argc, char *argv[]) {
     ("options", po::value< std::string >(), options_help.c_str())
     ("force-accept-hash", "Accept node hash, without verification")
     ("force-accept-sig", "Accept signature on node, without verification")
+    ("force-no-db-check", "Do not use internal database to verify the object")
     ("json-output", "Output a TOML node as JSON (signature remains the TOML one) (sign-toml)")
     ("jsonl", "Export the matched nodes as json lines (ls)")
     ("signature", po::value< std::string >(), "Signature to be added to the local db as a known signatures (add-sig)")
