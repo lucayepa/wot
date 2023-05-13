@@ -19,6 +19,8 @@ COMMAND_START(AddCommand)
   Any filter can be passed on command line. If the node does not pass all the
   filters specified, it will not be added.
 
+  Experts only:
+
   Three options can be used to force acceptance of a node that is not compliant
   with the protocol. The three options are:
   --force-accept-hash - do not check the hash of the object

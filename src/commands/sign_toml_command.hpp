@@ -14,8 +14,11 @@ COMMAND_START(SignTomlCommand)
   COMMAND_DESCRIPTION(R"(
   Get a TOML node from stdin, add a valid hash and a valid signature.
 
-  --force-accept-hash do not check the hash of the object
   --json-output return a json object (with original TOML signature)
+
+  Experts only:
+
+  --force-accept-hash do not check the hash of the object
 
   See also `help sign`.
 )")

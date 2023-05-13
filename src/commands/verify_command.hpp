@@ -22,6 +22,8 @@ COMMAND_START(VerifyCommand)
     "circle", the "serial" field should be strictly greater than the one on the
     node that is already in the database
 
+  Experts only:
+
   These three checks can be skipped with the following options:
   --force-accept-hash - do not check the hash of the object
   --force-accept-sig - do not check the signature of the object

@@ -328,13 +328,18 @@ namespace wot {
     if( hash_calc() == get_signature().get_hash() ) return true;
 
     std::cout <<
-    "Input node without a valid json-calculated hash nor a valid TOML hash.\n"<<
-    "If you are sure of the hash, you can rerun the program, adding " <<
-    "the option `--force-accept-hash`.\n\n" <<
+R"(
+Input node hash is not a valid json-calculated hash, nor a valid TOML hash.
+If you want to use this hash, you can force the program to accept it. In this
+case the node will be added to the internal database. The node cannot be
+verified though.
+
+If you want to accept the node, please re-run the program, adding the option:
+--force-accept-hash.
+)" <<
     "   Hash on file: " << get_signature().get_hash() << "\n" <<
     "Calculated hash: " << hash_calc() << "\n\n" <<
-    "TO VERIFY A TOML HASH\n" <<
-    "Check the requirements in doc/canonic/toml.md\n" <<
+    "TO GENERATE A HASH BASED ON A TOML FILE\n" <<
     "cat $FILE | head -n -2 | sha256sum | cut -f1 -d' ' | tr -d '\\n'" <<
     std::endl;
     return false;

@@ -14,6 +14,8 @@ COMMAND_START(SignCommand)
   COMMAND_DESCRIPTION(R"(
   Get an object from stdin, add a valid hash and a valid signature.
 
+  Experts only:
+
   --force-accept-hash do not check the hash of the object
 
   See also `help sign-toml`.
