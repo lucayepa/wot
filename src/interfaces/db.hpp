@@ -43,6 +43,13 @@ public:
   // Otherwise return false.
   virtual bool get(const K &, V &) const = 0;
 
+  // This creates a object of class V. If this is to much overhead, child
+  // classes ar supposed to override it.
+  virtual bool contains(const K & k) const {
+    V _;
+    return get(k,_);
+  }
+
   virtual void keys(std::set<K> &) const = 0;
 };
 

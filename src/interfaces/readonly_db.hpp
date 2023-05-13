@@ -5,7 +5,7 @@
 namespace wot {
 
 template<class K, class V>
-class ReadonlyDb : Db<K,V>{
+class ReadonlyDb : public Db<K,V>{
 private:
   const std::string name;
 

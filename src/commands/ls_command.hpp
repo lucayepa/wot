@@ -1,11 +1,13 @@
 #pragma once
 
+#include <iostream>
 #include <string>
 
 #include <boost/program_options.hpp>
 
 #include <command.hpp>
 #include <db_nodes.hpp>
+#include <graph.hpp>
 
 COMMAND_START(LsCommand)
   COMMAND_CLI("ls")
@@ -30,12 +32,13 @@ COMMAND_START(LsCommand)
 )")
 
   bool act(const vm_t & vm) const override {
-    if(vm.count("jsonl")) {
-      DbNodes().filtered_export(vm);
-      return true;
-    } else {
-      DbNodes().list_nodes(vm);
-      return true;
+    DbNodes().list_nodes(vm);
+    std::cout << "Identities:\n";
+    std::set<std::string> identities;
+    GraphView().keys(identities);
+    for(auto const & i : identities) {
+      std::cout << i << std::endl;
     }
+    return true;
   }
 COMMAND_END()

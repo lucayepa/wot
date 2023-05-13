@@ -14,13 +14,13 @@ typedef boost::program_options::variables_map vm_t;
 #include <node.hpp>
 #include <interfaces/readonly_db.hpp>
 #include <disk_db.hpp>
+#include <hash_set.hpp>
 
 namespace {
 using Hash = std::string;
 using JsonString = std::string;
 using OrigString = std::string;
 
-using Key = Hash;
 using Value = std::pair<OrigString,JsonString>;
 }
 
@@ -28,7 +28,7 @@ namespace wot {
 
 // Db of complete nodes, that permits verification or not, based on how
 // input was received and accepted. This is all the data we have.
-class DbNodes : DbInterface<Key,Value>, ReadonlyDb<Key,NodeBase> {
+class DbNodes :public DbInterface<Hash,Value>,public ReadonlyDb<Hash,NodeBase> {
 private:
   // Database implementation of internal json node objects
   DiskDb db;
@@ -36,22 +36,39 @@ private:
   // Database implementation of original input, useful for verification of hash
   DiskDb orig_db;
 
-  // Remember how many occurrences of a certain `on` from last visit
-  mutable std::map<std::string,int> on_m;
-  bool on_needs_update;
+  // Remember the current nodes (aka nodes not outdated by other nodes)
+  mutable DiskHashSet current;
+  mutable bool current_needs_update;
 
-  void visit(
-    const vm_t & vm,
-    bool quiet,
-    bool jsonl = false
-  ) const;
+  // Evaluate if the node is current, without using the current index
+  bool _is_current(NodeBase & n) const;
+
+  // Cache how many occurrences of a certain `on`
+  mutable std::map<std::string,int> on_m;
+  mutable bool on_needs_update;
+
+  void visit( const vm_t & vm = vm_t{} ) const;
+
+  void update_cache() const;
 
   // fetch a node from disk, verify it and put it in node object n
   const Node fetch_node(const std::filesystem::directory_entry & file) const;
 
 public:
-  DbNodes() : db(), orig_db("orig"), on_needs_update(true) {};
-  ~DbNodes() {};
+  // At the moment current is re-built every time DbNodes is constructed.
+  // This means that we can use MemoryHashSet.
+  // Maybe in the future, we can initialize current_needs_update to false,
+  // provided that we trust that the database is not corrupted.
+  DbNodes() : db(), orig_db("orig"), current("cur"),
+    on_needs_update(true), current_needs_update(true) {
+    update_cache();
+  }
+  ~DbNodes() { current.reset(); };
+
+  const DiskHashSet & get_current() const {
+    if(current_needs_update) update_cache();
+    return current;
+  }
 
   // fetch a node from disk, and check if it is ok against given filters
   // In order for rule-filter and to-filter to work properly in detailed
@@ -70,7 +87,7 @@ public:
 
   // add a node to the local database
   bool add (
-    const Key & k,
+    const Hash & k,
     const Value & v
   ) override {
     return add(k, v.first, v.second);
@@ -90,44 +107,55 @@ public:
   }
 
   // Interface of ReadonlyDb
-  bool get(const Key & k, NodeBase & n) const override;
+  bool get(const Hash & k, NodeBase & n) const override;
   void keys(std::set<std::string> &) const override;
 
   // TODO
-  std::optional<Value> get(const Key &) const override { return std::nullopt; };
+  std::optional<Value> get(const Hash &) const override {return std::nullopt; };
 
-  // TODO
-  bool rm(const Key &) override { return false; };
+  bool rm(const Hash & h) override {
+    orig_db.rm(h);
+    current_needs_update = true;
+    on_needs_update = true;
+    return db.rm(h);
+  };
 
-  void print(const Key & k) const override {
+  bool rm(const NodeBase & n) {
+    return rm(n.get_signature().get_hash());
+  }
+
+  // Evaluate if the node is current, by using the current index
+  bool is_current(const NodeBase & n) const {
+    return is_current(n.get_signature().get_hash());
+  }
+  bool is_current(const Hash & h) const;
+
+  void print(const Hash & k) const override {
     db.print(k);
   };
 
-  // list all the nodes in the database that match filters defined in vm
+  // DbInterface
   void print_list() const override {
     const vm_t vm{};
-    visit(vm, /*quiet=*/false);
+    list_nodes(vm);
   };
 
   // list all the nodes in the database that match filters defined in vm
-  inline void list_nodes(const vm_t & vm) const {
-    visit(vm, /*quiet=*/false);
-  };
-
-  inline void list_on(const vm_t & vm) const {
-    if (on_needs_update) visit(vm, /*quiet=*/true);
-    for(const auto & x : on_m) {
-      std::cout << x.first << " [" << x.second << "]" << std::endl;
-    }
-  }
-
-  // export to cout a jsonl file with all the nodes that match vm filters
+  // If the option --jsonl is present, export to cout a jsonl file with all the
+  // nodes that match vm filters
   //
   // hash and sign of the nodes will not match without the orig files. This
   // means that soon or later we'll need a function `export_all` that gives a
   // file that contains information to verify the nodes
-  inline void filtered_export(const vm_t & vm) const {
-    visit(vm, /*quiet=*/false, /*jsonl=*/true);
+  inline void list_nodes(const vm_t & vm) const {
+    visit(vm);
+  };
+
+  inline void list_on(const vm_t & vm) const {
+    if (on_needs_update) update_cache();
+    for(const auto & x : on_m) {
+      std::cout << x.first << " [" << x.second << "]" << std::endl;
+    }
   }
 };
 

@@ -35,7 +35,7 @@ namespace wot {
     }
     catch (...) {
       // Wrong json format, or good format, but wrong for our schema
-      throw(std::runtime_error("It is not possible to parse node"));
+      throw(std::runtime_error("It is not possible to parse node: "+jsons));
     }
   }
 
