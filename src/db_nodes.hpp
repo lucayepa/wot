@@ -47,12 +47,15 @@ private:
   mutable std::map<std::string,int> on_m;
   mutable bool on_needs_update;
 
-  void visit( const vm_t & vm = vm_t{} ) const;
+  void visit(
+    const std::function<void(std::string)> & f,
+    const vm_t & vm
+  ) const;
 
   void update_cache() const;
 
-  // fetch a node from disk, verify it and put it in node object n
-  const Node fetch_node(const std::filesystem::directory_entry & file) const;
+  // fetch a node from disk, and put it in node object n, without verification
+  const Node fetch_node(const std::string & h) const;
 
 public:
   // At the moment current is re-built every time DbNodes is constructed.
@@ -75,7 +78,7 @@ public:
   // listing, we should generate an array of nodes reduced by the filters
   bool filter_node(
     const vm_t & vm,
-    const std::filesystem::directory_entry & file
+    const std::string & h
   ) const;
 
   // add a node to the local database
@@ -148,7 +151,20 @@ public:
   // means that soon or later we'll need a function `export_all` that gives a
   // file that contains information to verify the nodes
   inline void list_nodes(const vm_t & vm) const {
-    visit(vm);
+    if(vm.count("jsonl")) {
+      visit(
+        [this](std::string h){
+          std::cout << db.read_file(h).str() << std::endl;
+        }, vm
+      );
+    } else {
+      visit(
+        [this](std::string h){
+          Node n2 = fetch_node(h);
+          n2.print_node_summary(/*with_links=*/false);
+        }, vm
+      );
+    }
   };
 
   inline void list_on(const vm_t & vm) const {

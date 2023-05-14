@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <regex>
+#include <functional>
 
 #include <boost/program_options.hpp>
 
@@ -74,9 +75,9 @@ bool DbNodes::is_current(const Hash & h) const {
 
 bool DbNodes::filter_node(
   const vm_t & vm,
-  const std::filesystem::directory_entry & file
+  const std::string & h
 ) const {
-  Node n = fetch_node(file);
+  Node n = fetch_node(h);
   return n.check_filters(vm);
 }
 
@@ -104,12 +105,13 @@ bool DbNodes::add(
 }
 
 const Node DbNodes::fetch_node(
-  const std::filesystem::directory_entry & file
+  const std::string & hash
 ) const {
-  std::stringstream content = db.read_file(file.path().filename());
-  Node n2(content.str());
-  // Since they are already in our db, do not verify hash and signature
-  // We assume that checks are done at add time
+  std::string s;
+  db.get(hash,s);
+  Node n2(s);
+  // Since the nmode is already in our db, do not verify hash and signature
+  // We assume that every needed check is already done at add time
   return n2;
 }
 
@@ -142,22 +144,15 @@ void DbNodes::update_cache() const {
 }
 
 void DbNodes::visit(
+  const std::function <void (std::string)> & f,
   const vm_t & vm
 ) const {
-  std::regex is_toml( "orig$" );
-  std::regex is_sig( "sig$" );
-  auto it = std::filesystem::directory_iterator(db.get_dir());
-  for (const auto & entry : it) {
-    if(std::regex_search( (std::string)entry.path(), is_toml )) continue;
-    if(std::regex_search( (std::string)entry.path(), is_sig )) continue;
-    if(DbNodes().filter_node(vm, entry)) {
-      LOG << "Found file " << entry.path().filename();
-      if(vm.count("jsonl")) {
-        std::cout << db.read_file(entry.path().filename()).str() << std::endl;
-        continue;
-      }
-      Node n2 = fetch_node(entry);
-      n2.print_node_summary(/*with_links=*/false);
+  std::set<std::string> ks;
+  db.keys(ks);
+  for(const auto h : ks) {
+    if(filter_node(vm, h)) {
+      LOG << "Found file " << h;
+      f(h);
     }
   }
 }
