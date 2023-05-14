@@ -23,7 +23,8 @@ namespace wot {
       char const* hd = getenv("HOMEDRIVE");
       char const* hp = getenv("HOMEPATH");
       if(!hd || !hp) return (std::filesystem::path)"C:";
-      _home_dir.emplace((std::string)std::filesystem::path(hd) + (std::string)std::filesystem::path(hp));
+      _home_dir.emplace( (std::string)std::filesystem::path(hd) +
+        (std::string)std::filesystem::path(hp));
     }
     return _home_dir.value();
   }
@@ -39,7 +40,9 @@ namespace wot {
    return true;
   }
 
-  bool DiskDb::generic_mkdir_with_interaction(const std::filesystem::path & dir) {
+  bool DiskDb::generic_mkdir_with_interaction(
+    const std::filesystem::path & dir
+  ) {
     if(generic_dir_exists(dir)) return true;
     LOG << "Directory " << dir << " does not exists. Let's create it.";
     if(!generic_mkdir(dir)) {
@@ -82,7 +85,10 @@ namespace wot {
     return buffer;
   }
 
-  bool DiskDb::generic_read_file(const std::string & filename, std::string & content) {
+  bool DiskDb::generic_read_file(
+    const std::string & filename,
+    std::string & content
+  ) {
     std::ifstream f(filename);
     if(f.fail()) return false;
     std::stringstream buffer;
@@ -96,7 +102,10 @@ namespace wot {
     }
   }
 
-  bool DiskDb::generic_write_file(const std::string & filename, const std::string & content) {
+  bool DiskDb::generic_write_file(
+    const std::string & filename,
+    const std::string & content
+  ) {
     std::ofstream f;
     LOG << "Writing to " << filename;
     try {
@@ -113,7 +122,10 @@ namespace wot {
     return !std::remove(filename.c_str());
   }
 
-  bool DiskDb::write_file(const std::string & filename, const std::string & content) {
+  bool DiskDb::write_file(
+    const std::string & filename,
+    const std::string & content
+  ) {
     std::string abs = (std::string)(DiskDb().get_dir()/filename);
     return DiskDb::generic_write_file(abs, content);
   }
@@ -144,18 +156,18 @@ namespace wot {
   }
 
   std::optional<std::string> DiskDb::get(const std::string & hash) const {
-    std::stringstream content = DiskDb::read_file(get_ext()=="" ? hash : hash+"."+get_ext());
+    std::string filename = hash + (get_ext() == "" ? "" : "." + get_ext());
+    std::stringstream content = DiskDb::read_file(filename);
     if(content.fail()) return std::nullopt;
     return content.str();
   }
 
-  // view a node
   void DiskDb::print(const std::string & hash) const {
-    std::stringstream content = DiskDb::read_file(get_ext()=="" ? hash : hash+"."+get_ext());
-    if(content.fail()) {
-      std::cerr << "File not found!" << std::endl;
+    auto s = get(hash);
+    if(s.has_value()) {
+      std::cout << s.value() << std::endl;
     } else {
-      std::cout << content.str();
+      std::cerr << "File not found!" << std::endl;
     }
   }
 
@@ -178,14 +190,18 @@ namespace wot {
     } else {
       is_my_db = R"(\.)" + get_database_name() + "$";
     }
-    for (const auto & entry : std::filesystem::directory_iterator(DiskDb().get_dir())) {
+    for (const auto & entry :
+      std::filesystem::directory_iterator(DiskDb().get_dir())
+    ) {
       std::string filename = entry.path().filename().string();
       if(std::regex_search( filename, is_my_db )) {
         if(get_database_name() == "") {
           result.insert(filename);
         } else {
           // remove ext
-          result.insert( filename.substr(0, filename.size()-get_database_name().size()-1) );
+          result.insert(
+            filename.substr(0, filename.size()-get_database_name().size()-1)
+          );
         }
       }
     }

@@ -28,6 +28,21 @@ std::string remove_two_lines(const std::string & toml) {
 } // namespace
 namespace wot {
 
+std::ostream & operator<<( std::ostream & os, const Link & l) {
+  std::string on_s = "";
+  if( !l.get_on().empty() ) {
+    on_s = "[";
+    for(const auto & s : l.get_on()){
+      on_s += s + ",";
+    }
+    on_s.pop_back();
+    on_s += "]";
+  }
+  os << l.get_value() << " " << l.get_unit() << " -> " << l.get_to() << " " <<
+  on_s << std::endl;
+  return os;
+}
+
   NodeBase::NodeBase(const std::string & jsons){
     try {
       auto j = nlohmann::json::parse(jsons);
@@ -51,6 +66,17 @@ namespace wot {
       throw(std::runtime_error("The node is not valid"));
     }
   }
+
+std::ostream & operator<<( std::ostream & os, const NodeBase & n) {
+  auto pk = n.primary_key();
+  os << n.get_signature().get_hash() << " (" << pk << ")\n" <<
+  " " << n.get_profile().get_name() << "\n";
+
+  for(const auto & link : n.get_trust()) {
+    os << " " << link;
+  }
+  return os;
+}
 
   nlohmann::json Node::parse(const std::string & in) {
     nlohmann::json j;
@@ -130,13 +156,8 @@ namespace wot {
       " (" << get_profile().get_key() <<"."<< get_circle() << ")" << std::endl;
     if(not with_links) return;
     for(const auto & link : get_trust()) {
-      print_link_summary(link);
+      std::cout << link;
     }
-  }
-
-  void NodeBase::print_link_summary(const Link & l) const {
-    std::cout << " " << l.get_value() << " " << l.get_unit() <<
-      " -> " << l.get_to() << std::endl;
   }
 
   std::string NodeBase::to_j(const bool withsig) const {

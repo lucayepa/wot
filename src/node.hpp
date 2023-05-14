@@ -25,15 +25,13 @@ using wot_qt::Profile, wot_qt::Link;
 // are already trusted, and are on disk as json objects that are valid as JSON
 // and valid for our schema. This is supposed to be fast.
 //
-// Objects of this class do not contain enough information to verify.
+// Objects of this class do not contain enough information to be verified.
 //
 // Hash is not supposed to be correct, because maybe it is related to the hash
 // of an original document.
 //
-// Signature is correct, because it is based on hash and profile.key
+// Signature is correct, because it is based on hash and profile.key.
 class NodeBase : public wot_qt::Node {
-private:
-  void print_link_summary(const Link & l) const;
 protected:
   NodeBase(const nlohmann::json & j);
 public:
@@ -49,7 +47,16 @@ public:
   std::string get_json() const { return to_j(/*withsig=*/true); }
 
   void print_node_summary(bool with_links) const;
+
+  std::string primary_key() const {
+    return get_profile().get_key() +
+      "." + get_circle() +
+      "." + std::to_string(get_serial());
+  }
 };
+
+std::ostream & operator<<( std::ostream & os, const NodeBase & n);
+std::ostream & operator<<( std::ostream & os, const Link & l);
 
 // It contains the input as a string, because some functions need the input. The
 // input is held in a string and is the original form needed to calculate hash
@@ -87,9 +94,6 @@ public:
   Node() = default; // TODO: delete?
   ~Node() = default;
 
-  // Import from another node only the core node content, not in
-  //void import(const wot_qt::Node & n);
-
   const std::string & get_in() const { return in; }
 
   static void solve( std::string_view in, toml::table & t );
@@ -101,7 +105,7 @@ public:
 
   // Generate hash and signature for a node
   //
-  // If `in` is json, return a valid and signed json node, else, sign the toml
+  // If orig is json, return a valid and signed json node, else, sign the toml
   // object, and return it signed.
   //
   // Return a string with a json or toml signed node if signature was correctly

@@ -48,7 +48,7 @@ private:
   mutable bool on_needs_update;
 
   void visit(
-    const std::function<void(std::string)> & f,
+    const std::function< void(std::string) > & f,
     const vm_t & vm
   ) const;
 
@@ -149,14 +149,11 @@ public:
   //
   // hash and sign of the nodes will not match without the orig files. This
   // means that soon or later we'll need a function `export_all` that gives a
-  // file that contains information to verify the nodes
+  // file that contains information to verify the nodes. Until that moment, a
+  // tar.gz of the directory ~/.local/share/wot will be ok
   inline void list_nodes(const vm_t & vm) const {
     if(vm.count("jsonl")) {
-      visit(
-        [this](std::string h){
-          std::cout << db.read_file(h).str() << std::endl;
-        }, vm
-      );
+      visit([this](std::string h){print(h);}, vm);
     } else {
       visit(
         [this](std::string h){
