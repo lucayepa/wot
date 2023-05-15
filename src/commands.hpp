@@ -18,6 +18,7 @@
 #include "commands/solve_command.hpp"
 #include "commands/template_options_file_command.hpp"
 #include "commands/compose_command.hpp"
+#include "commands/hash_object_command.hpp"
 
 namespace wot {
 
@@ -39,6 +40,7 @@ struct Commands {
     all.push_back(std::make_unique<SolveCommand>());
     all.push_back(std::make_unique<TemplateOptionsFileCommand>());
     all.push_back(std::make_unique<ComposeCommand>());
+    all.push_back(std::make_unique<HashObjectCommand>());
   }
 };
 

@@ -85,7 +85,6 @@ private:
   bool node_hash_verify() const;
 
   void sign();
-  void generate_hash();
 
 public:
   //Node(const Node & n) : NodeBase(n.in), in{n.in} {}
@@ -102,6 +101,8 @@ public:
   bool sanitize() const;
 
   bool signature_verify() const;
+
+  void generate_hash();
 
   // Generate hash and signature for a node
   //

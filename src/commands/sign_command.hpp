@@ -22,7 +22,7 @@ COMMAND_START(SignCommand)
 )")
 
   bool act(const boost::program_options::variables_map & vm) const override {
-    string s, json;
+    string s;
     if(!Config::get_input(s)) return false;
     Node n(s);
     std::string res;
