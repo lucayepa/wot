@@ -20,14 +20,16 @@ void Identity::get_profiles(std::vector<Profile> & profiles) const {
   }
 }
 
-void Identity::get_trust(std::vector<Link> & links) const {
+std::vector<Link> Identity::get_trust() const {
   if(!nodes_ok) throw(std::logic_error(""));
+  std::vector<Link> links;
   for(const auto & h : nodes.get()) {
     NodeBase n;
     DbNodes().get(h,n);
     std::vector<Link> & trust = n.get_mutable_trust();
     std::move(trust.begin(), trust.end(), std::back_inserter(links));
   }
+  return links;
 }
 
 std::ostream & operator<<( std::ostream & os, const Identity & i) {
@@ -43,8 +45,7 @@ std::ostream & operator<<( std::ostream & os, const Identity & i) {
       ": Name: " <<  p.get_name() << "\n";
   }
 
-  std::vector<Link> links;
-  i.get_trust(links);
+  std::vector<Link> links = i.get_trust();
   j = 1;
   for(auto const & l : links) {
     os << " Link #" << std::to_string(j++) << ": " <<

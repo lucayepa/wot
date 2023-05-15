@@ -43,9 +43,8 @@ BOOST_AUTO_TEST_CASE(exec) {
   std::cerr << ss1.str();
 
   auto i = Identity(n1);
-  GraphView().get(i.get(),i);
-  std::vector<Link> trust;
-  i.get_trust(trust);
+  Identity j = GraphView().get(i.get());
+  std::vector<Link> trust = j.get_trust();
   BOOST_CHECK(trust[0].get_to() == "friend");
   BOOST_CHECK(trust[0].get_value() == 50);
 
@@ -58,9 +57,7 @@ BOOST_AUTO_TEST_CASE(exec) {
   std::cerr << ss2.str();
 
   i = Identity(n2);
-  GraphView().get(i.get(),i);
-  std::vector<Link> trust2;
-  i.get_trust(trust2);
+  std::vector<Link> trust2 = GraphView().get(i.get()).get_trust();
   BOOST_CHECK(trust2[0].get_to() == "friend");
   BOOST_CHECK(trust2[0].get_value() == 50);
   BOOST_CHECK(trust2[1].get_to() == "coworker");
@@ -76,9 +73,8 @@ BOOST_AUTO_TEST_CASE(exec) {
   std::cerr << ss3.str();
 
   i = Identity(n3);
-  GraphView().get(i.get(),i);
-  std::vector<Link> trust3;
-  i.get_trust(trust3);
+  Identity k = GraphView().get(i.get());
+  std::vector<Link> trust3 = k.get_trust();
   BOOST_CHECK(trust3[0].get_to() == "friend");
   BOOST_CHECK(trust3[0].get_value() == 50);
   BOOST_CHECK(trust3[1].get_to() == "coworker");

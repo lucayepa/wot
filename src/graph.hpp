@@ -29,15 +29,23 @@ public:
   };
   ~GraphView() {};
 
-  // If key exists, modify passed argument and return true.
-  // Otherwise return false.
-  bool get(const IdentityKey & _, Identity & i) const override {
-    if(cache.count(i.get()) == 0) return false;
-    i.set_nodes(cache.at(i.get()));
-    return true;
+  Identity get(const IdentityKey & i) const override {
+    Identity res;
+    res.set_nodes(cache.at(i));
+    return res;
   }
 
-  void keys(std::set<IdentityKey> & ks) const override {
+  bool contains(const IdentityKey & i) const override {
+    return cache.count(i);
+  }
+
+  std::set<IdentityKey> keys() const override {
+    std::set<IdentityKey> ks;
+    keys(ks);
+    return ks;
+  }
+
+  void keys(std::set<IdentityKey> & ks) const {
     for(auto const & k : cache) {
       ks.insert(k.first);
     }

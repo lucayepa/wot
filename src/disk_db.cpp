@@ -155,31 +155,34 @@ namespace wot {
     }
   }
 
-  std::optional<std::string> DiskDb::get(const std::string & hash) const {
+  std::string DiskDb::get(const std::string & hash) const {
     std::string filename = hash + (get_ext() == "" ? "" : "." + get_ext());
     std::stringstream content = DiskDb::read_file(filename);
-    if(content.fail()) return std::nullopt;
+    if(content.fail()) {
+      // Existence of key should be checked in advance
+      throw(std::logic_error("Key not found: " + hash));
+    }
     return content.str();
   }
 
   void DiskDb::print(const std::string & hash) const {
-    auto s = get(hash);
-    if(s.has_value()) {
-      std::cout << s.value() << std::endl;
+    if(contains(hash)) {
+      std::cout << get(hash) << std::endl;
     } else {
       std::cerr << "File not found!" << std::endl;
     }
   }
 
   void DiskDb::print_list() const {
-    std::set<std::string> my_keys;
-    keys(my_keys);
-    for(const auto & k : my_keys) {
-      auto res = get(k);
-      if(res.has_value()) {
-        std::cout << k << " : " << res.value() << std::endl;
-      }
+    for(const auto & k : keys()) {
+      std::cout << k << " : " << get(k) << std::endl;
     }
+  }
+
+  std::set<std::string> DiskDb::keys() const {
+    std::set<std::string> result;
+    keys(result);
+    return result;
   }
 
   void DiskDb::keys(std::set<std::string> & result) const {

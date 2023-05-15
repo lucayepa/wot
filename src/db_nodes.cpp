@@ -36,8 +36,8 @@ bool DbNodes::get(const Hash & k, NodeBase & n) const {
   }
 }
 
-void DbNodes::keys(std::set<std::string> & ks) const {
-  db.keys(ks);
+std::set<std::string> DbNodes::keys() const {
+  return db.keys();
 }
 
 // Evaluate if a node that is on db is current, without using the index
@@ -45,9 +45,7 @@ void DbNodes::keys(std::set<std::string> & ks) const {
 // We suppose that the caller already knows that the node is on db, so we do
 // not check it. We just check if it is current or not.
 bool DbNodes::_is_current(NodeBase & n) const {
-  std::set<std::string> ks;
-  keys(ks);
-  for(const auto & k : ks ) {
+  for(const auto & k : keys() ) {
     bool its_me(k == n.get_signature().get_hash());
     if(its_me) { continue; }
     NodeBase node_in_db;
@@ -118,9 +116,7 @@ const Node DbNodes::fetch_node(
 void DbNodes::update_cache() const {
   if(current_needs_update) {
     current.reset();
-    std::set<std::string> ks;
-    keys(ks);
-    for(const auto & h : ks) {
+    for(const auto & h : keys()) {
        std::string s;
        db.get(h,s);
        NodeBase n(s);
@@ -147,9 +143,7 @@ void DbNodes::visit(
   const std::function <void (std::string)> & f,
   const vm_t & vm
 ) const {
-  std::set<std::string> ks;
-  db.keys(ks);
-  for(const auto h : ks) {
+  for(const auto h : keys()) {
     if(filter_node(vm, h)) {
       LOG << "Found file " << h;
       f(h);

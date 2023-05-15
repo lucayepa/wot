@@ -250,12 +250,13 @@ std::ostream & operator<<( std::ostream & os, const NodeBase & n) {
     Signature s = get_signature();
     s.set_sig("signature_here");
     set_signature(s);
+    auto hash = s.get_hash();
 
     if(!sanitize()) throw(std::runtime_error("Signature not possible."));
 
     // Check if there is already a signature in the cache for this hash
-    auto sig_on_file = DiskDb("sig").get(s.get_hash());
-    if(!sig_on_file.has_value()) {
+    auto sig_db = DiskDb("sig");
+    if(!sig_db.contains(hash)) {
       LOG << "No signature for this hash in the cache.";
 
       // Try to sign the message
@@ -265,15 +266,14 @@ std::ostream & operator<<( std::ostream & os, const NodeBase & n) {
       if(!sig.has_value()) throw(std::runtime_error("Signature not possible"));
 
       // Add the signature to the cache of known signatures
-      DiskDb("sig").add(s.get_hash(),sig.value());
+      sig_db.add(hash,sig.value());
 
-      sig_on_file.emplace(sig.value());
       LOG << "Signature written in the cache";
     }
 
     LOG << "There is a signature for this hash in the cache";
     Signature sig2 = get_signature();
-    sig2.set_sig(sig_on_file.value());
+    sig2.set_sig(sig_db.get(hash));
     set_signature(sig2);
   }
 

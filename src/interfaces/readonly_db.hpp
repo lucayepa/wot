@@ -22,9 +22,9 @@ public:
     throw(std::logic_error("Database is readonly"));
   }
 
-  virtual bool get(const K &, V &) const = 0;
+  virtual V get(const K &) const = 0;
 
-  virtual void keys(std::set<K> &) const = 0;
+  virtual std::set<K> keys() const = 0;
 };
 
 } // namespace wot

@@ -14,12 +14,11 @@
 #include <boost/program_options.hpp>
 #define LOG BOOST_LOG_TRIVIAL(info)
 
-#include <interfaces/db_interface.hpp>
 #include <interfaces/db.hpp>
 
 namespace wot {
 
-class DiskDb : public DbInterface<std::string,std::string>, Db<std::string,std::string> {
+class DiskDb : public Db<std::string,std::string> {
 private:
   std::filesystem::path dir;
 
@@ -27,7 +26,7 @@ private:
   std::optional<std::filesystem::path> _home_dir;
 
 public:
-  DiskDb(const std::string & ext) : DbInterface(ext) {
+  DiskDb(const std::string & ext) : Db(ext) {
     dir = home_dir() / std::string(".local/share/wot");
     generic_mkdir_with_interaction(dir);
   };
@@ -41,9 +40,15 @@ public:
   static bool generic_file_exists(const std::string & file);
   static bool generic_dir_exists(const std::string & dir);
   static bool generic_mkdir(const std::string & dir);
-  static bool generic_write_file(const std::string & filename, const std::string & content);
+  static bool generic_write_file(
+    const std::string & filename,
+    const std::string & content
+  );
   static bool generic_remove_file(const std::string & filename);
-  static bool generic_read_file(const std::string & filename, std::string & content);
+  static bool generic_read_file(
+    const std::string & filename,
+    std::string & content
+  );
 
   // Wrap around generic_mkdir, with LOG and cerr
   // Does not create parents
@@ -57,27 +62,31 @@ public:
 
   std::filesystem::path home_dir();
 
-  static bool write_file(const std::string & filename, const std::string & content);
+  static bool write_file(
+    const std::string & filename,
+    const std::string & content
+  );
   static std::stringstream read_file(const std::string & filename);
   static bool remove_file(const std::string & filename);
 
   const std::filesystem::path & get_dir() const { return dir; }
   void set_dir(const std::string & value) { this->dir = value; }
 
-  const std::string & get_ext() const { return get_database_name(); }
+  const std::string get_ext() const { return get_database_name(); }
 
   bool add(const std::string & key, const std::string & value) override;
   bool rm(const std::string & key) override;
-  std::optional<std::string> get(const std::string & key) const;
-  bool get(const std::string & key, std::string & value) const override {
-    auto res = get(key);
-    if(res.has_value()) {
-      value = res.value();
+  std::string get(const std::string & key) const override;
+
+  bool get(const std::string & key, std::string & value) const {
+    if(contains(key)) {
+      value = get(key);
       return true;
     }
     return false;
   }
   void keys(std::set<std::string> &) const override;
+  std::set<std::string> keys() const override;
   void print(const std::string & hash) const;
 
   void print_list() const;

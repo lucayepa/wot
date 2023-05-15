@@ -6,7 +6,10 @@
 namespace wot {
 
 // Key-value db that throws if there are problems and uses simple bool to
-// communicate hit and miss.
+// communicate out of add and rm.
+
+// Get assumes that the control on existence has been made by the caller, so the
+// key should always exist.
 
 // A new db object is supposed to find the persistent data by name. No open
 // needed.
@@ -17,6 +20,8 @@ namespace wot {
 // Then we need a high level interface, with filters and print and similar, to
 // be derived by real databases, that will contain a low level implementation
 // derived by this class.
+
+// V should have move semantics.
 template<class K, class V>
 class Db{
 private:
@@ -27,9 +32,13 @@ private:
   // and is maintained in add() and rm()
 
 public:
-  Db(const std::string & db_name) : name{db_name} {}
+  // A new created object is supposed to find the persistent data of the
+  // underlying database. No open needed.
+  Db(std::string db_name) : name{db_name} {}
   Db() : name{""} {}
   ~Db() {}
+
+  std::string get_database_name() const { return name; }
 
   // If key does not exists, add it and return true.
   // Otherwise return false, without adding it.
@@ -39,18 +48,18 @@ public:
   // Otherwise return false.
   virtual bool rm(const K &) = 0;
 
-  // If key exists, modify passed V and return true.
-  // Otherwise return false.
-  virtual bool get(const K &, V &) const = 0;
+  // Caller knows that object exists (for example has just called contains)
+  virtual V get(const K &) const = 0;
 
-  // This creates a object of class V. If this is to much overhead, child
-  // classes ar supposed to override it.
   virtual bool contains(const K & k) const {
-    V _;
-    return get(k,_);
+    return keys().count(k);
   }
 
-  virtual void keys(std::set<K> &) const = 0;
+  // Can be faster, but this is only a bridge, because nobody should use this
+  virtual void keys(std::set<K> & ks) const {
+    for(const K & k : keys()) {ks.insert(k);}
+  };
+  virtual std::set<K> keys() const = 0;
 };
 
 } // namespace wot

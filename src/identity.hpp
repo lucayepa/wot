@@ -37,7 +37,7 @@ public:
 
   void get_profiles(std::vector<Profile> &) const;
 
-  void get_trust(std::vector<Link> &) const;
+  std::vector<Link> get_trust() const;
 
 };
 

@@ -19,7 +19,7 @@ public:
   // Otherwise return false.
   virtual bool add(const T &) = 0;
 
-  virtual const std::set<T> & get() const = 0;
+  virtual const std::set<T> get() const = 0;
 };
 
 std::ostream & operator<<( std::ostream &, const HashSet<std::string> & );
@@ -41,7 +41,7 @@ public:
     return s.insert(h).second;
   }
 
-  const std::set<std::string> & get() const override {
+  const std::set<std::string> get() const override {
     return s;
   }
 };
@@ -60,14 +60,16 @@ public:
 class DiskHashSet : public HashSet<std::string> {
 private:
   DiskDb db;
-  mutable std::set<std::string> result;
+
+  // Since we are writing on the same directory of nodes, we cannot use the
+  // default "" database.
   DiskHashSet() {}
 public:
   DiskHashSet(std::string name) : db(name) {}
   ~DiskHashSet() {}
 
   bool contains(const std::string & h) const override {
-    return db.get(h).has_value();
+    return db.contains(h);
   }
 
   bool add(const std::string & h) override {
@@ -76,14 +78,12 @@ public:
     return true;
   }
 
-  const std::set<std::string> & get() const override {
-    db.keys(result);
-    return result;
+  const std::set<std::string> get() const override {
+    return db.keys();
   }
 
   void reset() {
-    db.keys(result);
-    for(auto & h : result) {
+    for(auto & h : db.keys()) {
       db.rm(h);
     }
   }

@@ -21,14 +21,17 @@ using Hash = std::string;
 using JsonString = std::string;
 using OrigString = std::string;
 
-using Value = std::pair<OrigString,JsonString>;
+// using Value = std::pair<OrigString,JsonString>;
 }
 
 namespace wot {
 
 // Db of complete nodes, that permits verification or not, based on how
 // input was received and accepted. This is all the data we have.
-class DbNodes :public DbInterface<Hash,Value>,public ReadonlyDb<Hash,NodeBase> {
+//
+// TODO: interface should have Node as value instead of NodeBase, but filters
+// need to get objects of NodeBase.
+class DbNodes : public ReadonlyDb<Hash,NodeBase> {
 private:
   // Database implementation of internal json node objects
   DiskDb db;
@@ -89,14 +92,6 @@ public:
   );
 
   // add a node to the local database
-  bool add (
-    const Hash & k,
-    const Value & v
-  ) override {
-    return add(k, v.first, v.second);
-  }
-
-  // add a node to the local database
   inline bool add(const Node & n) {
     Hash filename = n.get_signature().get_hash();
     return( add(filename, n.get_in(), n.get_json()) );
@@ -109,12 +104,13 @@ public:
     return( add(n) );
   }
 
+  bool get(const Hash & k, NodeBase & n) const;
+
   // Interface of ReadonlyDb
-  bool get(const Hash & k, NodeBase & n) const override;
-  void keys(std::set<std::string> &) const override;
+  std::set<std::string> keys() const override;
 
   // TODO
-  std::optional<Value> get(const Hash &) const override {return std::nullopt; };
+  NodeBase get(const Hash &) const override {return NodeBase(); };
 
   bool rm(const Hash & h) override {
     orig_db.rm(h);
@@ -133,12 +129,11 @@ public:
   }
   bool is_current(const Hash & h) const;
 
-  void print(const Hash & k) const override {
+  void print(const Hash & k) const {
     db.print(k);
   };
 
-  // DbInterface
-  void print_list() const override {
+  void print_list() const {
     const vm_t vm{};
     list_nodes(vm);
   };

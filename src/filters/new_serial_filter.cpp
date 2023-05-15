@@ -9,11 +9,10 @@ FILTER_START(NewSerialFilter)
   FILTER_TOKENS(0)
 
   bool check(const NodeBase & n) const override {
-    std::set<std::string> ks;
-    DbNodes().keys(ks);
-    for(const auto & k : ks ) {
+    auto dbn = DbNodes();
+    for(const auto & k : dbn.keys() ) {
       NodeBase node_in_db;
-      DbNodes().get(k,node_in_db);
+      dbn.get(k,node_in_db);
       if(
         n.get_profile().get_key() == node_in_db.get_profile().get_key() &&
         n.get_circle() == node_in_db.get_circle() &&

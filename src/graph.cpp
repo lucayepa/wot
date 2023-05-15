@@ -10,12 +10,8 @@ namespace wot {
 // }
 std::ostream & operator<<( std::ostream & os, const GraphView & g) {
   os << "Identities\n";
-  std::set<std::string> identity_keys;
-  g.keys(identity_keys);
-  for(auto const & k : identity_keys) {
-    Identity i(k);
-    g.get("",i);
-    os << i;
+  for(auto const & k : g.keys()) {
+    os << g.get(k);
   }
   return os;
 }

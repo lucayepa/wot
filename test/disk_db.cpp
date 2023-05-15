@@ -24,15 +24,17 @@ BOOST_AUTO_TEST_CASE(generic_read_file) {
 BOOST_AUTO_TEST_CASE(HighLevelInterface) {
   std::string key("KEY");
   std::string value("VALUE");
-  DiskDb("test").add(key, value);
+  auto ddb = DiskDb("test");
 
-  BOOST_CHECK(DiskDb("test").get(key).has_value());
+  ddb.add(key, value);
 
-  BOOST_CHECK(DiskDb("test").get(key) == "VALUE");
+  BOOST_CHECK(ddb.contains(key));
 
-  BOOST_CHECK(DiskDb("test").rm(key));
+  BOOST_CHECK(ddb.get(key) == "VALUE");
 
-  BOOST_CHECK(!DiskDb("test").get(key).has_value());
+  BOOST_CHECK(ddb.rm(key));
+
+  BOOST_CHECK(!ddb.contains(key));
 }
 
 BOOST_AUTO_TEST_CASE(ReadonlyDbInterface) {
