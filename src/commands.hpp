@@ -15,6 +15,7 @@
 #include "commands/add_sig_command.hpp"
 #include "commands/rm_sig_command.hpp"
 #include "commands/ls_sig_command.hpp"
+#include "commands/show_command.hpp"
 #include "commands/view_command.hpp"
 #include "commands/solve_command.hpp"
 #include "commands/template_options_file_command.hpp"
@@ -43,6 +44,7 @@ struct Commands {
     all.push_back(std::make_unique<TemplateOptionsFileCommand>());
     all.push_back(std::make_unique<ComposeCommand>());
     all.push_back(std::make_unique<HashObjectCommand>());
+    all.push_back(std::make_unique<ShowCommand>());
   }
 };
 

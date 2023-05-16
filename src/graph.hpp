@@ -30,7 +30,7 @@ public:
   ~GraphView() {};
 
   Identity get(const IdentityKey & i) const override {
-    Identity res;
+    auto res = Identity(i);
     res.set_nodes(cache.at(i));
     return res;
   }
