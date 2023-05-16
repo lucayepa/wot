@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
     ("force-accept-sig", "Accept signature on node, without verification")
     ("force-no-db-check", "Do not use internal database to verify the object")
     ("json-output", "Output a JSON object (if the command is sign-toml, the signature remains the TOML one) (sign-toml, view)")
-    ("jsonl", "Export the matched nodes as json lines (ls)")
+    ("jsonl", "Export the matched nodes as json lines (ls-nodes)")
     ("signature", po::value< std::string >(), "Signature to be added to the local db as a known signatures (add-sig)")
     ("input-file,I", po::value< std::string >(), "input file")
     ("algo", po::value< std::string >(), "alorithm for identities (i.e. bitcoin)")
@@ -51,7 +51,7 @@ int main(int argc, char *argv[]) {
   po::options_description cmdline_options;
   cmdline_options.add(desc);
 
-  po::options_description filter_options("Filters (use with add or ls)");
+  po::options_description filter_options("Filters (use with add or ls-nodes)");
   auto filters = Config::get().get_filters();
   for(const auto & [k, f] : filters) {
     const auto name = f->cli_option();

@@ -4,7 +4,7 @@
 #include <filter.hpp>
 
 FILTER_START(SerialEpochInFutureFilter)
-  FILTER_DESC("serial is a Unix epoch integer (seconds) that represent a moment in the past (ls)")
+  FILTER_DESC("serial is a Unix epoch integer (seconds) that represent a moment in the past")
   FILTER_LONG_DESC("check if the serial is an integer (seconds) that represent a moment in the past")
   FILTER_TOKENS(0)
   bool check(const NodeBase & n) const override {

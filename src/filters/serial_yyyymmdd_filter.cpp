@@ -1,7 +1,7 @@
 #include <filter.hpp>
 
 FILTER_START(SerialYyyymmddFilter)
-  FILTER_DESC("serial is in the form of yyyymmdd filter (ls)")
+  FILTER_DESC("serial is in the form of yyyymmdd filter")
   FILTER_LONG_DESC("check if the serial is in the form yyyymmdd")
   FILTER_TOKENS(0)
   bool check(const NodeBase & n) const override {

@@ -10,7 +10,7 @@
 #include "commands/verify_command.hpp"
 #include "commands/add_command.hpp"
 #include "commands/ls_on_command.hpp"
-#include "commands/ls_command.hpp"
+#include "commands/ls_nodes_command.hpp"
 #include "commands/add_sig_command.hpp"
 #include "commands/rm_sig_command.hpp"
 #include "commands/ls_sig_command.hpp"
@@ -32,7 +32,7 @@ struct Commands {
     all.push_back(std::make_unique<VerifyCommand>());
     all.push_back(std::make_unique<AddCommand>());
     all.push_back(std::make_unique<LsRulesCommand>());
-    all.push_back(std::make_unique<LsCommand>());
+    all.push_back(std::make_unique<LsNodesCommand>());
     all.push_back(std::make_unique<AddSigCommand>());
     all.push_back(std::make_unique<RmSigCommand>());
     all.push_back(std::make_unique<LsSigCommand>());
