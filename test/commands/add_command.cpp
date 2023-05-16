@@ -89,12 +89,10 @@ BOOST_AUTO_TEST_CASE(check) {
   // No verify, because hash and signature are wrong
   BOOST_CHECK( DbNodes().add(m3, empty_vm) );
 
-  DiskDb().rm(m.get_signature().get_hash());
-  DiskDb("orig").rm(m.get_signature().get_hash());
   DiskDb("orig").rm("");
   DiskDb("sig").rm(m.get_signature().get_hash());
-  DiskDb().rm("1234");
-  DiskDb("orig").rm("1234");
+  DbNodes().rm(m.get_signature().get_hash());
+  DbNodes().rm("1234");
 
   BOOST_TEST_MESSAGE("Removing the config test file");
   DiskDb::generic_remove_file("/tmp/test_file_config.toml");

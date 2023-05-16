@@ -24,7 +24,6 @@ namespace {
 
 namespace wot {
 
-// Interface of ReadonlyDb
 bool DbNodes::get(const Hash & k, NodeBase & n) const {
   std::optional<std::string> result = db.get(k);
   if(result.has_value()) {
@@ -34,6 +33,11 @@ bool DbNodes::get(const Hash & k, NodeBase & n) const {
   } else {
     return false;
   }
+}
+
+void DbNodes::get_current(const std::string & key_circle, NodeBase & n) const {
+  auto hash = current.get_by_index(key_circle);
+  get(hash,n);
 }
 
 std::set<std::string> DbNodes::keys() const {
@@ -89,11 +93,10 @@ bool DbNodes::add(
   if(!db.add(hash,json)) return false;
 
   // The node has been checked and is current.
-  current.add(hash);
-
-  // Adding this node can outdate another node, so we do not trust current
-  // anymore
-  current_needs_update = true;
+  // Overwrite the "current" index with this node.
+  auto n = NodeBase(json);
+  auto key = n.get_profile().get_key()+"-"+n.get_circle();
+  if(!current.add(key,hash)) return false;
 
   if (orig != json) {
     if(!orig_db.add(hash,orig)) return false;
@@ -108,7 +111,7 @@ const Node DbNodes::fetch_node(
   std::string s;
   db.get(hash,s);
   Node n2(s);
-  // Since the nmode is already in our db, do not verify hash and signature
+  // Since the node is already in our db, do not verify hash and signature
   // We assume that every needed check is already done at add time
   return n2;
 }
@@ -121,7 +124,8 @@ void DbNodes::update_cache() const {
        db.get(h,s);
        NodeBase n(s);
        if(_is_current(n)) {
-         current.add(n.get_signature().get_hash());
+         auto key = n.get_profile().get_key()+"-"+n.get_circle();
+         current.add(key,n.get_signature().get_hash());
        }
     }
     current_needs_update = false;

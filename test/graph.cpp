@@ -38,6 +38,7 @@ BOOST_AUTO_TEST_CASE(exec) {
   BOOST_CHECK(n1.get_circle()=="friends");
   BOOST_CHECK(dbn.add(n1));
 
+  // print the graph
   std::stringstream ss1;
   ss1 << GraphView();
   std::cerr << ss1.str();

@@ -21,7 +21,7 @@ private:
 public:
   using KeySet = std::set<IdentityKey>;
   GraphView() : impl() {
-    for(const auto & h : impl.get_current().get()) {
+    for(const auto & h : impl.get_current_set().get()) {
       NodeBase n;
       impl.get(h,n);
       cache[n.get_profile().get_key()].add(h);

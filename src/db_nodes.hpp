@@ -33,14 +33,15 @@ namespace wot {
 // need to get objects of NodeBase.
 class DbNodes : public ReadonlyDb<Hash,NodeBase> {
 private:
-  // Database implementation of internal json node objects
+  // Database of internal json node objects
   DiskDb db;
 
-  // Database implementation of original input, useful for verification of hash
+  // Database of original input nodes, useful for verification of hash
   DiskDb orig_db;
 
   // Remember the current nodes (aka nodes not outdated by other nodes)
-  mutable DiskHashSet current;
+  // Index of "current" subset is id-circle
+  mutable DiskHashSetWithIndex current;
   mutable bool current_needs_update;
 
   // Evaluate if the node is current, without using the current index
@@ -65,13 +66,12 @@ public:
   // This means that we can use MemoryHashSet.
   // Maybe in the future, we can initialize current_needs_update to false,
   // provided that we trust that the database is not corrupted.
-  DbNodes() : db(), orig_db("orig"), current("cur"),
-    on_needs_update(true), current_needs_update(true) {
-    update_cache();
+  DbNodes() : db(), orig_db("orig"), current("cur","curpk"),
+    on_needs_update(true), current_needs_update(false) {
   }
-  ~DbNodes() { current.reset(); };
+  ~DbNodes() { };
 
-  const DiskHashSet & get_current() const {
+  const DiskHashSetWithIndex & get_current_set() const {
     if(current_needs_update) update_cache();
     return current;
   }
@@ -84,14 +84,14 @@ public:
     const std::string & h
   ) const;
 
-  // add a node to the local database
+  // add a node to the local database without filter checking
   bool add(
     const Hash & filename,
     const OrigString & orig,
     const JsonString & json
   );
 
-  // add a node to the local database
+  // add a node to the local database without filter checking
   inline bool add(const Node & n) {
     Hash filename = n.get_signature().get_hash();
     return( add(filename, n.get_in(), n.get_json()) );
@@ -99,12 +99,15 @@ public:
 
   // add a node to the local database
   // Apply filters: if node is not ok with all filters, it will not be added
+  // The node is supposed to pass verify first, and then add.
   inline bool add(const Node & n, vm_t vm) {
     if(!n.check_filters(vm)) return false;
     return( add(n) );
   }
 
   bool get(const Hash & k, NodeBase & n) const;
+  // Existence of key-circle should be checked in advance
+  void get_current(const std::string & key_circle, NodeBase & n) const;
 
   // Interface of ReadonlyDb
   std::set<std::string> keys() const override;
@@ -113,7 +116,13 @@ public:
   NodeBase get(const Hash &) const override {return NodeBase(); };
 
   bool rm(const Hash & h) override {
+    NodeBase n;
+    if( !get(h,n) ) return false;
+
     orig_db.rm(h);
+    current.reset();
+
+    // A previous hash can come back as current
     current_needs_update = true;
     on_needs_update = true;
     return db.rm(h);

@@ -89,4 +89,58 @@ public:
   }
 };
 
+class DiskHashSetWithIndex : public HashSet<std::string> {
+private:
+  DiskDb db;
+  DiskDb index_db;
+
+  // Since we are writing on the same directory of nodes, we cannot use the
+  // default "" database.
+  DiskHashSetWithIndex() {}
+public:
+  DiskHashSetWithIndex(std::string name, std::string index_name)
+    : db(name), index_db(index_name) {}
+  ~DiskHashSetWithIndex() {}
+
+  bool contains(const std::string & h) const override {
+    return db.contains(h);
+  }
+  bool index_contains(const std::string & k) const {
+    return index_db.contains(k);
+  }
+
+  bool add(const std::string & h) override {
+    throw(std::logic_error("Index needed"));
+  }
+
+  bool add(const std::string & k, const std::string & h) {
+    if(contains(h)) return false;
+    if(index_db.contains(k)) {
+      std::string old_hash;
+      index_db.get(k,old_hash);
+      if(!db.rm(old_hash)) throw(std::runtime_error("File error"));
+    }
+    if(!db.add(h,"1")) throw(std::runtime_error("File error"));
+    if(!index_db.add(k,h)) throw(std::runtime_error("File error"));
+    return true;
+  }
+
+  const std::set<std::string> get() const override {
+    return db.keys();
+  }
+  // Existence of key in index should be checked before of calling this
+  const std::string get_by_index(std::string k) const {
+    return index_db.get(k);
+  }
+
+  void reset() {
+    for(auto & h : db.keys()) {
+      db.rm(h);
+    }
+    for(auto & k : index_db.keys()) {
+      index_db.rm(k);
+    }
+  }
+};
+
 } // namespace wot
