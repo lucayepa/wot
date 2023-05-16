@@ -107,7 +107,6 @@ namespace wot {
     const std::string & content
   ) {
     std::ofstream f;
-    LOG << "Writing to " << filename;
     try {
       f.open(filename);
       f << content;
@@ -188,7 +187,7 @@ namespace wot {
   void DiskDb::keys(std::set<std::string> & result) const {
     std::regex is_my_db;
     if(get_database_name() == "") {
-      // if contains dot is not in the default db
+      // if the name contains a dot, it is not in the default db
       is_my_db = R"(^[^.]*$)";
     } else {
       is_my_db = R"(\.)" + get_database_name() + "$";

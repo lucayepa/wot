@@ -27,7 +27,7 @@ COMMAND_START(LsNodesCommand)
 )")
 
   bool act(const vm_t & vm) const override {
-    DbNodes().list_nodes(vm);
+    DbNodes().list_nodes(std::cout, vm);
     return true;
   }
 COMMAND_END()

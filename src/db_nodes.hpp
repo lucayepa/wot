@@ -144,7 +144,7 @@ public:
 
   void print_list() const {
     const vm_t vm{};
-    list_nodes(vm);
+    list_nodes(std::cout, vm);
   };
 
   // list all the nodes in the database that match filters defined in vm
@@ -155,14 +155,14 @@ public:
   // means that soon or later we'll need a function `export_all` that gives a
   // file that contains information to verify the nodes. Until that moment, a
   // tar.gz of the directory ~/.local/share/wot will be ok
-  inline void list_nodes(const vm_t & vm) const {
+  inline void list_nodes(std::ostream & os, const vm_t & vm) const {
     if(vm.count("jsonl")) {
       visit([this](std::string h){print(h);}, vm);
     } else {
       visit(
-        [this](std::string h){
-          Node n2 = fetch_node(h);
-          n2.print_node_summary(/*with_links=*/false);
+        [this,&os](std::string h){
+          Node n = fetch_node(h);
+          n.print_node_summary(os, /*with_links=*/false);
         }, vm
       );
     }

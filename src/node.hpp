@@ -3,8 +3,8 @@
 // (siging, hashing, ...)
 #pragma once
 
+#include <iostream>
 #include <string>
-#include <fstream>
 
 #include <boost/program_options.hpp>
 
@@ -46,7 +46,7 @@ public:
   std::string to_j(const bool withsig) const;
   std::string get_json() const { return to_j(/*withsig=*/true); }
 
-  void print_node_summary(bool with_links) const;
+  void print_node_summary(std::ostream & os, bool with_links) const;
 
   std::string primary_key() const {
     return get_profile().get_key() +

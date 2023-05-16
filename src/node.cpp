@@ -150,13 +150,13 @@ std::ostream & operator<<( std::ostream & os, const NodeBase & n) {
     };
   }
 
-  void NodeBase::print_node_summary(bool with_links) const {
-    std::cout << get_signature().get_hash() << std::endl;
-    std::cout << " " << get_profile().get_name() <<
+  void NodeBase::print_node_summary(std::ostream & os, bool with_links) const {
+    os << get_signature().get_hash() <<
+      " " << get_profile().get_name() <<
       " (" << get_profile().get_key() <<"."<< get_circle() << ")" << std::endl;
     if(not with_links) return;
     for(const auto & link : get_trust()) {
-      std::cout << link;
+      os << link;
     }
   }
 
@@ -317,10 +317,10 @@ std::ostream & operator<<( std::ostream & os, const NodeBase & n) {
     } else {
       LOG << "Verify hash...";
       if(hash_calc() != get_signature().get_hash()) {
-         LOG << " Wrong hash";
+         LOG << " ...wrong hash";
          return false;
       }
-      LOG << " Hash is ok";
+      LOG << " ...hash is ok";
     }
 
     if(vm.count("force-accept-sig")) {
