@@ -1,6 +1,7 @@
 #include <identity.hpp>
 
 #include <algo.hpp>
+#include <nlohmann/json.hpp>
 
 namespace wot {
 
@@ -13,10 +14,21 @@ bool Identity::is_well_formed() const {
 
 void Identity::get_profiles(std::vector<Profile> & profiles) const {
   if(!nodes_ok) throw(std::logic_error(""));
+  // Use a set of JSON strings to enforce uniqueness
+  std::set<std::string> json_set;
+  auto dbn = DbNodes();
   for(const auto & h : nodes.get()) {
     NodeBase n;
-    DbNodes().get(h,n);
-    profiles.push_back(n.get_profile());
+    dbn.get(h,n);
+    nlohmann::json json;
+    wot_qt::to_json(json, n.get_profile());
+    json_set.insert(json.dump());
+  }
+  for(const auto & jsons : json_set) {
+    auto json = nlohmann::json::parse(jsons);
+    Profile p;
+    wot_qt::from_json(json, p);
+    profiles.push_back(p);
   }
 }
 
@@ -37,20 +49,22 @@ std::ostream & operator<<( std::ostream & os, const Identity & i) {
 
   os << " Nodes:\n" << i.nodes;
 
+  os << " Profiles:\n";
+
   std::vector<Profile> profiles;
   i.get_profiles(profiles);
+
   int j = 1;
   for(auto const & p : profiles) {
-    os << " Profile #" << std::to_string(j++) <<
-      ": Name: " <<  p.get_name() << "\n";
+    os << " #" << std::to_string(j++) << p;
   }
+
+  os << " Links:\n";
 
   std::vector<Link> links = i.get_trust();
   j = 1;
   for(auto const & l : links) {
-    os << " Link #" << std::to_string(j++) << ": " <<
-    " To: " << l.get_to() <<
-    " Value: " << std::to_string(l.get_value()) << "\n";
+    os << " #" << std::to_string(j++) << ": " << l;
   }
   return os;
 }

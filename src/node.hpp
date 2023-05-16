@@ -55,8 +55,9 @@ public:
   }
 };
 
-std::ostream & operator<<( std::ostream & os, const NodeBase & n);
-std::ostream & operator<<( std::ostream & os, const Link & l);
+std::ostream & operator<<( std::ostream & os, const NodeBase &);
+std::ostream & operator<<( std::ostream & os, const Link &);
+std::ostream & operator<<( std::ostream & os, const Profile &);
 
 // It contains the input as a string, because some functions need the input. The
 // input is held in a string and is the original form needed to calculate hash

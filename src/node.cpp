@@ -43,6 +43,11 @@ std::ostream & operator<<( std::ostream & os, const Link & l) {
   return os;
 }
 
+std::ostream & operator<<( std::ostream & os, const Profile & p) {
+  os << p.get_name() << std::endl;
+  return os;
+}
+
   NodeBase::NodeBase(const std::string & jsons){
     try {
       auto j = nlohmann::json::parse(jsons);
