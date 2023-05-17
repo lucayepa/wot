@@ -47,7 +47,7 @@ private:
   // This is not in config file. It is the main command name of the program.
   std::string command;
 
-  std::map<std::string, Filter*> filters;
+  std::map<std::string, Filter<NodeBase>*> filters;
 
   // Store the vm here, so anyone can see it through this singleton
   boost::program_options::variables_map vm;

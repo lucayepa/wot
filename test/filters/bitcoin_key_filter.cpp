@@ -16,7 +16,7 @@ BOOST_AUTO_TEST_CASE(check) {
 
   BOOST_CHECK(Config::get().load());
 
-  Filter* f = Config::get().get_filters()["BitcoinKeyFilter"];
+  Filter<NodeBase>* f = Config::get().get_filters()["BitcoinKeyFilter"];
 
   std::string s;
   BOOST_CHECK(DiskDb::generic_read_file("../node1s.toml",s));

@@ -6,7 +6,7 @@
 #define FILTER_START(FILTER_NAME) \
   namespace { \
      using namespace wot; \
-     struct FILTER_NAME : public wot::Filter { \
+     struct FILTER_NAME : public wot::Filter<NodeBase> { \
     FILTER_NAME() { \
       Config::get().add_filter(this); \
     } \
@@ -31,6 +31,7 @@
 namespace wot {
 
 // Base class for node filters
+template <class T = NodeBase>
 struct Filter {
   virtual ~Filter() {}
   virtual std::string name() const = 0;
@@ -45,14 +46,14 @@ struct Filter {
   //
   // If the filter does not override the right function, then it is considered
   // a logic error. So these functions throw a default error.
-  virtual bool check(const NodeBase & n) const {
+  virtual bool check(const T & n) const {
     return wrong_args();
   };
-  virtual bool check(const NodeBase & n, const std::string & arg) const {
+  virtual bool check(const T & n, const std::string & arg) const {
     return wrong_args();
   };
   virtual bool check(
-    const NodeBase & n,
+    const T & n,
     const std::vector<std::string> & arg
   ) const {
     return wrong_args();
