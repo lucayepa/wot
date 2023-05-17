@@ -22,7 +22,25 @@ BOOST_AUTO_TEST_CASE(check) {
   BOOST_CHECK(DiskDb::generic_read_file("../node1s.toml",s));
   Node n(s);
 
-  BOOST_CHECK(f->check(n, "bc1qvhg867v620d7vtg4e5qnuh5py8esqhs65w0r4c"));
+  std::vector<std::string> v {
+    "bc1qvhg867v620d7vtg4e5qnuh5py8esqhs65w0r4c",
+    "12c6DSiU4Rq3P4ZxziKxzrL5LmMBrzjrJX"
+  };
+
+  BOOST_CHECK(f->check(n, v));
+  v = {
+    "bc1qvhg867v620d7vtg4e5qnuh5py8esqhs65w0r4c"
+  };
+  BOOST_CHECK(f->check(n, v));
+  v = {
+    "wrong-key"
+  };
+  BOOST_CHECK(!f->check(n, v));
+  v = {
+    "12c6DSiU4Rq3P4ZxziKxzrL5LmMBrzjrJX",
+    "wrong-key"
+  };
+  BOOST_CHECK(!f->check(n, v));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

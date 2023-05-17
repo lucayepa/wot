@@ -39,6 +39,12 @@ struct Filter {
 
   virtual int tokens() const { return 1; }
 
+  // One of these functions is called based on the number of tokens returned by
+  // the function tokens(). The same number is used by boost program options to
+  // accept the arguments on the command line.
+  //
+  // If the filter does not override the right function, then it is considered
+  // a logic error. So these functions throw a default error.
   virtual bool check(const NodeBase & n) const {
     return wrong_args();
   };
@@ -52,8 +58,10 @@ struct Filter {
     return wrong_args();
   };
 
+  // When the caller is using the CLI, boost options should check and this
+  // will not be used. In case of library call, it is a logic error.
   bool wrong_args() const {
-    throw( std::runtime_error("Wrong args: " + cli_option()) );
+    throw( std::logic_error("Wrong args: " + cli_option()) );
     return false;
   };
 
