@@ -9,7 +9,7 @@ FILTER_START(GrepFilter)
       f["HashFilter"]->check(n,arg) ||
       f["FromFilter"]->check(n,arg) ||
       f["ToFilter"]->check(n,arg) ||
-      f["RuleFilter"]->check(n,arg)
+      f["OnFilter"]->check(n,arg)
     );
   }
 FILTER_END()
