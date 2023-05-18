@@ -40,7 +40,7 @@ of the file is:
   inline void act_no_ui(std::string & out) const {
     // scan filters and output as options
     out = header;
-    auto filters = Config::get().get_filters();
+    auto filters = Config::get().get_filters<NodeBase>();
     for(const auto & [k, f] : filters) {
       out += "# " + f->desc() + "\n";
       out += "# \n";

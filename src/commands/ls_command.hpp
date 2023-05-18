@@ -12,15 +12,12 @@ COMMAND_START(LsCommand)
     "wot [FILTERS ...] ls"
   )
   COMMAND_DESCRIPTION(R"(
-  List of the identities, filtered with the filters provided.
+  List of the identities, filtered with the identity filters provided. Links are
+  shown if they match the link filters provided.
 )")
 
   bool act(const vm_t & vm) const override {
-    std::set<std::string> identities;
-    GraphView().keys(identities);
-    for(auto const & i : identities) {
-      std::cout << i << std::endl;
-    }
+    std::cout << GraphView(vm);
     return true;
   }
 COMMAND_END()

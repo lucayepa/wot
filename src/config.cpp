@@ -33,14 +33,17 @@ bool Config::load(const std::string & file) {
   if (init_done) return true;
 
   if(file == std::string()) {
-    std::filesystem::path abs_dir = DiskDb().home_dir() / (std::filesystem::path)DEFAULT_DIR;
+    std::filesystem::path abs_dir =
+      DiskDb().home_dir() / (std::filesystem::path)DEFAULT_DIR;
     abs_file = DiskDb().home_dir() / default_config_file;
 
-    DiskDb::generic_check_or_write_file_with_interaction(abs_dir, abs_file, default_content);
+    DiskDb::generic_check_or_write_file_with_interaction(
+      abs_dir, abs_file, default_content);
   } else {
     abs_file = file;
     if(!DiskDb::generic_file_exists(file)) {
-      std::cerr << "Requested config file " << file << " does not exist" << std::endl;
+      std::cerr << "Requested config file " << file << " does not exist" <<
+        std::endl;
       return false;
     }
   }
@@ -82,6 +85,26 @@ bool Config::get_input(std::string & s) {
   } catch(...) {
     return false;
   }
+}
+
+template<> void Config::add_filter(Filter<NodeBase> * f) {
+  node_filters[f->name()] = f;
+}
+template<> const Filter<NodeBase> * Config::get_filter(std::string name) {
+  return node_filters[name];
+}
+template<> FilterMap<NodeBase> & Config::get_filters() {
+  return node_filters;
+}
+
+template<> void Config::add_filter(Filter<Link> * f) {
+  link_filters[f->name()] = f;
+}
+template<> const Filter<Link> * Config::get_filter(std::string name) {
+  return link_filters[name];
+}
+template<> FilterMap<Link> & Config::get_filters() {
+  return link_filters;
 }
 
 } // namespace wot

@@ -23,6 +23,7 @@ BOOST_AUTO_TEST_CASE(check) {
   Node n(s);
 
   BOOST_CHECK(f->check(n, n.get_signature().get_hash()));
+  BOOST_CHECK(!f->check(n, "info-not-present-in-record" ));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

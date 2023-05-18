@@ -3,8 +3,8 @@
 namespace wot {
 
 // CamelCase to filter-name-cli-option style
-template<>
-std::string Filter<>::cli_option() const {
+template<class T>
+std::string Filter<T>::cli_option() const {
   const std::string filter_name = name();
   std::string out;
   out.push_back(tolower(filter_name[0]));
@@ -20,5 +20,6 @@ std::string Filter<>::cli_option() const {
 };
 
 template class Filter<NodeBase>;
+template class Filter<Link>;
 
 } // namespace wot

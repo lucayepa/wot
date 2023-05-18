@@ -14,6 +14,9 @@ namespace{
   // Default config directory RELATIVE TO HOME directory
   constexpr auto DEFAULT_DIR = ".config/wot";
   constexpr auto DEFAULT_FILE = "config.toml";
+
+  template<class T>
+  using FilterMap = std::map< std::string, wot::Filter<T>* >;
 } // namespace
 
 namespace wot {
@@ -47,7 +50,8 @@ private:
   // This is not in config file. It is the main command name of the program.
   std::string command;
 
-  std::map<std::string, Filter<NodeBase>*> filters;
+  FilterMap<NodeBase> node_filters;
+  FilterMap<Link> link_filters;
 
   // Store the vm here, so anyone can see it through this singleton
   boost::program_options::variables_map vm;
@@ -71,9 +75,9 @@ public:
 
   toml::table config;
 
-  void add_filter(Filter * f) { filters[f->name()] = f; }
-  const Filter * get_filter(std::string name) { return filters[name]; }
-  std::map<std::string, Filter*> & get_filters() { return filters; }
+  template<class T = NodeBase> void add_filter(Filter<T> * f);
+  template<class T = NodeBase> const Filter<T> * get_filter(std::string name);
+  template<class T = NodeBase> FilterMap<T> & get_filters();
 
   const std::string & get_command() const { return command; }
   void set_command(const std::string & c) { this->command = c; }
@@ -84,7 +88,8 @@ public:
   const boost::program_options::variables_map & get_vm() const { return vm; }
   void set_vm(const boost::program_options::variables_map & v) { vm = v; }
 
-  inline static std::string default_config_file = (std::string)DEFAULT_DIR+"/"+DEFAULT_FILE;
+  inline static std::string default_config_file =
+    (std::string)DEFAULT_DIR + "/" + DEFAULT_FILE;
 
   const std::filesystem::path & get_abs_file() const { return abs_file; };
 

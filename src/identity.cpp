@@ -1,7 +1,20 @@
 #include <identity.hpp>
 
+#include <iostream>
+#include <node.hpp>
+#include <check_filters.hpp>
 #include <algo.hpp>
 #include <nlohmann/json.hpp>
+
+namespace {
+  void apply_link_filters(const vm_t & vm, std::vector<wot::Link> & trust) {
+    auto it = std::begin(trust);
+    for(const auto l : trust){
+      if(!wot::check_filters(vm, l)) trust.erase(it);
+      it++;
+    }
+  }
+} // namespace
 
 namespace wot {
 
@@ -39,6 +52,7 @@ std::vector<Link> Identity::get_trust() const {
     NodeBase n;
     DbNodes().get(h,n);
     std::vector<Link> & trust = n.get_mutable_trust();
+    apply_link_filters(vm,trust);
     std::move(trust.begin(), trust.end(), std::back_inserter(links));
   }
   return links;
@@ -46,6 +60,10 @@ std::vector<Link> Identity::get_trust() const {
 
 std::ostream & operator<<( std::ostream & os, const Identity & i) {
   os << "Identity key: " << i.get() << "\n";
+
+  // If not properly loaded from a graph, we don't have a logic node, so we
+  // show only the key
+  if(!i.nodes_ok) { return os;}
 
   os << " Nodes:\n" << i.nodes;
 
@@ -56,7 +74,7 @@ std::ostream & operator<<( std::ostream & os, const Identity & i) {
 
   int j = 1;
   for(auto const & p : profiles) {
-    os << " #" << std::to_string(j++) << p;
+    os << " #" << std::to_string(j++) << ": " << p;
   }
 
   os << " Links:\n";

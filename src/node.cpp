@@ -10,6 +10,7 @@
 #include <identity.hpp>
 #include <signature.hpp>
 #include <filter.hpp>
+#include <check_filters.hpp>
 
 #include <boost/log/trivial.hpp>
 #include <boost/log/expressions.hpp>
@@ -340,7 +341,7 @@ std::ostream & operator<<( std::ostream & os, const NodeBase & n) {
       LOG << "Primary key accepted because of force-no-db-check option";
       return true;
     }
-    auto f = Config::get().get_filters();
+    auto f = Config::get().get_filters<NodeBase>();
     bool d = f["NewSerialFilter"]->check(*this);
     LOG << "Primary key " << get_profile().get_key() << "."
       << get_circle() << "." << get_serial() << " is " <<
@@ -372,36 +373,7 @@ If you want to accept the node, please re-run the program, adding the option:
   }
 
 bool NodeBase::check_filters(const vm_t & vm) const {
-  // All the filters are evaluated using "and" mode
-  auto filters = Config::get().get_filters();
-  for(const auto & [k, f] : filters) {
-    const std::string cli_option = f->cli_option();
-    if( !vm.count(cli_option) ) continue;
-    const std::string name = f->name();
-    bool res;
-    switch(f->tokens()) {
-      case 1: {
-        const auto arg = vm[cli_option].as<std::string>();
-        res = f->check(*this,arg);
-        break;
-      }
-      case 0:
-        res = f->check(*this);
-        break;
-      default: {
-        const auto arg_v = & vm[cli_option].as<std::vector<std::string>>();
-        res = f->check(*this,*arg_v);
-      }
-    }
-    if( res ) {
-      LOG << name << " passed";
-      continue;
-    } else {
-      LOG << name << " NOT passed";
-      return false;
-    }
-  }
-  return true;
+  return wot::check_filters(vm,*this);
 }
 
 } // namespace wot

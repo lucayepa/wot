@@ -1,7 +1,7 @@
 #include <filter.hpp>
 
-FILTER_START(ToFilter)
-  FILTER_DESC("to filter")
+FILTER_START(ContainsToFilter)
+  FILTER_DESC("node contains at least one link to a certain key")
   FILTER_TOKENS(2)
   FILTER_LONG_DESC(
     "check if there is at least one link that has a field `to` equal to arg. "

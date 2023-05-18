@@ -12,6 +12,15 @@
     } \
     std::string name() const override { return STRINGIFY( FILTER_NAME ); }
 
+#define FILTER_LINK_START(FILTER_NAME) \
+  namespace { \
+     using namespace wot; \
+     struct FILTER_NAME : public wot::Filter<Link> { \
+    FILTER_NAME() { \
+      Config::get().add_filter(this); \
+    } \
+    std::string name() const override { return STRINGIFY( FILTER_NAME ); }
+
 #define FILTER_END() } _; \
   } // namespace
 
@@ -62,7 +71,7 @@ struct Filter {
   // When the caller is using the CLI, boost options should check and this
   // will not be used. In case of library call, it is a logic error.
   bool wrong_args() const {
-    throw( std::logic_error("Wrong args: " + cli_option()) );
+    throw( std::logic_error("Wrong number of args: " + cli_option()) );
     return false;
   };
 

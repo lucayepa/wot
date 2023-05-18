@@ -11,6 +11,37 @@
 #include <config.hpp>
 #include <commands.hpp>
 
+namespace {
+
+template<class T>
+void add_filters_to_option_description(
+  boost::program_options::options_description & options
+) {
+  namespace po = boost::program_options;
+  auto filters = wot::Config::get().get_filters<T>();
+  for(const auto & [k, f] : filters) {
+    const auto name = f->cli_option();
+    const auto desc = f->desc();
+    switch(f->tokens()) {
+      case 1:
+        options.add_options()
+          ( name.c_str(), po::value<std::string>(), desc.c_str() );
+        break;
+      case 0:
+        options.add_options()
+          ( name.c_str(), desc.c_str() );
+        break;
+      default:
+        using multi_t = std::vector<std::string>;
+        options.add_options()
+          ( name.c_str(), po::value<multi_t>()->multitoken(), desc.c_str() );
+    }
+  }
+
+}
+
+} //namespace
+
 int main(int argc, char *argv[]) {
 
   namespace po = boost::program_options;
@@ -51,28 +82,17 @@ int main(int argc, char *argv[]) {
   po::options_description cmdline_options;
   cmdline_options.add(desc);
 
-  po::options_description filter_options("Filters (use with add or ls-nodes)");
-  auto filters = Config::get().get_filters();
-  for(const auto & [k, f] : filters) {
-    const auto name = f->cli_option();
-    const auto desc = f->desc();
-    switch(f->tokens()) {
-      case 1:
-        filter_options.add_options()
-          ( name.c_str(), po::value<std::string>(), desc.c_str() );
-        break;
-      case 0:
-        filter_options.add_options()
-          ( name.c_str(), desc.c_str() );
-        break;
-      default:
-        using multi_t = std::vector<std::string>;
-        filter_options.add_options()
-          ( name.c_str(), po::value<multi_t>()->multitoken(), desc.c_str() );
-    }
-  }
+  po::options_description node_filter_options(
+    "Node filters (use with add, ls-nodes or ls)"
+  );
+  add_filters_to_option_description<NodeBase>(node_filter_options);
+  cmdline_options.add(node_filter_options);
 
-  cmdline_options.add(filter_options);
+  po::options_description link_filter_options(
+    "Link filters (use with ls)"
+  );
+  add_filters_to_option_description<Link>(link_filter_options);
+  cmdline_options.add(link_filter_options);
 
   po::positional_options_description positional;
   positional.add("command", 1);

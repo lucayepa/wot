@@ -16,7 +16,7 @@ BOOST_AUTO_TEST_CASE(check) {
 
   BOOST_CHECK(Config::get().load());
 
-  Filter<NodeBase>* f = Config::get().get_filters()["ToFilter"];
+  Filter<NodeBase>* f=Config::get().get_filters<NodeBase>()["ContainsToFilter"];
 
   std::string s;
   BOOST_CHECK(DiskDb::generic_read_file("../node1s.toml",s));
@@ -26,16 +26,18 @@ BOOST_AUTO_TEST_CASE(check) {
     "bc1qvhg867v620d7vtg4e5qnuh5py8esqhs65w0r4c",
     "12c6DSiU4Rq3P4ZxziKxzrL5LmMBrzjrJX"
   };
-
   BOOST_CHECK(f->check(n, v));
+
   v = {
     "bc1qvhg867v620d7vtg4e5qnuh5py8esqhs65w0r4c"
   };
   BOOST_CHECK(f->check(n, v));
+
   v = {
     "wrong-key"
   };
   BOOST_CHECK(!f->check(n, v));
+
   v = {
     "12c6DSiU4Rq3P4ZxziKxzrL5LmMBrzjrJX",
     "wrong-key"
