@@ -10,10 +10,9 @@ FILTER_START(ContainsToFilter)
   )
 
   bool has_link(const NodeBase & n, const std::string & to) const {
+    auto f = Config::get().get_filters<Link>()["ToFilter"];
     for(const auto & link : n.get_trust()) {
-      if(link.get_to() == to) {
-        return true;
-      }
+      if(f->check(link,to)) return true;
     }
     return false;
   }
