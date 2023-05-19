@@ -40,6 +40,24 @@ void add_filters_to_option_description(
 
 }
 
+void set_verbose(bool on) {
+  using boost::log::core;
+  using boost::log::attribute_value_set;
+  namespace trivial = boost::log::trivial;
+  if(on) {
+    auto filter = [](const attribute_value_set& attr_set) {
+      return true;
+    };
+    core::get()->set_filter( filter );
+  } else {
+    auto filter = [](const attribute_value_set& attr_set) {
+      return
+        attr_set["Severity"].extract<trivial::severity_level>() > trivial::info;
+    };
+    core::get()->set_filter( filter );
+  }
+}
+
 } //namespace
 
 int main(int argc, char *argv[]) {
@@ -52,7 +70,8 @@ int main(int argc, char *argv[]) {
   Config::get().set_command(command);
 
   const std::string config_help =
-    "Alternate config file location (default is HOME_DIR/" + Config::default_config_file + ")";
+    "Alternate config file location (default is HOME_DIR/" +
+      Config::default_config_file + ")";
 
   const std::string options_help =
     "Options file. See `help template-options-file`";
@@ -68,15 +87,19 @@ int main(int argc, char *argv[]) {
     ("force-accept-hash", "Accept node hash, without verification")
     ("force-accept-sig", "Accept signature on node, without verification")
     ("force-no-db-check", "Do not use internal database to verify the object")
-    ("json-output", "Output a JSON object (if the command is sign-toml, the signature remains the TOML one) (sign-toml, view)")
+    ("json-output", "Output a JSON object (if the command is sign-toml, the "
+      "signature remains the TOML one) (sign-toml, view)")
     ("jsonl", "Export the matched nodes as json lines (ls-nodes)")
-    ("signature", po::value< std::string >(), "Signature to be added to the local db as a known signatures (add-sig)")
+    ("signature", po::value< std::string >(), "Signature to be added to the "
+      "local db as a known signatures (add-sig)")
     ("input-file,I", po::value< std::string >(), "input file")
-    ("algo", po::value< std::string >(), "alorithm for identities (i.e. bitcoin)")
+    ("algo", po::value< std::string >(), "alorithm to use for identities (i.e. "
+      "bitcoin)")
     ("signer", po::value< std::string >(), "signer helper (i.e. electrum)")
     ("verifier", po::value< std::string >(), "verifier helper (i.e. electrum)")
-    ("command", "Command to execute (can even be positional after all the options)")
-    ("param", "Argument of the command (can even be positional after command)")
+    ("command", "Command to execute (can also be the first positional argument")
+    ("param", "Argument of the command (can also be the second positional "
+      "argument)")
   ;
 
   po::options_description cmdline_options;
@@ -123,12 +146,7 @@ int main(int argc, char *argv[]) {
 
   // Check verbose right now, so we can use LOG in Config.load
   if (!vm.count("verbose")) {
-    using namespace boost::log;
-    core::get()->set_filter(
-      [](const attribute_value_set& attr_set) {
-        return attr_set["Severity"].extract<trivial::severity_level>() > trivial::info;
-      }
-    );
+    set_verbose(false);
   }
 
   // Parse the configuration file
@@ -146,28 +164,19 @@ int main(int argc, char *argv[]) {
   };
 
   if(vm.count("options")) {
-    po::store(parse_config_file(vm["options"].as<std::string>().c_str(), desc), vm);
+    po::store(
+      parse_config_file(vm["options"].as<std::string>().c_str(), desc),
+      vm
+    );
   }
 
   Config::get().set_vm(vm);
 
-  if (vm.count("verbose")) {
-    using namespace boost::log;
-    core::get()->set_filter(
-      [](const attribute_value_set& attr_set) {
-        return true;
-      }
-    );
-  } else {
-    using namespace boost::log;
-    core::get()->set_filter(
-      [](const attribute_value_set& attr_set) {
-        return attr_set["Severity"].extract<trivial::severity_level>() > trivial::info;
-      }
-    );
-  }
+  set_verbose(vm.count("verbose"));
 
-  if (!vm.count("command")) { vm.emplace("command",po::variable_value((std::string)"help", true)); }
+  if (!vm.count("command")) {
+    vm.emplace("command",po::variable_value((std::string)"help", true));
+  }
 
   for(const auto & c : Commands().all) {
     if (vm["command"].as<std::string>() == c->get_cli()) {
