@@ -25,34 +25,58 @@ R"(# Web of trust options file
 )";
 
 } // namespace
+
 COMMAND_START(TemplateOptionsFileCommand)
   COMMAND_CLI("template-options-file")
   COMMAND_SHORT_DESCRIPTION("Print a template options file")
   COMMAND_DESCRIPTION(R"(
-Generate a template of file with all the possible command line options. Any
-option is set to the default value and is commented.
+Generate a template of file with all the possible command line options. All the
+options are set to the default value and are commented.
 
 The idea is that the user can save the file and modify it. Then it can be
 used as input of the option "--options FILE". The header
 of the file is:
 )" + header)
 
-  inline void act_no_ui(std::string & out) const {
-    // scan filters and output as options
-    out = header;
-    auto filters = Config::get().get_filters<NodeBase>();
+  template<class T>
+  void print_filters(std::ostream & os) const {
+    auto filters = Config::get().get_filters<T>();
     for(const auto & [k, f] : filters) {
-      out += "# " + f->desc() + "\n";
-      out += "# \n";
-      out += "# " + f->long_desc() + "\n";
-      out += "#" + f->cli_option() + R"( = "arg")" + "\n\n";
+      os << "# " + f->desc() + "\n"
+         << "# \n"
+         << "# " + f->long_desc() + "\n";
+      switch(f->tokens()) {
+        case 1:
+          os << "#" + f->cli_option() + R"( = "arg")" + "\n";
+          break;
+        case 0:
+          os << "#" + f->cli_option() + "\n";
+          break;
+        default:
+          os << "#" + f->cli_option() + R"( = "arg1")" + "\n";
+          os << "#" + f->cli_option() + R"( = "arg2")" + "\n";
+      }
+      os << "\n";
     }
   }
 
+  void print_content(std::ostream & os) const {
+    // scan filters and output as options
+    os << header;
+
+    os << "######\n";
+    os << "# Node filters (use with add, ls-nodes or ls)\n";
+    os << "######\n";
+    print_filters<NodeBase>(os);
+
+    os << "######\n";
+    os << "# Link filters (use with ls)\n";
+    os << "######\n";
+    print_filters<Link>(os);
+  }
+
   bool act(const boost::program_options::variables_map & vm) const override {
-    std::string out;
-    act_no_ui(out);
-    std::cout << out;
+    print_content(std::cout);
     return true;
   }
 

@@ -55,7 +55,7 @@ int main(int argc, char *argv[]) {
     "Alternate config file location (default is HOME_DIR/" + Config::default_config_file + ")";
 
   const std::string options_help =
-    "Options file. See `help template_options_file`";
+    "Options file. See `help template-options-file`";
 
   // Declare the supported options.
   std::string usage = "Usage: wot [OPTIONS] command [parameter]";
