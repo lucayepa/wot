@@ -53,12 +53,6 @@ BOOST_AUTO_TEST_CASE(test_config_3) {
 }
 */
 
-BOOST_AUTO_TEST_CASE(test_config_5) {
-  std::string command = "some_command_name";
-  c.set_command(command);
-  BOOST_CHECK_EQUAL(c.get_command(), command);
-}
-
 // Next call to get doesn't do anything, but gives true
 BOOST_AUTO_TEST_CASE(test_config_6) {
   BOOST_TEST_MESSAGE("Calling twice get does nothing and returns true");

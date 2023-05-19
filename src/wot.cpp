@@ -66,8 +66,8 @@ int main(int argc, char *argv[]) {
 
   using namespace wot;
 
-  std::string command = argv[0];
-  Config::get().set_command(command);
+  Config::get().set_argc(argc);
+  Config::get().set_argv(argv);
 
   const std::string config_help =
     "Alternate config file location (default is HOME_DIR/" +

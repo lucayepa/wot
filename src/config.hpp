@@ -47,8 +47,8 @@ private:
   // Absolute path of the config file in use
   std::filesystem::path abs_file;
 
-  // This is not in config file. It is the main command name of the program.
-  std::string command;
+  int argc;
+  char** argv;
 
   FilterMap<NodeBase> node_filters;
   FilterMap<Link> link_filters;
@@ -79,8 +79,17 @@ public:
   template<class T = NodeBase> const Filter<T> * get_filter(std::string name);
   template<class T = NodeBase> FilterMap<T> & get_filters();
 
-  const std::string & get_command() const { return command; }
-  void set_command(const std::string & c) { this->command = c; }
+  std::string get_command() const {
+    if(argv == nullptr) return "wot";
+    std::string s = argv[0];
+    return s;
+  }
+
+  void set_argc(int a) { this->argc = a; }
+  void set_argv(char* a[]) { this->argv = a; }
+  int get_argc() const { return argc; }
+  char** get_argv() const { return argv; }
+
   std::shared_ptr<Signer> get_signer();
   std::shared_ptr<Verifier> get_verifier();
   const std::vector<std::string> & get_algos() { return algos; };
