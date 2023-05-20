@@ -13,33 +13,6 @@
 
 namespace {
 
-template<class T>
-void add_filters_to_option_description(
-  boost::program_options::options_description & options
-) {
-  namespace po = boost::program_options;
-  auto filters = wot::Config::get().get_filters<T>();
-  for(const auto & [k, f] : filters) {
-    const auto name = f->cli_option();
-    const auto desc = f->desc();
-    switch(f->tokens()) {
-      case 1:
-        options.add_options()
-          ( name.c_str(), po::value<std::string>(), desc.c_str() );
-        break;
-      case 0:
-        options.add_options()
-          ( name.c_str(), desc.c_str() );
-        break;
-      default:
-        using multi_t = std::vector<std::string>;
-        options.add_options()
-          ( name.c_str(), po::value<multi_t>()->multitoken(), desc.c_str() );
-    }
-  }
-
-}
-
 void set_verbose(bool on) {
   using boost::log::core;
   using boost::log::attribute_value_set;
@@ -78,7 +51,7 @@ int main(int argc, char *argv[]) {
 
   // Declare the supported options.
   std::string usage = "Usage: wot [OPTIONS] command [parameter]";
-  po::options_description desc("Options");
+  po::options_description desc("General options");
   desc.add_options()
     ("help,h", "help message")
     ("verbose,v", "verbose output")
@@ -106,17 +79,7 @@ int main(int argc, char *argv[]) {
   po::options_description cmdline_options;
   cmdline_options.add(desc);
 
-  po::options_description node_filter_options(
-    "Node filters (use with add, ls-nodes or ls)"
-  );
-  add_filters_to_option_description<NodeBase>(node_filter_options);
-  cmdline_options.add(node_filter_options);
-
-  po::options_description link_filter_options(
-    "Link filters (use with ls)"
-  );
-  add_filters_to_option_description<Link>(link_filter_options);
-  cmdline_options.add(link_filter_options);
+  cmdline_options.add(Config::get().get_filters_description());
 
   po::positional_options_description positional;
   positional.add("command", 1);

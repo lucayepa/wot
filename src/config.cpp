@@ -9,6 +9,35 @@
 #include <electrum.hpp>
 #include <disk_db.hpp>
 
+using od = boost::program_options::options_description;
+
+namespace {
+
+template<class T>
+void add_filters_to_option_description( od & options ) {
+  namespace po = boost::program_options;
+  for(const auto & [k, f] : wot::Config::get().get_filters<T>()) {
+    const auto name = f->cli_option();
+    const auto desc = f->desc();
+    switch(f->tokens()) {
+      case 1:
+        options.add_options()
+          ( name.c_str(), po::value<std::string>(), desc.c_str() );
+        break;
+      case 0:
+        options.add_options()
+          ( name.c_str(), desc.c_str() );
+        break;
+      default:
+        using multi_t = std::vector<std::string>;
+        options.add_options()
+          ( name.c_str(), po::value<multi_t>()->multitoken(), desc.c_str() );
+    }
+  }
+}
+
+} //namespace
+
 namespace wot {
 
 std::shared_ptr<Signer> Config::get_signer() {
@@ -105,6 +134,25 @@ template<> const Filter<Link> * Config::get_filter(std::string name) {
 }
 template<> FilterMap<Link> & Config::get_filters() {
   return link_filters;
+}
+
+od Config::get_filters_description() const {
+
+  od node_filter_options(
+    "Node filters (use with add, ls-nodes or ls)"
+  );
+  add_filters_to_option_description<NodeBase>(node_filter_options);
+
+  od link_filter_options(
+    "Link filters (use with ls)"
+  );
+  add_filters_to_option_description<Link>(link_filter_options);
+
+  od res;
+  res.add(node_filter_options);
+  res.add(link_filter_options);
+
+  return res;
 }
 
 } // namespace wot

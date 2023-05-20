@@ -39,6 +39,8 @@ verifier = "electrum"
 } // namespace
 
 class Config {
+typedef boost::program_options::variables_map vm_t;
+
 private:
   // Singleton
   Config() = default;
@@ -54,7 +56,7 @@ private:
   FilterMap<Link> link_filters;
 
   // Store the vm here, so anyone can see it through this singleton
-  boost::program_options::variables_map vm;
+  vm_t vm;
 
   std::shared_ptr<Signer> signer;
   std::shared_ptr<Verifier> verifier;
@@ -79,6 +81,8 @@ public:
   template<class T = NodeBase> const Filter<T> * get_filter(std::string name);
   template<class T = NodeBase> FilterMap<T> & get_filters();
 
+  boost::program_options::options_description get_filters_description() const;
+
   std::string get_command() const {
     if(argv == nullptr) return "wot";
     std::string s = argv[0];
@@ -94,8 +98,8 @@ public:
   std::shared_ptr<Verifier> get_verifier();
   const std::vector<std::string> & get_algos() { return algos; };
 
-  const boost::program_options::variables_map & get_vm() const { return vm; }
-  void set_vm(const boost::program_options::variables_map & v) { vm = v; }
+  const vm_t & get_vm() const { return vm; }
+  void set_vm(const vm_t & v) { vm = v; }
 
   inline static std::string default_config_file =
     (std::string)DEFAULT_DIR + "/" + DEFAULT_FILE;
