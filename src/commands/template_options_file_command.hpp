@@ -10,13 +10,17 @@
 namespace {
 
 static std::string header =
-R"(# Web of trust options file
+R"(# Web of trust filters options file
 
-# This file contains the same options of the command line.
+# This file contains the filter options that can appear on command line.
 # If an option is used both here and on the command line, the latter prevails.
-# In the file, every option is set to its default argument and is commented.
+# In this file, every option is set to its default argument and is commented.
 # Feel free to uncomment some lines, change the arguments, and save the file.
-# The file can be loaded with the command line option "--options FILE".
+# Then, the file can be loaded with the command line option "--options FILE".
+
+# This format can also be used to define a new badge, by launching the follwing
+# line:
+# `wot --file <name_of_this_file> badge <badgename>`
 
 ### FILTERS
 # The filters are considered in a "AND" relationship. This means that a node
@@ -28,13 +32,13 @@ R"(# Web of trust options file
 
 COMMAND_START(TemplateOptionsFileCommand)
   COMMAND_CLI("template-options-file")
-  COMMAND_SHORT_DESCRIPTION("Print a template options file")
+  COMMAND_SHORT_DESCRIPTION("Print a template filters options file")
   COMMAND_DESCRIPTION(R"(
-Generate a template of file with all the possible command line options. All the
-options are set to the default value and are commented.
+Generate a template of file with all the possible filter command line options.
+All the options are set to the default value and are commented.
 
 The idea is that the user can save the file and modify it. Then it can be
-used as input of the option "--options FILE". The header
+used as input of the option "--options <file>", or "--file <file>". The header
 of the file is:
 )" + header)
 

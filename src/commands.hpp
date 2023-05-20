@@ -21,6 +21,7 @@
 #include "commands/template_options_file_command.hpp"
 #include "commands/compose_command.hpp"
 #include "commands/hash_object_command.hpp"
+#include "commands/badge_command.hpp"
 
 namespace wot {
 
@@ -45,6 +46,7 @@ struct Commands {
     all.push_back(std::make_unique<ComposeCommand>());
     all.push_back(std::make_unique<HashObjectCommand>());
     all.push_back(std::make_unique<ShowCommand>());
+    all.push_back(std::make_unique<BadgeCommand>());
   }
 };
 
