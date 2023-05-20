@@ -97,9 +97,10 @@ int main(int argc, char *argv[]) {
       "bitcoin)")
     ("signer", po::value< std::string >(), "signer helper (i.e. electrum)")
     ("verifier", po::value< std::string >(), "verifier helper (i.e. electrum)")
-    ("command", "Command to execute (can also be the first positional argument")
-    ("param", "Argument of the command (can also be the second positional "
-      "argument)")
+    ("command", po::value< std::string >(),
+      "Command to execute (can also be the first positional argument")
+    ("param", po::value< std::string >(),
+      "Argument of the command (can also be the second positional argument)")
   ;
 
   po::options_description cmdline_options;
