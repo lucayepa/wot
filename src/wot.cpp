@@ -165,10 +165,8 @@ int main(int argc, char *argv[]) {
   };
 
   if(vm.count("options")) {
-    po::store(
-      parse_config_file(vm["options"].as<std::string>().c_str(), desc),
-      vm
-    );
+    auto filename = vm["options"].as<std::string>();
+    po::store(parse_config_file(filename.c_str(), cmdline_options),vm);
   }
 
   Config::get().set_vm(vm);
