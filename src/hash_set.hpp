@@ -18,8 +18,11 @@ public:
   // If value does not exists, add it and return true.
   // Otherwise return false.
   virtual bool add(const T &) = 0;
+  bool insert(const T & e) { return add(e); }
 
   virtual const std::set<T> get() const = 0;
+
+  bool empty() const { return get().empty(); }
 };
 
 std::ostream & operator<<( std::ostream &, const HashSet<std::string> & );
