@@ -38,4 +38,17 @@ bool check_filters(const vm_t & vm, const T & target) {
   return true;
 }
 
+// This function is slightly different, because it removes from the vector the
+// links that do not match the link filters provided
+void apply_filters(
+  const vm_t & vm,
+  std::vector<wot::Link> & trust
+) {
+  auto it = std::begin(trust);
+  for(const auto l : trust){
+    if(!wot::check_filters(vm, l)) trust.erase(it);
+    it++;
+  }
+}
+
 } // namespace wot

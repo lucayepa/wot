@@ -6,16 +6,6 @@
 #include <algo.hpp>
 #include <nlohmann/json.hpp>
 
-namespace {
-  void apply_link_filters(const vm_t & vm, std::vector<wot::Link> & trust) {
-    auto it = std::begin(trust);
-    for(const auto l : trust){
-      if(!wot::check_filters(vm, l)) trust.erase(it);
-      it++;
-    }
-  }
-} // namespace
-
 namespace wot {
 
 bool Identity::is_well_formed() const {
@@ -26,7 +16,7 @@ bool Identity::is_well_formed() const {
 };
 
 void Identity::get_profiles(std::vector<Profile> & profiles) const {
-  if(!nodes_ok) throw(std::logic_error(""));
+  if(shallow) throw(std::logic_error("No profiles for a shallow identity"));
   // Use a set of JSON strings to enforce uniqueness
   std::set<std::string> json_set;
   auto dbn = DbNodes();
@@ -46,24 +36,24 @@ void Identity::get_profiles(std::vector<Profile> & profiles) const {
 }
 
 std::vector<Link> Identity::get_trust() const {
-  if(!nodes_ok) throw(std::logic_error(""));
+  if(shallow) throw(std::logic_error("A shallow identity has no trust vector"));
   std::vector<Link> links;
   for(const auto & h : nodes.get()) {
     NodeBase n;
     DbNodes().get(h,n);
     std::vector<Link> & trust = n.get_mutable_trust();
-    apply_link_filters(vm,trust);
+    apply_filters(vm,trust);
     std::move(trust.begin(), trust.end(), std::back_inserter(links));
   }
   return links;
 }
 
 std::ostream & operator<<( std::ostream & os, const Identity & i) {
-  os << "Identity key: " << i.get() << "\n";
+  os << "Identity: " << i.get() << (i.shallow ? " (shallow)" : "") << "\n";
 
   // If not properly loaded from a graph, we don't have a logic node, so we
   // show only the key
-  if(!i.nodes_ok) { return os;}
+  if(i.shallow) { return os;}
 
   os << " Nodes:\n" << i.nodes;
 
