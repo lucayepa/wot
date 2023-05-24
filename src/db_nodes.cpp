@@ -4,11 +4,11 @@
 #include <regex>
 #include <functional>
 
-#include <boost/program_options.hpp>
-
 #include <boost/log/trivial.hpp>
 #include <boost/log/expressions.hpp>
 #define LOG BOOST_LOG_TRIVIAL(info)
+
+#include <vm_t.hpp>
 
 namespace {
   void primary_key_violation_in_db(

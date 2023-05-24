@@ -6,17 +6,14 @@
 #include <iostream>
 #include <string>
 
-#include <boost/program_options.hpp>
-
 #include <nlohmann/json.hpp>
 
 #include <toml.hpp>
 
 #include <node_qt.hpp>
+#include <vm_t.hpp>
 
 namespace wot {
-
-typedef boost::program_options::variables_map vm_t;
 
 using wot_qt::Profile, wot_qt::Link;
 

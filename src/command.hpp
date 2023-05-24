@@ -18,12 +18,9 @@
 
 #include <string>
 
-#include <boost/program_options.hpp>
+#include <vm_t.hpp>
 
 namespace wot {
-
-namespace po = boost::program_options;
-typedef po::variables_map vm_t;
 
 // Abstract base class for commands
 struct Command {

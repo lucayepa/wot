@@ -6,10 +6,10 @@
 #include <boost/log/core.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/log/expressions.hpp>
-#include <boost/program_options.hpp>
 
 #include <config.hpp>
 #include <commands.hpp>
+#include <vm_t.hpp>
 
 namespace {
 

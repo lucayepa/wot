@@ -2,13 +2,12 @@
 #pragma once
 #include <filesystem>
 
-#include <boost/program_options.hpp>
-
 #include <toml.hpp>
 
 #include <interfaces/verifier.hpp>
 #include <interfaces/signer.hpp>
 #include <filter.hpp>
+#include <vm_t.hpp>
 
 namespace{
   // Default config directory RELATIVE TO HOME directory
