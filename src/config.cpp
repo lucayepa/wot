@@ -139,12 +139,12 @@ template<> FilterMap<Link> & Config::get_filters() {
 od Config::get_filters_description() const {
 
   od node_filter_options(
-    "Node filters (use with add, ls-nodes or ls)"
+    "Node filters (use with add, ls-nodes, ls or badge)"
   );
   add_filters_to_option_description<NodeBase>(node_filter_options);
 
   od link_filter_options(
-    "Link filters (use with ls)"
+    "Link filters (use with ls or badge)"
   );
   add_filters_to_option_description<Link>(link_filter_options);
 

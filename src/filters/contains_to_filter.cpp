@@ -5,8 +5,8 @@ FILTER_START(ContainsToFilter)
   FILTER_TOKENS(2)
   FILTER_LONG_DESC(
     "check if there is at least one link that has a field `to` equal to arg. "
-    "This filter can be used more than once. In this case the nodes having at "
-    "least one link to every key pass the filter"
+    "This filter can be used more than once. In this case the nodes pass the "
+    "filter if they have at least one link to every key"
   )
 
   bool has_link(const NodeBase & n, const std::string & to) const {

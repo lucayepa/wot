@@ -33,13 +33,19 @@
 #define FILTER_TOKENS(x) int tokens() const override { \
   return x; \
 }
+#define FILTER_NEEDS_CONTEXT(x) bool needs_context() const override { \
+  return x; \
+}
 
 #include <string>
+
 #include <node.hpp>
 
 namespace wot {
 
-// Base class for node filters
+class GraphView;
+
+// Base class for filters
 template <class T = NodeBase>
 struct Filter {
   virtual ~Filter() {}
@@ -48,6 +54,7 @@ struct Filter {
   virtual std::string long_desc() const = 0;
 
   virtual int tokens() const { return 1; }
+  virtual bool needs_context() const { return false; }
 
   // One of these functions is called based on the number of tokens returned by
   // the function tokens(). The same number is used by boost program options to
@@ -55,23 +62,53 @@ struct Filter {
   //
   // If the filter does not override the right function, then it is considered
   // a logic error. So these functions throw a default error.
-  virtual bool check(const T & n) const {
-    return wrong_args();
+  virtual bool check(
+    const T & n,
+    const GraphView* context
+  ) const {
+    if(context == nullptr) return check(n);
+    return wrong_args(1);
   };
-  virtual bool check(const T & n, const std::string & arg) const {
-    return wrong_args();
+  virtual bool check(
+    const T & n,
+    const std::string & arg,
+    const GraphView* context
+  ) const {
+    if(context == nullptr) return check(n,arg);
+    return wrong_args(2);
+  };
+  virtual bool check(
+    const T & n,
+    const std::vector<std::string> & arg,
+    const GraphView* context
+  ) const {
+    if(context == nullptr) return check(n,arg);
+    return wrong_args(3);
+  };
+
+  virtual bool check(
+    const T & n
+  ) const {
+    return wrong_args(4);
+  };
+  virtual bool check(
+    const T & n,
+    const std::string & arg
+  ) const {
+    return wrong_args(5);
   };
   virtual bool check(
     const T & n,
     const std::vector<std::string> & arg
   ) const {
-    return wrong_args();
+    return wrong_args(6);
   };
 
   // When the caller is using the CLI, boost options should check and this
   // will not be used. In case of library call, it is a logic error.
-  bool wrong_args() const {
-    throw( std::logic_error("Wrong number of args: " + cli_option()) );
+  bool wrong_args(int caller) const {
+    throw( std::logic_error((std::string)"Wrong number of args in " +
+      std::to_string(caller) + ": " + cli_option()) );
     return false;
   };
 
