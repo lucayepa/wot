@@ -209,4 +209,10 @@ namespace wot {
     }
   }
 
+std::string DiskDb::abs_filename(const std::string & k) const {
+  std::string rel_filename = k + (get_ext() == "" ? "" : "." + get_ext());
+  std::string abs = DiskDb().get_dir() / rel_filename;
+  return abs;
+}
+
 } // namespace wot

@@ -56,4 +56,16 @@ BOOST_AUTO_TEST_CASE(ReadonlyDbInterface) {
   BOOST_CHECK(DiskDb("test").rm(key));
 }
 
+BOOST_AUTO_TEST_CASE(AbsFilename) {
+  std::string key("KEY");
+  std::string value("VALUE");
+  DiskDb("test").add(key, value);
+
+  BOOST_CHECK(
+    DiskDb("test").abs_filename(key) == DiskDb().get_dir()/"KEY.test"
+  );
+
+  BOOST_CHECK(DiskDb("test").rm(key));
+}
+
 BOOST_AUTO_TEST_SUITE_END()

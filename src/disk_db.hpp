@@ -89,6 +89,11 @@ public:
   std::set<std::string> keys() const override;
   void print(const std::string & hash) const;
 
+  // Return the absolute filename of a certain key. This is useful to read the
+  // file directly from other libraries that will not use our interface
+  // The existence of the key should be checked beforehand.
+  std::string abs_filename(const std::string & k) const;
+
   void print_list() const;
 };
 
