@@ -66,6 +66,7 @@ int main(int argc, char *argv[]) {
     ("signature", po::value< std::string >(), "Signature to be added to the "
       "local db as a known signatures (add-sig)")
     ("input-file,I", po::value< std::string >(), "input file")
+    ("all-identities", "also consider identities without a node in db")
     ("algo", po::value< std::string >(), "alorithm to use for identities (i.e. "
       "bitcoin)")
     ("signer", po::value< std::string >(), "signer helper (i.e. electrum)")
