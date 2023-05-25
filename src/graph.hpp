@@ -91,13 +91,12 @@ public:
 
   ~GraphView() {};
 
-  // Apply filters does not actually apply anything. It links filters with an
-  // identity. Then a call to get_trust() or get_profiles() of the identity,
-  // will apply the filters.
+  // Filters are binded to the identity, but they are not applied. A call to
+  // get_trust() or get_profiles() of the identity, will apply the filters.
   Identity get(const IdentityKey & i) const override {
     auto res = Identity(i);
     res.set_nodes(cache.at(i));
-    res.apply_filters(vm);
+    res.bind_filters(vm);
     return res;
   }
 

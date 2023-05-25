@@ -59,8 +59,12 @@ bool check_filters(
   return true;
 }
 
-// This function is slightly different, because it removes from the vector the
-// links that do not match the link filters provided
+} // namespace wot
+
+namespace {
+
+// This function is slightly different, because it acts on a vector, by
+// removing the links that do not match the link filters provided in vm
 void apply_filters(
   const vm_t & vm,
   std::vector<wot::Link> & trust
@@ -72,4 +76,4 @@ void apply_filters(
   }
 }
 
-} // namespace wot
+} // namespace

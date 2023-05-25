@@ -52,7 +52,7 @@ public:
   //
   // On the other side, if there is a lot of get() calls for the same identity,
   // this method will be very slow.
-  void apply_filters(const vm_t & v) { vm = v; }
+  void bind_filters(const vm_t & v) { vm = v; }
 
   // Return true if the identity key is "well formed", based on the algo
   // defined in the general config file
