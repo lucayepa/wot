@@ -8,21 +8,21 @@
 
 #include <electrum.hpp>
 #include <disk_db.hpp>
+#include <vm_t.hpp>
 
-using od = boost::program_options::options_description;
+using od = wot::po::options_description;
 
 namespace {
 
 template<class T>
 void add_filters_to_option_description( od & options ) {
-  namespace po = boost::program_options;
   for(const auto & [k, f] : wot::Config::get().get_filters<T>()) {
     const auto name = f->cli_option();
     const auto desc = f->desc();
     switch(f->tokens()) {
       case 1:
         options.add_options()
-          ( name.c_str(), po::value<std::string>(), desc.c_str() );
+          ( name.c_str(), wot::po::value<std::string>(), desc.c_str() );
         break;
       case 0:
         options.add_options()
@@ -31,7 +31,7 @@ void add_filters_to_option_description( od & options ) {
       default:
         using multi_t = std::vector<std::string>;
         options.add_options()
-          ( name.c_str(), po::value<multi_t>()->multitoken(), desc.c_str() );
+          ( name.c_str(), wot::po::value<multi_t>()->multitoken(), desc.c_str() );
     }
   }
 }
@@ -148,9 +148,17 @@ od Config::get_filters_description() const {
   );
   add_filters_to_option_description<Link>(link_filter_options);
 
+  od additional_options("Additional options (ls, badge)");
+  additional_options.add_options()(
+    "all-identities",
+    po::bool_switch(),
+    "also consider identities without a node in db (ls, badge)"
+  );
+
   od res;
   res.add(node_filter_options);
   res.add(link_filter_options);
+  res.add(additional_options);
 
   return res;
 }

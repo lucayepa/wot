@@ -80,7 +80,7 @@ public:
   template<class T = NodeBase> const Filter<T> * get_filter(std::string name);
   template<class T = NodeBase> FilterMap<T> & get_filters();
 
-  boost::program_options::options_description get_filters_description() const;
+  po::options_description get_filters_description() const;
 
   std::string get_command() const {
     if(argv == nullptr) return "wot";

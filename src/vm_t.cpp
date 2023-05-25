@@ -23,6 +23,10 @@ std::string to_string( const vm_t & vm ) {
       auto v = vm[k].as<int>();
       s += k + " = " + std::to_string(v) + "\n";
     } catch(...) { }
+    try {
+      auto b = vm[k].as<bool>();
+      s += k + " = " + std::to_string(b) + "\n";
+    } catch(...) { }
   }
   return s;
 }
