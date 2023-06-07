@@ -21,5 +21,6 @@ std::string Filter<T>::cli_option() const {
 
 template class Filter<NodeBase>;
 template class Filter<Link>;
+template class Filter<Identity>;
 
 } // namespace wot

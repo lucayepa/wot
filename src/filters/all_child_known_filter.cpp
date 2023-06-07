@@ -4,14 +4,14 @@
 
 #include <graph.hpp>
 
-FILTER_START(AllChildKnownFilter)
-  FILTER_DESC("every linked identity is present with a node in internal db")
-  FILTER_LONG_DESC("check if all the keys linked from this node are present in our database")
+FILTER_IDENTITY_START(AllChildKnownFilter)
+  FILTER_DESC("every linked identity has at least one node in internal db")
+  FILTER_LONG_DESC("check if all the keys linked from this node are present in "
+    "our database")
   FILTER_TOKENS(0)
-  FILTER_NEEDS_CONTEXT(true)
-  bool check(const NodeBase & n, const GraphView* gv) const override {
-    for(auto const & child : n.get_trust()) {
-      if(!gv->contains(child.get_to())) {
+  bool check(const Identity & i) const override {
+    for(auto const & child : i.get_trust()) {
+      if(!i.get_context()->contains(child.get_to())) {
         return false;
       }
     }

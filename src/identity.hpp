@@ -8,6 +8,8 @@
 
 namespace wot {
 
+class GraphView;
+
 // There are multiple node objects related to a single identity, because there
 // can be multiple circles for each identity key, and multiple serials for each
 // circle. On top of that, every node contains information on one of the
@@ -25,6 +27,8 @@ private:
 
   vm_t vm;
 
+  const GraphView * context = nullptr;
+
 public:
   Identity(std::string s) : identity_key(s), shallow(true) {};
   Identity(const NodeBase & n) : identity_key(n.get_profile().get_key()),
@@ -39,6 +43,9 @@ public:
       shallow = false;
     }
   }
+
+  void set_context(const GraphView* gv) { context = gv; }
+  const GraphView* get_context() const { return context; }
 
   // Apply (identity) and link filters to the identity. The node filters are
   // skipped, because they are already enforced at node level (the

@@ -8,7 +8,7 @@
 
 #include <electrum.hpp>
 #include <disk_db.hpp>
-#include <vm_t.hpp>
+#include <identity.hpp>
 
 using od = wot::po::options_description;
 
@@ -136,6 +136,16 @@ template<> FilterMap<Link> & Config::get_filters() {
   return link_filters;
 }
 
+template<> void Config::add_filter(Filter<Identity> * f) {
+  identity_filters[f->name()] = f;
+}
+template<> const Filter<Identity> * Config::get_filter(std::string name) {
+  return identity_filters[name];
+}
+template<> FilterMap<Identity> & Config::get_filters() {
+  return identity_filters;
+}
+
 od Config::get_filters_description() const {
 
   od node_filter_options(
@@ -148,6 +158,11 @@ od Config::get_filters_description() const {
   );
   add_filters_to_option_description<Link>(link_filter_options);
 
+  od identity_filter_options(
+    "Identity filters (use with ls or badge)"
+  );
+  add_filters_to_option_description<Identity>(identity_filter_options);
+
   od additional_options("Additional options (ls, badge)");
   additional_options.add_options()(
     "all-identities",
@@ -158,6 +173,7 @@ od Config::get_filters_description() const {
   od res;
   res.add(node_filter_options);
   res.add(link_filter_options);
+  res.add(identity_filter_options);
   res.add(additional_options);
 
   return res;

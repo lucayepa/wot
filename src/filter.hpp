@@ -3,23 +3,24 @@
 #define STRINGIFY_(x) #x
 #define STRINGIFY(x) STRINGIFY_(x)
 
+#define CTOR_AND_NAME(FILTER_NAME) \
+  FILTER_NAME() { Config::get().add_filter(this); } \
+  std::string name() const override { return STRINGIFY( FILTER_NAME ); }
+
 #define FILTER_START(FILTER_NAME) \
-  namespace { \
-     using namespace wot; \
-     struct FILTER_NAME : public wot::Filter<NodeBase> { \
-    FILTER_NAME() { \
-      Config::get().add_filter(this); \
-    } \
-    std::string name() const override { return STRINGIFY( FILTER_NAME ); }
+  namespace { using namespace wot; \
+  struct FILTER_NAME : public wot::Filter<NodeBase> { \
+    CTOR_AND_NAME(FILTER_NAME)
 
 #define FILTER_LINK_START(FILTER_NAME) \
-  namespace { \
-     using namespace wot; \
-     struct FILTER_NAME : public wot::Filter<Link> { \
-    FILTER_NAME() { \
-      Config::get().add_filter(this); \
-    } \
-    std::string name() const override { return STRINGIFY( FILTER_NAME ); }
+  namespace { using namespace wot; \
+  struct FILTER_NAME : public wot::Filter<Link> { \
+    CTOR_AND_NAME(FILTER_NAME)
+
+#define FILTER_IDENTITY_START(FILTER_NAME) \
+  namespace { using namespace wot; \
+  struct FILTER_NAME : public wot::Filter<Identity> { \
+    CTOR_AND_NAME(FILTER_NAME)
 
 #define FILTER_END() } _; \
   } // namespace
@@ -31,9 +32,6 @@
   return x; \
 }
 #define FILTER_TOKENS(x) int tokens() const override { \
-  return x; \
-}
-#define FILTER_NEEDS_CONTEXT(x) bool needs_context() const override { \
   return x; \
 }
 
@@ -62,30 +60,6 @@ struct Filter {
   //
   // If the filter does not override the right function, then it is considered
   // a logic error. So these functions throw a default error.
-  virtual bool check(
-    const T & n,
-    const GraphView* context
-  ) const {
-    if(context == nullptr) return check(n);
-    return wrong_args(1);
-  };
-  virtual bool check(
-    const T & n,
-    const std::string & arg,
-    const GraphView* context
-  ) const {
-    if(context == nullptr) return check(n,arg);
-    return wrong_args(2);
-  };
-  virtual bool check(
-    const T & n,
-    const std::vector<std::string> & arg,
-    const GraphView* context
-  ) const {
-    if(context == nullptr) return check(n,arg);
-    return wrong_args(3);
-  };
-
   virtual bool check(
     const T & n
   ) const {

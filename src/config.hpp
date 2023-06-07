@@ -1,4 +1,3 @@
-// Read the configuration file
 #pragma once
 #include <filesystem>
 
@@ -8,6 +7,7 @@
 #include <interfaces/signer.hpp>
 #include <filter.hpp>
 #include <vm_t.hpp>
+#include <identity.hpp>
 
 namespace{
   // Default config directory RELATIVE TO HOME directory
@@ -53,6 +53,7 @@ private:
 
   FilterMap<NodeBase> node_filters;
   FilterMap<Link> link_filters;
+  FilterMap<Identity> identity_filters;
 
   // Store the vm here, so anyone can see it through this singleton
   vm_t vm;

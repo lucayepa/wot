@@ -10,8 +10,7 @@ template<class T>
 bool check_single_filter(
   const Filter<T>* f,
   const vm_t & vm,
-  const T & target,
-  const GraphView * context = nullptr
+  const T & target
 ) {
   const std::string name = f->name();
   const std::string cli_option = f->cli_option();
@@ -19,15 +18,15 @@ bool check_single_filter(
   switch(f->tokens()) {
     case 1: {
       const auto arg = vm[cli_option].as<std::string>();
-      res = f->check(target,arg,context);
+      res = f->check(target,arg);
       break;
     }
     case 0:
-      res = f->check(target,context);
+      res = f->check(target);
       break;
     default: {
       const auto arg_v = & vm[cli_option].as<std::vector<std::string>>();
-      res = f->check(target,*arg_v,context);
+      res = f->check(target,*arg_v);
     }
   }
 
@@ -43,18 +42,13 @@ bool check_single_filter(
 template<class T>
 bool check_filters(
   const vm_t & vm,
-  const T & target,
-  const GraphView * context = nullptr
+  const T & target
 ) {
   // All the filters are evaluated using "and" mode
   auto filters = Config::get().get_filters<T>();
   for(const auto & [_, f] : filters) {
-    // This function will be called twice, with or without context. We need
-    // to use the right set of filters.
-    if (context == nullptr && f->needs_context()) continue;
-    if (context != nullptr && !f->needs_context()) continue;
     if( !vm.count(f->cli_option()) ) continue;
-    if( !check_single_filter(f, vm, target, context) ) return false;
+    if( !check_single_filter(f, vm, target) ) return false;
   }
   return true;
 }
