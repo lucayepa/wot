@@ -54,29 +54,13 @@ private:
 
   void stage(IdentityKey k) const { staged.insert(k); }
 
-  // Completes the graph with identities known only by links. Since we
-  // do not have any node of these identities, they will be listed in keys,
-  // but hashset value will be empty. Thus, get() will return a shallow identity
-  // containing just the key an not the nodes related to it.
-  void complete_graph(const NodeBase & n) const {
-    for(const auto & l : n.get_trust()) {
-      // No link filters used here. All the links enter the key_index. Then
-      // Identity.get_profiles() and Identity.get_trust() will use them.
-      auto to = l.get_to();
-      // Add a key with an empty value if we have a "to" of a "link" and we
-      // don't have alread a key
-      if(key_index.count(to)) continue;
-      key_index[to] = MemoryHashSet();
-    }
-  }
-
   void init();
 
   // Assign a badge
   //
   // A new GraphView is created with the vm gathered from the file of the badge.
-  // The identities that are in the new GraphView just created are the ones that
-  // have the badge.
+  // The identities that are staged in the new GraphView just created are the
+  // ones that should have the badge.
   void colorize( const std::string & badge ) const {
     bool already_colorized = colors.count(badge);
     // No check on the state of db. If called twice with different state of
@@ -84,30 +68,31 @@ private:
     if(already_colorized) return;
 
     po::options_description od = Config::get().get_filters_description();
-    // Grab the badge from internal db
+    // Read the badge from internal db
     if(!DiskDb("badge").contains(badge))
       throw(std::runtime_error("Badge unknown: " + badge));
     std::string filename = DiskDb("badge").abs_filename(badge);
     vm_t vm;
     po::store(parse_config_file(filename.c_str(), od), vm);
     auto gv = GraphView(vm);
-    colors[badge] = gv.keys();
+    colors[badge] = gv.staged_keys();
     for (const auto & i : colors[badge]) {
       LOG << "Badge " << badge << " awarded to: " << i;
     }
   }
 
-  using KeySet = std::set<IdentityKey>;
   mutable std::map< std::string, KeySet > colors;
 
 public:
 
   // Constructor with filters.
   //
-  // Node filters are applied at import time (if false, the node does not arrive
-  // to cache)
-  // Link filters are memorized and used on-the-fly by Identity's get function
-  // Identity filters are still not implemented
+  // Three type of filters:
+  // Node filters: applied at import time (if false, the node will not be
+  // included)
+  // Link filters: memorized and used on-the-fly by Identity's get function
+  // Identity filters: applied when we ask details on profiles or trust vector
+  // to an identity
   //
   // This means that some identity can be in the graph, without any link. If we
   // want to avoid this behaviour, we can check link filters at import time and

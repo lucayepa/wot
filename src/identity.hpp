@@ -37,6 +37,7 @@ public:
   ~Identity() = default;
 
   const std::string & get() const { return identity_key; }
+  bool is_shallow() const { return shallow; }
   void set_nodes(const MemoryHashSet & m) {
     if(!m.empty()) {
       nodes = m;
