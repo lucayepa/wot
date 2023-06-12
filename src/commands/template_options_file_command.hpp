@@ -51,14 +51,14 @@ of the file is:
          << "# " + f->long_desc() + "\n";
       switch(f->tokens()) {
         case 1:
-          os << "#" + f->cli_option() + R"( = "arg")" + "\n";
+          os << "#" + f->cli_option() + R"( = arg)" + "\n";
           break;
         case 0:
-          os << "#" + f->cli_option() + "\n";
+          os << "#" + f->cli_option() + " =\n";
           break;
         default:
-          os << "#" + f->cli_option() + R"( = "arg1")" + "\n";
-          os << "#" + f->cli_option() + R"( = "arg2")" + "\n";
+          os << "#" + f->cli_option() + R"( = arg1)" + "\n";
+          os << "#" + f->cli_option() + R"( = arg2)" + "\n";
       }
       os << "\n";
     }
