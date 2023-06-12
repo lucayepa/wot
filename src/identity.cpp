@@ -6,7 +6,50 @@
 #include <algo.hpp>
 #include <nlohmann/json.hpp>
 
+#include <graph.hpp>
+
 namespace wot {
+
+int Identity::earliest_link() const {
+  if(shallow) return INT_MAX;
+  int min = INT_MAX; // This assumes that "since" is signed
+  for(auto const & link : get_trust()) {
+    if(link.get_since() < min) {
+      min = link.get_since();
+    }
+  }
+  // Identities without any links will return INT_MAX
+  return min;
+}
+
+int Identity::seen_since() const {
+  if(context == nullptr) throw(std::logic_error("Context not found"));
+
+  int min_received = INT_MAX; // This assumes that "since" is signed
+  for(auto const & [from, link] : backlinks()) {
+    if(link.get_since() < min_received) {
+      min_received = link.get_since();
+    }
+  }
+
+  int min_sent = earliest_link();
+  if(min_received < min_sent) return min_received;
+  return min_sent;
+}
+
+std::vector< std::pair<std::string,Link> > Identity::backlinks() const {
+    std::vector< std::pair<std::string,Link> > result;
+    for(auto const & k : context->keys()) {
+      auto from_identity = context->get(k);
+      for(auto const & link : from_identity.get_trust()) {
+        if(link.get_to() == identity_key) {
+          std::pair<IdentityKey,Link> pair(k,link);
+          result.push_back(pair);
+        }
+      }
+    }
+    return result;
+}
 
 bool Identity::is_well_formed() const {
   for(auto & algo : Algos().in_use) {

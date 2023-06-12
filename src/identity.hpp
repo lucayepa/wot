@@ -29,6 +29,11 @@ private:
 
   const GraphView * context = nullptr;
 
+  std::vector< std::pair<std::string,Link> > backlinks() const;
+
+  // Min of the since fields of the trust vector of the identity
+  int earliest_link() const;
+
 public:
   Identity(std::string s) : identity_key(s), shallow(true) {};
   Identity(const NodeBase & n) : identity_key(n.get_profile().get_key()),
@@ -75,6 +80,15 @@ public:
 
   // Filters are applied on-the-fly
   std::vector<Link> get_trust() const;
+
+  // When the identity has first been seen in the context. This means the min
+  // between:
+  // 1. min of the since fields of trust vector of the identity
+  // 2. min of the since fields of the links that points to this identity
+  //
+  // Link filters should be applied here, so that only acceptable links are
+  // taken in consideration (TODO)
+  int Identity::seen_since() const;
 };
 
 } // namespace wot
